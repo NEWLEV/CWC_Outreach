@@ -84,4 +84,4 @@ function sendWebhookNotification(text) {
   } catch (e) {
     Logger.log("Webhook Failed: " + e.message);
   }
-}
+} 
