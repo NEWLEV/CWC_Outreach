@@ -1,335 +1,138 @@
 /**
-
- * @OnlyCurrentDoc
-
- *
-
- * This script runs the core backend for the Transactional Patient Notification System.
-
- * It handles the onOpen, onFormSubmit, and onEdit triggers, and launches the
-
- * main web application sidebar.
-
- *
-
- * Version: 2.1.0 (Added Admin Sync)
-
+ * !!! IMPORTANT: RUN THIS FUNCTION TO FIX PERMISSIONS !!!
+ * 1. Select 'FIX_PERMISSIONS' from the dropdown menu above.
+ * 2. Click 'Run'.
+ * 3. Accept the permissions to "See/Edit spreadsheets" AND "Connect to external service".
  */
+function FIX_PERMISSIONS() {
+  // 1. Force Sheet Authorization
+  const mailSheetId = "1F8xSwdQgJzS9jUq6X2YoVTlaqP0Ryc24uyTwKisfeNI";
+  const ss = SpreadsheetApp.openById(mailSheetId);
+  Logger.log("✅ Sheet Auth OK: " + ss.getName());
 
-
+  // 2. Force Webhook Authorization (UrlFetchApp)
+  // We fetch a dummy URL just to trigger the scope prompt
+  UrlFetchApp.fetch("https://www.google.com");
+  Logger.log("✅ Webhook Auth OK");
+}
 
 /**
-
- * Creates the custom menu when the spreadsheet is opened.
-
- * This menu is the primary entry point for users.
-
+ * Core backend triggers and initialization.
  */
-
 function onOpen() {
-
-  const ui = SpreadsheetApp.getUi();
-
-  ui.createMenu('CWC Notification App')
-
+  SpreadsheetApp.getUi().createMenu('CWC Notification App')
     .addItem('Open Notification Manager', 'showWebAppSidebar')
-
     .addSeparator()
-
-    .addItem('Archive Processed Records', 'manualArchiveData_UI')
-
-    .addSeparator() // New separator for admin tasks
-
-    .addItem('(Admin) Sync Project Editors', 'runSyncProjectEditors_UI') // New admin function
-
+    .addItem('(Admin) Setup Daily Archive', 'setupDailyArchiveTrigger')
     .addToUi();
-
 }
-
-
-
-/**
-
- * Runs on new Google Form submission.
-
- * Logs the entry and sends a simple *internal* CWC notification.
-
- *
-
- * @param {GoogleAppsScript.Events.Sheets.OnFormSubmit} e The event object.
-
- */
-
-function onFormSubmit(e) {
-
-  if (!e || !e.range) {
-
-    Logger.log('onFormSubmit event was invalid or had no range.');
-
-    return;
-
-  }
-
- 
-
-  try {
-
-    const sheet = e.range.getSheet();
-
-    if (sheet.getName() !== CONFIG.SHEET_NAMES.ACTIVE) {
-
-      return;
-
-    }
-
-   
-
-    Logger.log(`New form submission received on row ${e.range.getRow()}.`);
-
-   
-
-    // Send a simple internal CWC alert
-
-    sendCWCNewEntryAlert(e.range);
-
-   
-
-    // Set the default visual status for a new entry
-
-    const headers = getSheetHeaders(sheet);
-
-    const statusColIndex = headers.indexOf(CONFIG.COLUMNS.WORKFLOW_STATUS.header);
-
-    if (statusColIndex !== -1) {
-
-      const statusCell = sheet.getRange(e.range.getRow(), statusColIndex + 1);
-
-      statusCell.setValue(CONFIG.FLAGS.NEW_ENTRY);
-
-      statusCell.setBackground(CONFIG.COLORS.NEW_ENTRY);
-
-    }
-
-   
-
-  } catch (error) {
-
-    Logger.log(`Error in onFormSubmit: ${error.message}`);
-
-    sendErrorEmail('onFormSubmit', error);
-
-  }
-
-}
-
-
-
-/**
-
- * Runs when a user manually edits any cell.
-
- * If a "critical" column is edited, it flags the row for "Review Required".
-
- *
-
- * @param {GoogleAppsScript.Events.Sheets.OnEdit} e The event object.
-
- */
-
-function onEdit(e) {
-
-  if (!e || !e.range) {
-
-    Logger.log('onEdit event was invalid or had no range.');
-
-    return;
-
-  }
-
-
-
-  const sheet = e.range.getSheet();
-
-  const row = e.range.getRow();
-
-  const column = e.range.getColumn();
-
-
-
-  // Exit if not on the active sheet or if it's the header row
-
-  if (sheet.getName() !== CONFIG.SHEET_NAMES.ACTIVE || row <= 1) {
-
-    return;
-
-  }
-
- 
-
-  // Exit if on a settings or log sheet
-
-  if (sheet.getName() === CONFIG.SHEET_NAMES.SETTINGS || sheet.getName() === CONFIG.SHEET_NAMES.AUDIT_LOG) {
-
-    return;
-
-  }
-
-
-
-  try {
-
-    const headers = getSheetHeaders(sheet);
-
-    const statusColIndex = headers.indexOf(CONFIG.COLUMNS.WORKFLOW_STATUS.header);
-
-    const sentColIndex = headers.indexOf(CONFIG.COLUMNS.NOTIFICATION_SENT.header);
-
-
-
-    // If the edit was to the workflow status column itself, don't do anything
-
-    if (column === statusColIndex + 1) {
-
-      return;
-
-    }
-
-   
-
-    // Check if the edited column is one we are monitoring
-
-    const editedHeader = headers[column - 1];
-
-    const isCriticalColumn = CONFIG.CRITICAL_COLUMNS_TO_WATCH.includes(editedHeader);
-
-
-
-    if (isCriticalColumn) {
-
-      // Get the current status
-
-      const statusCell = sheet.getRange(row, statusColIndex + 1);
-
-      const currentStatus = statusCell.getValue();
-
-      const sentStatus = sheet.getRange(row, sentColIndex + 1).getValue();
-
-     
-
-      // If the notification has NOT been sent and the row is not already
-
-      // marked as "Submitted", flag it for review.
-
-      if (!sentStatus && currentStatus !== CONFIG.FLAGS.SUBMITTED_TO_PHARMACY) {
-
-        statusCell.setValue(CONFIG.FLAGS.REVIEW_REQUIRED);
-
-        statusCell.setBackground(CONFIG.COLORS.REVIEW_REQUIRED);
-
-      }
-
-    }
-
-  } catch (error) {
-
-    Logger.log(`Error in onEdit: ${error.message}`);
-
-  }
-
-}
-
-
-
-/**
-
- * Opens the web app in a sidebar.
-
- */
 
 function showWebAppSidebar() {
-
-  try {
-
-    const html = HtmlService.createTemplateFromFile('WebApp_Client')
-
-      .evaluate()
-
-      .setTitle('CWC Notification Manager');
-
-    SpreadsheetApp.getUi().showSidebar(html);
-
-  } catch (error) {
-
-    Logger.log(`Error showing web app sidebar: ${error.message}`);
-
-    sendErrorEmail('showWebAppSidebar', error);
-
-  }
-
+  const html = HtmlService.createHtmlOutputFromFile('WebApp_Client.html')
+    .setTitle('CWC Notification Manager');
+  SpreadsheetApp.getUi().showSidebar(html);
 }
 
-
-
-/**
-
- * Wrapper function to allow manual archiving from the UI menu.
-
- */
-
-function manualArchiveData_UI() {
-
-  const ui = SpreadsheetApp.getUi();
-
-  try {
-
-    const count = archiveProcessedData();
-
-    ui.alert(`Archiving Complete`, `Successfully archived ${count} processed records.`, ui.ButtonSet.OK);
-
-  } catch (error) {
-
-    Logger.log(`Error during manual archive: ${error.message}`);
-
-    sendErrorEmail('manualArchiveData_UI', error);
-
-    ui.alert('Archive Failed', `An error occurred: ${error.message}`, ui.ButtonSet.OK);
-
+function addOutreachRecord() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    return { error: "System is busy. Please try again." };
   }
 
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
+    const userEmail = Session.getActiveUser().getEmail();
+
+    if (!sheet) throw new Error(`Sheet ${CONFIG.SHEET_NAMES.ACTIVE} not found.`);
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const headerMap = createHeaderMap(headers);
+    const numCols = headers.length;
+
+    const statusIdx = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus];
+    const creatorIdx = headerMap[CONFIG.COLUMNS_BY_NAME.creatorEmail];
+    const tsIdx = headerMap[CONFIG.COLUMNS_BY_NAME.timestamp];
+
+    const newRow = new Array(numCols).fill('');
+    const nextRow = sheet.getLastRow() + 1;
+    
+    if (tsIdx !== undefined) {
+      newRow[tsIdx] = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MM/dd/yyyy HH:mm:ss");
+    }
+
+    if (statusIdx !== undefined) newRow[statusIdx] = CONFIG.FLAGS.NEW_ENTRY;
+
+    if (creatorIdx !== undefined) {
+      newRow[creatorIdx] = userEmail;
+    } else {
+      const fuzzyIdx = headers.findIndex(h => h.toLowerCase().includes('creator') || h.toLowerCase().includes('user'));
+      if (fuzzyIdx > -1) newRow[fuzzyIdx] = userEmail;
+    }
+    sheet.getRange(nextRow, 1, 1, numCols).setValues([newRow]);
+    SpreadsheetApp.flush();
+    
+    const newRecordValues = sheet.getRange(nextRow, 1, 1, numCols).getDisplayValues();
+    const newRecord = getUnifiedPatientData([headers, newRecordValues[0]], headerMap, false, nextRow)[0];
+
+    const allData = sheet.getDataRange().getDisplayValues();
+    const allRecords = getUnifiedPatientData(allData, headerMap, false, 2);
+    const dataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(allRecords)));
+    
+    logToAudit([
+      { row: nextRow, action: 'Create', field: 'Record', oldValue: 'New', newValue: 'Created' }
+    ], userEmail);
+    
+    // REFRESH CACHE
+    const extStatus = fetchExternalStatus(true);
+
+    return {
+      message: 'New record created successfully!',
+      updatedRecord: newRecord,
+      dataHash: dataHash,
+      allRecords: allRecords,
+      externalStatus: extStatus.map
+    };
+  } catch (error) {
+    Logger.log(`Error: ${error.message}`);
+    sendErrorEmail('addOutreachRecord', error);
+    return { error: error.message };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
-
-
-/**
-
- * NEW: UI wrapper for the editor sync function.
-
- * Only the project owner can run this successfully.
-
- */
-
-function runSyncProjectEditors_UI() {
-
-  const ui = SpreadsheetApp.getUi();
-
+function onFormSubmit(e) {
+  if (!e || !e.range) return;
   try {
+    const sheet = e.range.getSheet();
+    if (sheet.getName() !== CONFIG.SHEET_NAMES.ACTIVE) return;
+    const row = e.range.getRow();
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+    const headerMap = createHeaderMap(headers);
+    sendCWCNewEntryAlert(e.range, headers, headerMap);
+    const statusCol = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus];
+    const creatorCol = headerMap[CONFIG.COLUMNS_BY_NAME.creatorEmail];
+    if (statusCol !== undefined) sheet.getRange(row, statusCol + 1).setValue(CONFIG.FLAGS.NEW_ENTRY);
+    if (creatorCol !== undefined && e.namedValues && e.namedValues['Email Address']) {
+      sheet.getRange(row, creatorCol + 1).setValue(e.namedValues['Email Address'][0]);
+    }
+  } catch (error) {
+    sendErrorEmail('onFormSubmit', error);
+  }
+}
 
-    // This function requires advanced Drive API services.
-
-    // Google will ask the user running this to approve those permissions.
-
-    const count = syncProjectEditors();
-
-    ui.alert('Permissions Synced', `Successfully added ${count} new user(s) as editors to the Apps Script project. Other users are already editors.`, ui.ButtonSet.OK);
-
+function setupDailyArchiveTrigger() {
+  const functionName = 'archiveProcessedData';
+  try {
+    ScriptApp.getProjectTriggers().forEach(t => {
+      if (t.getHandlerFunction() === functionName) ScriptApp.deleteTrigger(t);
+    });
+    ScriptApp.newTrigger(functionName)
+      .timeBased().atHour(17).nearMinute(30).everyDays(1)
+      .inTimezone(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone())
+      .create();
+    SpreadsheetApp.getUi().alert('Success: Daily archive set for 5:30 PM.');
   } catch (e) {
-
-    Logger.log(`Error syncing editors: ${e.message}`);
-
-    sendErrorEmail('runSyncProjectEditors_UI', e);
-
-    ui.alert('Sync Failed', `An error occurred: ${e.message}. You must be the project owner to run this.`, ui.ButtonSet.OK);
-
+    SpreadsheetApp.getUi().alert('Error setting trigger: ' + e.message);
   }
-
 }
