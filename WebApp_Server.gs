@@ -1,20 +1,5 @@
 /**
- * @OnlyCurrentDoc
- *
- * This script is the server-side backend for the CWC Outreach Web App.
- * It handles data fetching, role-based access, and all update/notification logic.
- *
- * Version: 5.8 (Added dedicated Role-Based Permissions)
- */
-
-/* ------------------------------------------------------------------
- * Entry Point
- * ------------------------------------------------------------------ */
-
-/**
- * Serves the main HTML file for the web app.
- * This is the only doGet function.
- * @returns {HtmlService.HtmlOutput} The HTML output for the web app.
+ * Server-side backend for Web App interactions.
  */
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('WebApp_Client.html')
@@ -22,668 +7,321 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/**
- * Fetches all initial data needed to build the app UI.
- * This includes records, config, and user role.
- * @returns {Object} An object containing all initial data.
- */
 function getInitialData() {
   try {
-    // 1. Get User Info
     const user = getUserInfo();
-
-    // 2. Get Sheet Data
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const activeSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
     const archiveSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ARCHIVED);
     const settingsSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
-
-    // 3. Get Active Records (Optimized)
+    
     let activeRecords = [];
+    let dataHash = "";
+
     if (activeSheet && activeSheet.getLastRow() > 1) {
-      const activeHeaderRow = activeSheet
-        .getRange(1, 1, 1, activeSheet.getLastColumn())
-        .getDisplayValues()[0];
-      const activeHeaderMap = createHeaderMap(activeHeaderRow);
-
-      // SPEED OPTIMIZATION: Only fetch columns needed for the index.
-      const indexCols = [
-        activeHeaderMap[CONFIG.COLUMNS_BY_NAME.patientName],
-        activeHeaderMap[CONFIG.COLUMNS_BY_NAME.prn],
-        activeHeaderMap[CONFIG.COLUMNS_BY_NAME.workflowStatus],
-      ];
-
-      // This check is in case columns are missing
-      if (indexCols.every(col => col !== undefined)) {
-        const fullData = activeSheet.getDataRange().getDisplayValues();
-        activeRecords = getUnifiedPatientData(fullData, activeHeaderMap, false, 2);
-      } else {
-        Logger.log(
-          'Active sheet is missing required columns (Patient Name, PRN, or Workflow Status).'
-        );
-      }
-    } else {
-      Logger.log(
-        `Active sheet "${CONFIG.SHEET_NAMES.ACTIVE}" not found or is empty.`
-      );
+      const headers = activeSheet.getRange(1, 1, 1, activeSheet.getLastColumn()).getDisplayValues()[0];
+      const headerMap = createHeaderMap(headers);
+      const data = activeSheet.getDataRange().getDisplayValues();
+      activeRecords = getUnifiedPatientData(data, headerMap, false, 2);
+      dataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(activeRecords)));
     }
-
-    // 4. Get Archived Record Index (Optimized)
+    
     let archivedRecords = [];
     if (archiveSheet && archiveSheet.getLastRow() > 1) {
-      const archiveHeaderRow = archiveSheet
-        .getRange(1, 1, 1, archiveSheet.getLastColumn())
-        .getDisplayValues()[0];
-      const archiveHeaderMap = createHeaderMap(archiveHeaderRow);
-
-      // SPEED OPTIMIZATION: Only fetch columns needed for the index.
-      const indexCols = [
-        archiveHeaderMap[CONFIG.COLUMNS_BY_NAME.patientName],
-        archiveHeaderMap[CONFIG.COLUMNS_BY_NAME.prn],
-        archiveHeaderMap[CONFIG.COLUMNS_BY_NAME.workflowStatus],
-      ];
-
-      if (indexCols.every(col => col !== undefined)) {
-        const fullData = archiveSheet.getDataRange().getDisplayValues();
-        // Pass true for indexOnly to speed up loading
-        archivedRecords = getUnifiedPatientData(fullData, archiveHeaderMap, true, 2);
-      } else {
-        Logger.log(
-          'Archive sheet is missing required columns (Patient Name, PRN, or Workflow Status).'
-        );
-      }
-    } else {
-      Logger.log(
-        `Archive sheet "${CONFIG.SHEET_NAMES.ARCHIVED}" not found or is empty.`
-      );
+      const headers = archiveSheet.getRange(1, 1, 1, archiveSheet.getLastColumn()).getDisplayValues()[0];
+      const headerMap = createHeaderMap(headers);
+      const data = archiveSheet.getDataRange().getDisplayValues();
+      archivedRecords = getUnifiedPatientData(data, headerMap, true, 2);
     }
-
-    // 5. Get Dropdown Options from Settings sheet
-    let dropdowns = {
-      pharmacy: [],
-      provider: [],
-      medication: [],
-      status: [],
-      insurance: [],
-      needsScript: [],
-      sex: [],
-    };
-
+    
+    let dropdowns = {};
     if (settingsSheet) {
-      try {
-        dropdowns = {
-          pharmacy: settingsSheet.getRange('C2:C').getDisplayValues().flat().filter(String),
-          provider: settingsSheet.getRange('D2:D').getDisplayValues().flat().filter(String),
-          medication: settingsSheet.getRange('E2:E').getDisplayValues().flat().filter(String),
-          status: settingsSheet.getRange('F2:F').getDisplayValues().flat().filter(String),
-          insurance: settingsSheet.getRange('G2:G').getDisplayValues().flat().filter(String),
-          needsScript: settingsSheet.getRange('H2:H').getDisplayValues().flat().filter(String),
-          sex: settingsSheet.getRange('I2:I').getDisplayValues().flat().filter(String),
-        };
-      } catch (e) {
-        Logger.log(
-          `Warning: Could not read dropdowns from "Settings" sheet. ${e.message}`
-        );
-      }
-    } else {
-      Logger.log(
-        'Warning: "Settings" sheet not found. Skipping dropdown list load.'
-      );
+      dropdowns = {
+        pharmacy: getColData(settingsSheet, 'C'),
+        provider: getColData(settingsSheet, 'D'),
+        medication: getColData(settingsSheet, 'E'),
+        status: getColData(settingsSheet, 'F'),
+        insurance: getColData(settingsSheet, 'G'),
+        needsScript: getColData(settingsSheet, 'H'),
+        sex: getColData(settingsSheet, 'I')
+      };
     }
 
-    // 6. Get App Configuration
-    const appConfig = {
-      flags: CONFIG.FLAGS,
-      columns: CONFIG.COLUMNS_BY_NAME,
-      roles: CONFIG.ROLES,
-      dropdowns: dropdowns,
-    };
+    const chatHistory = getChatHistory();
+    const externalStatusResult = fetchExternalStatus(false); 
 
     return {
       user: user,
       activeRecords: activeRecords,
       archivedRecords: archivedRecords,
-      config: appConfig,
-    };
-  } catch (error) {
-    Logger.log(`Error in getInitialData: ${error.message}`);
-    Logger.log(error.stack);
-    return {
-      error: `Failed to load app data: ${error.message}. Please try refreshing.`,
-    };
-  }
-}
-
-/**
- * Gets the full data for a single archived record.
- * @param {number} rowNum The physical row number of the record in the Archive sheet.
- * @returns {Object} The full patient record object.
- */
-function getFullArchivedRecord(rowNum) {
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const archiveSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ARCHIVED);
-
-    const headerRow = archiveSheet
-      .getRange(1, 1, 1, archiveSheet.getLastColumn())
-      .getDisplayValues()[0];
-    const headerMap = createHeaderMap(headerRow);
-
-    const data = archiveSheet
-      .getRange(rowNum, 1, 1, archiveSheet.getLastColumn())
-      .getDisplayValues();
-
-    // We pass [headerRow, ...data] so getUnifiedPatientData has context
-    const fullRecord = getUnifiedPatientData(
-      [headerRow, ...data],
-      headerMap,
-      false,
-      rowNum
-    );
-
-    return {
-      record: fullRecord[0] || null,
-    };
-  } catch (error) {
-    Logger.log(`Error in getFullArchivedRecord: ${error.message}`);
-    return {
-      error: `Failed to fetch archived record: ${error.message}`,
-    };
-  }
-}
-
-/* ------------------------------------------------------------------
- * User & Role Management
- * ------------------------------------------------------------------ */
-
-/**
- * --- UPDATED ---
- * Gets the current user's email and determines their role(s)
- * by reading the permissions table in the "Settings" sheet (Cols J:K).
- * @returns {Object} An object { email, defaultRole, roles[] }.
- */
-function getUserInfo() {
-  const email = Session.getActiveUser().getEmail().toLowerCase();
-  let roles = [];
-
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const settingsSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
-
-    // Read the permissions table from J2:K
-    const lastRow = settingsSheet.getLastRow();
-    const permissionsData = settingsSheet
-      .getRange(`J2:K${lastRow}`)
-      .getDisplayValues();
-
-    const userRow = permissionsData.find(
-      row => (row[0] || '').toLowerCase().trim() === email
-    );
-
-    if (userRow) {
-      const role = (userRow[1] || '').toUpperCase().trim();
-      if (role === CONFIG.ROLES.CWC) {
-        roles.push(CONFIG.ROLES.CWC);
-      } else if (role === CONFIG.ROLES.PHARMACY) {
-        roles.push(CONFIG.ROLES.PHARMACY);
-      } else if (role === 'BOTH' || role === 'ADMIN') {
-        roles.push(CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY);
+      dataHash: dataHash,
+      chatHistory: chatHistory, 
+      externalStatus: externalStatusResult.map,
+      diagnostics: externalStatusResult.diagnostics,
+      config: {
+        flags: CONFIG.FLAGS,
+        columns: CONFIG.COLUMNS_BY_NAME,
+        roles: CONFIG.ROLES,
+        dropdowns: dropdowns
       }
-    }
+    };
+  } catch (error) {
+    Logger.log(error);
+    return { error: `Load failed: ${error.message}` };
+  }
+}
 
-    // Admin override (always has both roles)
-    if (email === CONFIG.ADMIN_EMAIL.toLowerCase()) {
-      roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
-    }
-
-    // Remove duplicates just in case
-    roles = [...new Set(roles)];
-
-    if (roles.length === 0) {
-      // If no role was found and they are not admin, default to CWC.
-      roles.push(CONFIG.ROLES.CWC);
-      Logger.log(
-        `User ${email} has no role defined in Settings (Cols J:K). Defaulting to CWC.`
-      );
-    }
-  } catch (e) {
-    Logger.log(
-      `Error in getUserInfo: ${e.message}. Defaulting to CWC role for user ${email}.`
-    );
-    sendErrorEmail('getUserInfo', e);
-    roles = [CONFIG.ROLES.CWC]; // Default to CWC on error
+function fetchExternalStatus(forceRefresh = false) {
+  const cache = CacheService.getScriptCache();
+  const cachedData = cache.get("EXTERNAL_STATUS_MAP");
+  
+  if (!forceRefresh && cachedData) {
+    return { 
+      map: JSON.parse(cachedData), 
+      diagnostics: ["✅ Loaded from Cache (Updates every 10m)"] 
+    };
   }
 
-  return {
-    email: email,
-    defaultRole: roles[0],
-    roles: roles, // >1 if they have BOTH
+  const statusMap = {};
+  const diagnostics = [];
+  
+  CONFIG.EXTERNAL_SHEETS.forEach(cfg => {
+    try {
+      const ss = SpreadsheetApp.openById(cfg.id);
+      let targetSheet = ss.getSheetByName(cfg.sheetName);
+      
+      if (!targetSheet) {
+        targetSheet = ss.getSheets()[0]; 
+        diagnostics.push(`⚠️ [${cfg.label}] Sheet '${cfg.sheetName}' missing. Using '${targetSheet.getName()}'.`);
+      }
+
+      const lastRow = targetSheet.getLastRow();
+      if (lastRow < 1) {
+        diagnostics.push(`⚠️ [${cfg.label}] Sheet is empty.`);
+        return;
+      }
+
+      const data = targetSheet.getRange(1, 1, lastRow, 1).getDisplayValues();
+      let matchCount = 0;
+
+      for (let i = 0; i < data.length; i++) {
+        const raw = String(data[i][0]);
+        const prn = raw.toUpperCase().replace(/\s+/g, '');
+        
+        if (prn && prn !== "PRN" && prn.length > 1) {
+          if (!statusMap[prn]) statusMap[prn] = [];
+          if (!statusMap[prn].includes(cfg.label)) statusMap[prn].push(cfg.label);
+          matchCount++;
+        }
+      }
+      diagnostics.push(`✅ [${cfg.label}] Live Fetch: Indexed ${matchCount} records.`);
+
+    } catch (e) {
+      diagnostics.push(`❌ [${cfg.label}] Error: ${e.message}`);
+      Logger.log(`Error accessing external sheet ${cfg.label}: ${e.message}`);
+    }
+  });
+
+  try {
+    cache.put("EXTERNAL_STATUS_MAP", JSON.stringify(statusMap), 600);
+  } catch(e) {
+    Logger.log("Cache save failed: " + e.message);
+  }
+
+  return { map: statusMap, diagnostics: diagnostics };
+}
+
+function pollChat() {
+  return getChatHistory();
+}
+
+function checkForUpdates(clientHash) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
+  
+  const extStatusResult = fetchExternalStatus(false);
+
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return { hasUpdate: false, externalStatus: extStatusResult.map };
+  }
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+  const headerMap = createHeaderMap(headers);
+  const data = sheet.getDataRange().getDisplayValues();
+  const activeRecords = getUnifiedPatientData(data, headerMap, false, 2);
+
+  const currentHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(activeRecords)));
+
+  const hasUpdate = (currentHash !== clientHash);
+
+  return { 
+    hasUpdate: hasUpdate, 
+    activeRecords: hasUpdate ? activeRecords : [], 
+    dataHash: currentHash,
+    externalStatus: extStatusResult.map 
   };
 }
 
-/* ------------------------------------------------------------------
- * Data Update Actions
- * ------------------------------------------------------------------ */
+function getColData(sheet, colLetter) {
+  return sheet.getRange(`${colLetter}2:${colLetter}`).getDisplayValues().flat().filter(String);
+}
 
-/**
- * Saves changes to a record without submitting or sending notifications.
- * @param {number} rowNum The row number to update.
- * @param {Object} updatedFields A simple {key: value} object of fields that changed.
- * @returns {Object} The full, updated patient record.
- */
-function saveRecordChanges(rowNum, updatedFields) {
+function getPDFDownloadUrl() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
+    if (!sheet) throw new Error("Active sheet not found.");
+    const ssId = ss.getId();
+    const sheetId = sheet.getSheetId();
+    const url = `https://docs.google.com/spreadsheets/d/${ssId}/export?format=pdf&gid=${sheetId}&size=letter&portrait=false&fitw=true&gridlines=false`;
+    return { url: url, fileName: "CWC_Outreach_Active_List.pdf" };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+function getUserInfo() {
+  const email = Session.getActiveUser().getEmail().toLowerCase();
+  let roles = [];
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
+    const data = sheet.getRange('J2:K' + sheet.getLastRow()).getDisplayValues();
+    const userRow = data.find(r => r[0].toLowerCase().trim() === email);
+
+    if (userRow) {
+      const role = userRow[1].toUpperCase().trim();
+      if (role === 'BOTH' || role === 'ADMIN') roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
+      else roles.push(role);
+    } else if (email === CONFIG.ADMIN_EMAIL.toLowerCase()) {
+      roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
+    } else {
+      roles.push(CONFIG.ROLES.CWC);
+    }
+  } catch (e) { roles.push(CONFIG.ROLES.CWC); }
+
+  return { email: email, defaultRole: roles[0], roles: [...new Set(roles)] };
+}
+
+function getFullArchivedRecord(rowNum) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ARCHIVED);
+    if (!sheet) throw new Error("Archive sheet missing");
+
+    const lastRow = sheet.getLastRow();
+    if (rowNum < 2 || rowNum > lastRow) {
+      throw new Error("Record no longer exists (Row " + rowNum + ")");
+    }
+
+    const header = sheet.getRange(1,1,1,sheet.getLastColumn()).getDisplayValues()[0];
+    const headerMap = createHeaderMap(header);
+    const data = sheet.getRange(rowNum, 1, 1, sheet.getLastColumn()).getDisplayValues();
+    const records = getUnifiedPatientData([header, ...data], headerMap, false, rowNum);
+    return { record: records[0] };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+function saveRecordChanges(rowNum, updatedFields) { return processUpdate(rowNum, updatedFields, 'Save'); }
+function submitToPharmacy(rowNum, updatedFields) { return processUpdate(rowNum, updatedFields, 'Submit to Pharmacy'); }
+function sendOutreachUpdate(rowNum, updatedFields) { return processUpdate(rowNum, updatedFields, 'Outreach Update'); }
+function submitPharmacyUpdate(rowNum, updatedFields) { return processUpdate(rowNum, updatedFields, 'Pharmacy Update'); }
+
+function processUpdate(rowNum, updatedFields, action) {
   const lock = LockService.getScriptLock();
-  lock.waitLock(15000);
+  if (!lock.tryLock(10000)) {
+    return { error: "Record is currently being edited. Please try again." };
+  }
 
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
-    const userEmail = Session.getActiveUser().getEmail();
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+    const map = createHeaderMap(headers);
+    const user = Session.getActiveUser().getEmail();
 
-    const headers = sheet
-      .getRange(1, 1, 1, sheet.getLastColumn())
-      .getDisplayValues()[0];
-    const headerMap = createHeaderMap(headers);
+    const oldVals = sheet.getRange(rowNum, 1, 1, headers.length).getDisplayValues()[0];
+    const original = getUnifiedPatientData([headers, [oldVals]], map, false, rowNum)[0];
 
-    const originalData = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues();
-    const originalRecord = getUnifiedPatientData(
-      [headers, ...originalData],
-      headerMap,
-      false,
-      rowNum
-    )[0];
+    const changes = getAuditChanges(original, updatedFields, rowNum, action);
 
-    const changes = getAuditChanges(originalRecord, updatedFields, rowNum, 'Save');
-
-    const rowRange = sheet.getRange(rowNum, 1, 1, headers.length);
-    let values = rowRange.getDisplayValues()[0];
-
-    changes.forEach(change => {
-      const colIndex = headerMap[change.field];
-      if (colIndex !== undefined) {
-        values[colIndex] = change.newValue;
+    const range = sheet.getRange(rowNum, 1, 1, headers.length);
+    let values = range.getDisplayValues()[0];
+    
+    let warning = "";
+    
+    // 1. Apply updates from client form (might contain old email)
+    changes.forEach(c => {
+      let colIdx = map[c.field];
+      if (colIdx === undefined && c.field) colIdx = map[c.field.toLowerCase()];
+      if (colIdx !== undefined) {
+        values[colIdx] = c.newValue;
+      } else {
+        if(c.field !== 'Status') warning = `Warning: Column '${c.field}' not found. Check header spelling.`;
       }
     });
 
-    sheet.getRange(rowNum, 1, 1, headers.length).setValues([values]);
+    // 2. FORCE OVERWRITE Creator Email with Current User (Last Modified By)
+    // This comes AFTER the loop to ensure it overrides any old data sent by the form.
+    const creatorCol = map[CONFIG.COLUMNS_BY_NAME.creatorEmail] ?? map[CONFIG.COLUMNS_BY_NAME.creatorEmail.toLowerCase()];
+    if (creatorCol !== undefined) {
+      values[creatorCol] = user;
+    }
+    
+    const tsString = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MM/dd/yyyy HH:mm:ss");
+    const findIdx = (name) => map[name] ?? map[name.toLowerCase()];
+
+    if (action === 'Submit to Pharmacy') {
+      const sIdx = findIdx(CONFIG.COLUMNS_BY_NAME.workflowStatus);
+      const tIdx = findIdx(CONFIG.COLUMNS_BY_NAME.sentTimestamp);
+      if(sIdx !== undefined) values[sIdx] = CONFIG.FLAGS.SUBMITTED_TO_PHARMACY;
+      if(tIdx !== undefined) values[tIdx] = tsString;
+    } else if (action === 'Outreach Update') {
+      const sIdx = findIdx(CONFIG.COLUMNS_BY_NAME.workflowStatus);
+      if(sIdx !== undefined) values[sIdx] = CONFIG.FLAGS.CWC_UPDATE_SENT;
+    } else if (action === 'Pharmacy Update') {
+      const sIdx = findIdx(CONFIG.COLUMNS_BY_NAME.workflowStatus);
+      if(sIdx !== undefined) values[sIdx] = CONFIG.FLAGS.PHARMACY_UPDATE;
+    }
+    
+    range.setValues([values]);
     SpreadsheetApp.flush();
 
-    const updatedValues = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues()[0];
-    const updatedRecord = getUnifiedPatientData(
-      [headers, updatedValues],
-      headerMap,
-      false,
-      rowNum
-    )[0];
+    const newVals = sheet.getRange(rowNum, 1, 1, headers.length).getDisplayValues()[0];
+    const updatedRecord = getUnifiedPatientData([headers, [newVals]], map, false, rowNum)[0];
 
-    if (changes.length > 0) {
-      logToAudit(changes, userEmail);
-    }
-
-    return {
-      message: 'Changes saved successfully!',
-      updatedRecord: updatedRecord,
-    };
-  } catch (error) {
-    Logger.log(`Error in saveRecordChanges: ${error.message}`);
-    return {
-      error: `Failed to save: ${error.message}`,
-    };
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-/**
- * Submits a CWC update, logs it, and sends notifications.
- * @param {number} rowNum The row number to update.
- * @param {Object} updatedFields A simple {key: value} object of fields that changed.
- * @returns {Object} The full, updated patient record.
- */
-function submitToPharmacy(rowNum, updatedFields) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(15000);
-
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
-    const userEmail = Session.getActiveUser().getEmail();
-
-    const headers = sheet
-      .getRange(1, 1, 1, sheet.getLastColumn())
-      .getDisplayValues()[0];
-    const headerMap = createHeaderMap(headers);
-
-    const originalData = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues();
-    const originalRecord = getUnifiedPatientData(
-      [headers, ...originalData],
-      headerMap,
-      false,
-      rowNum
-    )[0];
-
-    const changes = getAuditChanges(
-      originalRecord,
-      updatedFields,
-      rowNum,
-      'Submit to Pharmacy'
-    );
-
-    const rowRange = sheet.getRange(rowNum, 1, 1, headers.length);
-    let values = rowRange.getDisplayValues()[0];
-
-    changes.forEach(change => {
-      const colIndex = headerMap[change.field];
-      if (colIndex !== undefined) {
-        values[colIndex] = change.newValue;
+    if (changes.length > 0 || action.includes('Submit')) {
+      if(original.workflowStatus !== updatedRecord.workflowStatus) {
+        changes.push({row:rowNum, action:action, field:'Status', oldValue:original.workflowStatus, newValue: updatedRecord.workflowStatus});
       }
-    });
+      logToAudit(changes, user);
 
-    const statusColIndex = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus];
-    const tsColIndex = headerMap[CONFIG.COLUMNS_BY_NAME.sentTimestamp];
-
-    if (statusColIndex === undefined || tsColIndex === undefined) {
-      throw new Error(
-        "Could not find 'Workflow Status' or 'Notification Sent Timestamp' columns. Check Config.gs and sheet headers."
-      );
-    }
-
-    values[statusColIndex] = CONFIG.FLAGS.SUBMITTED_TO_PHARMACY;
-    values[tsColIndex] = new Date();
-
-    sheet.getRange(rowNum, 1, 1, headers.length).setValues([values]);
-    SpreadsheetApp.flush();
-
-    const updatedValues = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues()[0];
-    const updatedRecord = getUnifiedPatientData(
-      [headers, updatedValues],
-      headerMap,
-      false,
-      rowNum
-    )[0];
-
-    const auditChanges = changes.concat([
-      {
-        row: rowNum,
-        action: 'Submit to Pharmacy',
-        field: 'Workflow Status',
-        oldValue: originalRecord.workflowStatus,
-        newValue: updatedRecord.workflowStatus,
-      },
-      {
-        row: rowNum,
-        action: 'Submit to Pharmacy',
-        field: 'Sent Timestamp',
-        oldValue: '',
-        newValue: updatedRecord.sentTimestamp,
-      },
-    ]);
-
-    logToAudit(auditChanges, userEmail);
-
-    const recipients = getRecipients();
-    const emailList = [...recipients.pharmacy, ...recipients.outreach];
-    sendNotificationEmail(
-      emailList,
-      updatedRecord,
-      'New Patient Submitted to Pharmacy',
-      auditChanges
-    );
-
-    return {
-      message: 'Submitted to Pharmacy successfully!',
-      updatedRecord: updatedRecord,
-    };
-  } catch (error) {
-    Logger.log(`Error in submitToPharmacy: ${error.message}`);
-    sendErrorEmail('submitToPharmacy', error);
-    return {
-      error: `Failed to submit: ${error.message}`,
-    };
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-/**
- * Submits an Outreach update, logs it, and sends notifications.
- * @param {number} rowNum The row number to update.
- * @param {Object} updatedFields A simple {key: value} object of fields that changed.
- * @returns {Object} The full, updated patient record.
- */
-function sendOutreachUpdate(rowNum, updatedFields) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(15000);
-
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
-    const userEmail = Session.getActiveUser().getEmail();
-
-    const headers = sheet
-      .getRange(1, 1, 1, sheet.getLastColumn())
-      .getDisplayValues()[0];
-    const headerMap = createHeaderMap(headers);
-
-    const originalData = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues();
-    const originalRecord = getUnifiedPatientData(
-      [headers, ...originalData],
-      headerMap,
-      false,
-      rowNum
-    )[0];
-
-    const changes = getAuditChanges(
-      originalRecord,
-      updatedFields,
-      rowNum,
-      'Outreach Update'
-    );
-
-    const rowRange = sheet.getRange(rowNum, 1, 1, headers.length);
-    let values = rowRange.getDisplayValues()[0];
-
-    changes.forEach(change => {
-      const colIndex = headerMap[change.field];
-      if (colIndex !== undefined) {
-        values[colIndex] = change.newValue;
+      const recipients = getRecipients();
+      if (action === 'Submit to Pharmacy' || action === 'Pharmacy Update') {
+        sendNotificationEmail([...recipients.pharmacy, ...recipients.outreach], updatedRecord, action, changes);
+      } else if (action === 'Outreach Update') {
+        sendNotificationEmail(recipients.outreach, updatedRecord, action, changes);
       }
-    });
-
-    const statusColIndex = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus];
-    if (statusColIndex === undefined) {
-      throw new Error("Could not find 'Workflow Status' column.");
     }
 
-    values[statusColIndex] = CONFIG.FLAGS.CWC_UPDATE_SENT;
-
-    sheet.getRange(rowNum, 1, 1, headers.length).setValues([values]);
-    SpreadsheetApp.flush();
-
-    const updatedValues = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues()[0];
-    const updatedRecord = getUnifiedPatientData(
-      [headers, updatedValues],
-      headerMap,
-      false,
-      rowNum
-    )[0];
-
-    const auditChanges = changes.concat([
-      {
-        row: rowNum,
-        action: 'Outreach Update',
-        field: 'Workflow Status',
-        oldValue: originalRecord.workflowStatus,
-        newValue: updatedRecord.workflowStatus,
-      },
-    ]);
-
-    logToAudit(auditChanges, userEmail);
-
-    const recipients = getRecipients();
-    sendNotificationEmail(
-      recipients.outreach,
-      updatedRecord,
-      'CWC Outreach Update',
-      auditChanges
-    );
+    const allData = sheet.getDataRange().getDisplayValues();
+    const allRecords = getUnifiedPatientData(allData, map, false, 2);
+    const newDataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(allRecords)));
+    
+    const extStatus = fetchExternalStatus(true);
 
     return {
-      message: 'Outreach update sent!',
+      message: warning ? warning : 'Update successful',
       updatedRecord: updatedRecord,
+      dataHash: newDataHash,
+      allRecords: allRecords,
+      chatHistory: getChatHistory(),
+      externalStatus: extStatus.map 
     };
-  } catch (error) {
-    Logger.log(`Error in sendOutreachUpdate: ${error.message}`);
-    sendErrorEmail('sendOutreachUpdate', error);
-    return {
-      error: `Failed to send update: ${error.message}`,
-    };
+  } catch (e) {
+    return { error: e.message };
   } finally {
     lock.releaseLock();
   }
-}
-
-/**
- * Submits a Pharmacy update, logs it, and sends notifications.
- * @param {number} rowNum The row number to update.
- * @param {Object} updatedFields A simple {key: value} object of fields that changed.
- * @returns {Object} The full, updated patient record.
- */
-function submitPharmacyUpdate(rowNum, updatedFields) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(15000);
-
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
-    const userEmail = Session.getActiveUser().getEmail();
-
-    const headers = sheet
-      .getRange(1, 1, 1, sheet.getLastColumn())
-      .getDisplayValues()[0];
-    const headerMap = createHeaderMap(headers);
-
-    const originalData = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues();
-    const originalRecord = getUnifiedPatientData(
-      [headers, ...originalData],
-      headerMap,
-      false,
-      rowNum
-    )[0];
-
-    const changes = getAuditChanges(
-      originalRecord,
-      updatedFields,
-      rowNum,
-      'Pharmacy Update'
-    );
-
-    const rowRange = sheet.getRange(rowNum, 1, 1, headers.length);
-    let values = rowRange.getDisplayValues()[0];
-
-    changes.forEach(change => {
-      const colIndex = headerMap[change.field];
-      if (colIndex !== undefined) {
-        values[colIndex] = change.newValue;
-      }
-    });
-
-    const statusColIndex = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus];
-    if (statusColIndex === undefined) {
-      throw new Error("Could not find 'Workflow Status' column.");
-    }
-
-    values[statusColIndex] = CONFIG.FLAGS.PHARMACY_UPDATE;
-
-    sheet.getRange(rowNum, 1, 1, headers.length).setValues([values]);
-    SpreadsheetApp.flush();
-
-    const updatedValues = sheet
-      .getRange(rowNum, 1, 1, headers.length)
-      .getDisplayValues()[0];
-    const updatedRecord = getUnifiedPatientData(
-      [headers, updatedValues],
-      headerMap,
-      false,
-      rowNum
-    )[0];
-
-    const auditChanges = changes.concat([
-      {
-        row: rowNum,
-        action: 'Pharmacy Update',
-        field: 'Workflow Status',
-        oldValue: originalRecord.workflowStatus,
-        newValue: updatedRecord.workflowStatus,
-      },
-    ]);
-
-    logToAudit(auditChanges, userEmail);
-
-    const recipients = getRecipients();
-    const emailList = [...recipients.pharmacy, ...recipients.outreach];
-    sendNotificationEmail(
-      emailList,
-      updatedRecord,
-      'Pharmacy Update Received',
-      auditChanges
-    );
-
-    return {
-      message: 'Pharmacy update sent!',
-      updatedRecord: updatedRecord,
-    };
-  } catch (error) {
-    Logger.log(`Error in submitPharmacyUpdate: ${error.message}`);
-    sendErrorEmail('submitPharmacyUpdate', error);
-    return {
-      error: `Failed to send update: ${error.message}`,
-    };
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-/* ------------------------------------------------------------------
- * Audit Helpers
- * ------------------------------------------------------------------ */
-
-/**
- * Generates an array of change objects for auditing.
- * @param {Object} originalRecord The original patient data.
- * @param {Object} updatedFields The fields that were updated.
- * @param {number} rowNum The row number.
- * @param {string} action The action type.
- * @returns {Array<Object>} Array of change objects.
- */
-function getAuditChanges(originalRecord, updatedFields, rowNum, action) {
-  const changes = [];
-  const keyToHeader = createKeyToHeaderMap();
-
-  for (const key in updatedFields) {
-    const fieldName = keyToHeader[key] || key; // Use header name if available
-    changes.push({
-      row: rowNum,
-      action: action,
-      field: fieldName,
-      oldValue: originalRecord[key] || '',
-      newValue: updatedFields[key] || '',
-    });
-  }
-
-  return changes;
 }
