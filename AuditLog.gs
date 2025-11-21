@@ -16,4 +16,4 @@ function logToAudit(changes, userEmail) {
   } catch (e) {
     Logger.log("Audit Error: " + e.message);
   }
-}
+} 
