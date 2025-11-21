@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
+    .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); max-width: 450px; width: 90%; border: 1px solid #e5e7eb; }
+    h1 { color: #ef4444; margin-bottom: 10px; font-size: 28px; font-weight: 800; }
+    h3 { color: #1f2937; margin-bottom: 5px; font-size: 16px; font-weight: 700; }
+    p { margin-bottom: 20px; line-height: 1.5; font-size: 15px; color: #6b7280; }
+    .email { font-weight: bold; color: #3b82f6; display: block; margin: 15px 0 25px 0; padding: 12px; background: #eff6ff; border-radius: 8px; font-size: 14px; border: 1px dashed #bfdbfe; }
+    .icon { font-size: 64px; color: #ef4444; margin-bottom: 15px; }
+    button { padding: 12px 25px; background-color: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 700; transition: background-color 0.2s, transform 0.2s; }
+    button:hover { background-color: #2563eb; transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🚫</div>
+    <h1>Access Denied</h1>
+    <? if (userEmail) { ?>
+      <h3>Unauthorized Account</h3>
+      <span class="email"><?!= userEmail ?></span>
+      <p>
+        <? if (reason) { ?>
+          <strong>Reason for Denial:</strong> <br><?!= reason ?>
+        <? } else { ?>
+          Your Google account is not listed in the authorized user whitelist.
+        <? } ?>
+      </p>
+      <button onclick="window.location.reload()">Try Again</button>
+    <? } else { ?>
+      <h3>Login Required</h3>
+      <p>Please log in with the Google Account authorized to access this application.</p>
+      <button onclick="window.location.reload()">Click to Log In</button>
+    <? } ?>
+    <p style="margin-top: 30px; font-size: 12px; color: #9ca3af;">
+      If you require access, please contact the administrator (<?!= CONFIG.ADMIN_EMAIL ?>).
+    </p>
+  </div>
+</body>
+</html>
