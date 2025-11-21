@@ -1,15 +1,13 @@
 /**
  * Shared utilities.
  */
-
-// Creates a map of "Header Name" -> Column Index
 function createHeaderMap(headerRow) {
   const map = {};
   headerRow.forEach((h, i) => {
     const clean = String(h).trim();
     if (clean) {
       map[clean] = i;
-      map[clean.toLowerCase()] = i; // Lowercase fallback
+      map[clean.toLowerCase()] = i;
     }
   });
   return map;
@@ -21,60 +19,51 @@ function createKeyToHeaderMap() {
   return map;
 }
 
-/**
- * ROBUST DATA PARSER
- * Maps sheet rows to internal object keys using fuzzy matching on headers.
- */
 function getUnifiedPatientData(data, headerMap, indexOnly = false, baseRowNum = 2) {
   const records = [];
-  
-  // 1. Create a robust reverse map: "lowercase header" -> "internal key"
-  // Example: "patient name" -> "patientName"
+  const keyToHeader = createKeyToHeaderMap();
   const headerToKey = {};
-  for (const key in CONFIG.COLUMNS_BY_NAME) {
-    const headerVal = CONFIG.COLUMNS_BY_NAME[key];
-    if (headerVal) {
-      headerToKey[headerVal.toLowerCase().trim()] = key;
-    }
-  }
+  // Build reverse map (Header -> InternalKey)
+  for (const k in keyToHeader) headerToKey[keyToHeader[k]] = k;
+  
+  // Robust lookup for main columns
+  const findCol = (name) => {
+    if (headerMap[name] !== undefined) return headerMap[name];
+    if (headerMap[name.toLowerCase()] !== undefined) return headerMap[name.toLowerCase()];
+    return -1;
+  };
 
-  // 2. Identify the index for each internal key based on the Sheet Headers
-  const keyToColIndex = {};
-  for (const sheetHeader in headerMap) {
-    const lowerSheetHeader = sheetHeader.toLowerCase().trim();
-    // Match sheet header to config header
-    if (headerToKey[lowerSheetHeader]) {
-      keyToColIndex[headerToKey[lowerSheetHeader]] = headerMap[sheetHeader];
-    }
-  }
-
-  // Debugging helper (logs to Stackdriver if needed)
-  // console.log("Key Map:", keyToColIndex);
+  const nameIdx = findCol(CONFIG.COLUMNS_BY_NAME.patientName);
+  const prnIdx = findCol(CONFIG.COLUMNS_BY_NAME.prn);
+  const statusIdx = findCol(CONFIG.COLUMNS_BY_NAME.workflowStatus);
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (row.join('').trim() === '') continue;
 
     let record = {
-      rowNum: (baseRowNum - 1) + i
+      rowNum: (baseRowNum - 1) + i,
+      patientName: (nameIdx > -1 ? row[nameIdx] : '') || '',
+      prn: (prnIdx > -1 ? row[prnIdx] : '') || '',
+      workflowStatus: (statusIdx > -1 ? row[statusIdx] : '') || ''
     };
     
-    // Populate fields using the map
-    for (const key in CONFIG.COLUMNS_BY_NAME) {
-      const colIdx = keyToColIndex[key];
-      if (colIdx !== undefined && row[colIdx] !== undefined) {
-        record[key] = row[colIdx];
-      } else {
-        record[key] = ""; // Ensure key exists even if empty
+    if (!indexOnly) {
+      for (const header in headerMap) {
+        let key = headerToKey[header]; 
+        if(!key) {
+           for(const k in CONFIG.COLUMNS_BY_NAME) {
+             if(CONFIG.COLUMNS_BY_NAME[k].toLowerCase() === header.toLowerCase()) {
+               key = k; break;
+             }
+           }
+        }
+        
+        if (key && !record.hasOwnProperty(key)) {
+            record[key] = row[headerMap[header]] || '';
+        }
       }
     }
-    
-    // Special handling for essential fields if mapping failed
-    if (!record.patientName && keyToColIndex['patientName'] === undefined) {
-       // Fallback: Try to find column by simple includes
-       // This helps if headers are slightly different (e.g. extra spaces)
-    }
-
     records.push(record);
   }
   return records;
@@ -88,6 +77,7 @@ function getRecipients() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
     const pharmacy = sheet.getRange('A2:A').getDisplayValues().flat().filter(String);
     const outreach = sheet.getRange('B2:B').getDisplayValues().flat().filter(String);
+
     const result = { cwc: outreach, pharmacy: pharmacy, outreach: outreach };
     cache.put('emailRecipients', JSON.stringify(result), 600);
     return result;
@@ -100,19 +90,10 @@ function getAuditChanges(original, updated, row, action) {
   const changes = [];
   const map = createKeyToHeaderMap();
   for (const key in updated) {
-    // Normalize comparisons
-    const oldV = String(original[key] || '').trim();
-    const newV = String(updated[key] || '').trim();
-    
-    if (oldV !== newV) {
-      changes.push({
-        row: row, 
-        action: action, 
-        field: map[key] || key,
-        oldValue: oldV, 
-        newValue: newV
-      });
-    }
+    changes.push({
+      row: row, action: action, field: map[key] || key,
+      oldValue: original[key] || '', newValue: updated[key] || ''
+    });
   }
   return changes;
 }
@@ -126,21 +107,19 @@ function sendErrorEmail(context, error) {
 function archiveProcessedData() {
   const lock = LockService.getScriptLock();
   if(!lock.tryLock(30000)) return;
+
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const src = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
     const dest = ss.getSheetByName(CONFIG.SHEET_NAMES.ARCHIVED);
     const data = src.getDataRange().getValues();
     const headers = data[0];
-    
-    const headerMap = createHeaderMap(headers);
-    const statusIdx = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus.toLowerCase()];
+    const statusIdx = headers.indexOf(CONFIG.COLUMNS_BY_NAME.workflowStatus);
 
     const toArchive = [];
     const toDelete = [];
+
     const archiveFlags = [CONFIG.FLAGS.SUBMITTED_TO_PHARMACY, CONFIG.FLAGS.CWC_UPDATE_SENT, CONFIG.FLAGS.PHARMACY_UPDATE];
-    
-    if (statusIdx === undefined) return;
 
     for(let i=1; i<data.length; i++) {
       if(archiveFlags.includes(data[i][statusIdx])) {
@@ -148,6 +127,7 @@ function archiveProcessedData() {
         toDelete.push(i+1);
       }
     }
+
     if(toArchive.length > 0) {
       dest.getRange(dest.getLastRow()+1, 1, toArchive.length, headers.length).setValues(toArchive);
       toDelete.reverse().forEach(r => src.deleteRow(r));
