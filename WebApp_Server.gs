@@ -2,13 +2,91 @@
  * Server-side backend for Web App interactions.
  */
 function doGet() {
+  const check = checkUserAccess();
+
+  if (!check.allowed) {
+    const template = HtmlService.createTemplateFromFile('AccessDenied.html');
+    template.userEmail = check.email || "Unknown (Hidden)";
+    template.reason = check.reason;
+    template.CONFIG = CONFIG;
+    // ADD THIS LINE: Pass the correct app URL to the template
+    template.appUrl = ScriptApp.getService().getUrl(); 
+    
+    return template.evaluate()
+      .setTitle('Access Denied')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
   return HtmlService.createHtmlOutputFromFile('WebApp_Client.html')
     .setTitle('CWC Notification Manager')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+function checkUserAccess() {
+  try {
+    const email = Session.getActiveUser().getEmail().toLowerCase();
+
+    // 1. CRITICAL: Check if Google is hiding the email
+    if (!email) {
+      return { 
+        allowed: false, 
+        email: "", 
+        reason: "Google is hiding your identity. The Admin must set the script deployment to execute as 'User Accessing' in appsscript.json." 
+      };
+    }
+  
+    // 2. Always Allow Admin defined in CONFIG (Prevents lockout)
+    if (email === CONFIG.ADMIN_EMAIL.toLowerCase()) {
+      return { allowed: true, email: email, role: 'ADMIN' };
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
+    
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      return { allowed: false, email: email, reason: "Authorization list is empty." };
+    }
+
+    // Fetch J (Email), K (Role), L (Active) using getValues() for native types (Boolean)
+    const data = sheet.getRange(2, 10, lastRow - 1, 3).getValues(); 
+    
+    // 3. Find ALL matches for this email (Handle duplicates in list)
+    const userMatches = data.filter(r => String(r[0]).trim().toLowerCase() === email);
+
+    if (userMatches.length === 0) {
+      return { allowed: false, email: email, reason: "User not found in authorized list." };
+    }
+
+    // 4. Check if ANY matching row is Active
+    const activeMatch = userMatches.find(r => {
+      const val = r[2];
+      if (val === true) return true; // Boolean true (Checkbox is checked)
+      const sVal = String(val).trim().toLowerCase();
+      return sVal === 'true' || sVal === 'yes' || sVal === 'active';
+    });
+
+    if (!activeMatch) {
+       return { allowed: false, email: email, reason: "Account is deactivated." };
+    }
+
+    return { allowed: true, email: email, role: activeMatch[1] };
+
+  } catch (e) {
+    Logger.log("Access Check Error: " + e.message);
+    const fallbackEmail = Session.getActiveUser().getEmail() || "Unknown";
+    // Fail safe: Allow admin in case of error, deny others
+    if (fallbackEmail.toLowerCase() === CONFIG.ADMIN_EMAIL.toLowerCase()) return { allowed: true, email: fallbackEmail };
+    return { allowed: false, email: fallbackEmail, reason: "System error: " + e.message };
+  }
+}
+
+// --- REST OF THE FILE REMAINS UNCHANGED ---
 function getInitialData() {
   try {
+    const access = checkUserAccess();
+    if (!access.allowed) return { error: "Access Denied: " + access.reason };
+
     const user = getUserInfo();
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const activeSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
@@ -17,7 +95,6 @@ function getInitialData() {
     
     let activeRecords = [];
     let dataHash = "";
-
     if (activeSheet && activeSheet.getLastRow() > 1) {
       const headers = activeSheet.getRange(1, 1, 1, activeSheet.getLastColumn()).getDisplayValues()[0];
       const headerMap = createHeaderMap(headers);
@@ -48,8 +125,7 @@ function getInitialData() {
     }
 
     const chatHistory = getChatHistory();
-    const externalStatusResult = fetchExternalStatus(false); 
-
+    const externalStatusResult = fetchExternalStatus(false);
     return {
       user: user,
       activeRecords: activeRecords,
@@ -74,7 +150,6 @@ function getInitialData() {
 function fetchExternalStatus(forceRefresh = false) {
   const cache = CacheService.getScriptCache();
   const cachedData = cache.get("EXTERNAL_STATUS_MAP");
-  
   if (!forceRefresh && cachedData) {
     return { 
       map: JSON.parse(cachedData), 
@@ -84,7 +159,6 @@ function fetchExternalStatus(forceRefresh = false) {
 
   const statusMap = {};
   const diagnostics = [];
-  
   CONFIG.EXTERNAL_SHEETS.forEach(cfg => {
     try {
       const ss = SpreadsheetApp.openById(cfg.id);
@@ -115,7 +189,6 @@ function fetchExternalStatus(forceRefresh = false) {
         }
       }
       diagnostics.push(`✅ [${cfg.label}] Live Fetch: Indexed ${matchCount} records.`);
-
     } catch (e) {
       diagnostics.push(`❌ [${cfg.label}] Error: ${e.message}`);
       Logger.log(`Error accessing external sheet ${cfg.label}: ${e.message}`);
@@ -140,7 +213,6 @@ function checkForUpdates(clientHash) {
   const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
   
   const extStatusResult = fetchExternalStatus(false);
-
   if (!sheet || sheet.getLastRow() <= 1) {
     return { hasUpdate: false, externalStatus: extStatusResult.map };
   }
@@ -153,7 +225,6 @@ function checkForUpdates(clientHash) {
   const currentHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(activeRecords)));
 
   const hasUpdate = (currentHash !== clientHash);
-
   return { 
     hasUpdate: hasUpdate, 
     activeRecords: hasUpdate ? activeRecords : [], 
@@ -181,23 +252,24 @@ function getPDFDownloadUrl() {
 }
 
 function getUserInfo() {
-  const email = Session.getActiveUser().getEmail().toLowerCase();
+  // Re-use the secure access check
+  const access = checkUserAccess();
+  let email = Session.getActiveUser().getEmail().toLowerCase();
+  
   let roles = [];
-  try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
-    const data = sheet.getRange('J2:K' + sheet.getLastRow()).getDisplayValues();
-    const userRow = data.find(r => r[0].toLowerCase().trim() === email);
-
-    if (userRow) {
-      const role = userRow[1].toUpperCase().trim();
-      if (role === 'BOTH' || role === 'ADMIN') roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
-      else roles.push(role);
-    } else if (email === CONFIG.ADMIN_EMAIL.toLowerCase()) {
-      roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
-    } else {
-      roles.push(CONFIG.ROLES.CWC);
-    }
-  } catch (e) { roles.push(CONFIG.ROLES.CWC); }
+  
+  if (access.allowed) {
+    const role = String(access.role).toUpperCase().trim();
+    if (role === 'BOTH' || role === 'ADMIN') roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
+    else roles.push(role);
+  } else {
+     // Fallback for admin if somehow access failed but they are admin
+     if (email === CONFIG.ADMIN_EMAIL.toLowerCase()) {
+       roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
+     } else {
+       roles.push(CONFIG.ROLES.CWC);
+     }
+  }
 
   return { email: email, defaultRole: roles[0], roles: [...new Set(roles)] };
 }
@@ -240,18 +312,14 @@ function processUpdate(rowNum, updatedFields, action) {
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
     const map = createHeaderMap(headers);
     const user = Session.getActiveUser().getEmail();
-
     const oldVals = sheet.getRange(rowNum, 1, 1, headers.length).getDisplayValues()[0];
     const original = getUnifiedPatientData([headers, [oldVals]], map, false, rowNum)[0];
-
     const changes = getAuditChanges(original, updatedFields, rowNum, action);
 
     const range = sheet.getRange(rowNum, 1, 1, headers.length);
     let values = range.getDisplayValues()[0];
-    
     let warning = "";
     
-    // 1. Apply updates from client form (might contain old email)
     changes.forEach(c => {
       let colIdx = map[c.field];
       if (colIdx === undefined && c.field) colIdx = map[c.field.toLowerCase()];
@@ -262,8 +330,6 @@ function processUpdate(rowNum, updatedFields, action) {
       }
     });
 
-    // 2. FORCE OVERWRITE Creator Email with Current User (Last Modified By)
-    // This comes AFTER the loop to ensure it overrides any old data sent by the form.
     const creatorCol = map[CONFIG.COLUMNS_BY_NAME.creatorEmail] ?? map[CONFIG.COLUMNS_BY_NAME.creatorEmail.toLowerCase()];
     if (creatorCol !== undefined) {
       values[creatorCol] = user;
