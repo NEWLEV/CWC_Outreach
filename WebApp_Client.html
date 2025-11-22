@@ -9,7 +9,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
     
     :root {
-      /* Light Mode (Default) - Clean & Clinical */
+      /* Light Mode (Default) */
       --bg-app: #f8fafc;
       --bg-panel: #ffffff;
       --bg-input: #f1f5f9;
@@ -35,10 +35,10 @@
     }
 
     body.dark-mode {
-      /* Dark Mode (Slate Theme) - Inspired by Screenshot */
-      --bg-app: #0f172a;       /* Very dark slate */
-      --bg-panel: #1e293b;     /* Panel slate */
-      --bg-input: #334155;     /* Input slate */
+      /* Dark Mode (Slate Theme) */
+      --bg-app: #0f172a;       
+      --bg-panel: #1e293b;     
+      --bg-input: #334155;     
       --border: #334155;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
@@ -106,6 +106,10 @@
     .patient-item:hover { transform: translateY(-2px); border-color: var(--primary); }
     .patient-item.selected { background: var(--primary); border-color: var(--primary); color: white; }
     .patient-item.selected .sub-text, .patient-item.selected strong { color: white; }
+    
+    /* Notification Pulse for Unread Items */
+    @keyframes flash-border { 0% { border-color: var(--primary); } 50% { border-color: var(--danger); } 100% { border-color: var(--primary); } }
+    .patient-item.alerting { border-left: 4px solid var(--danger); animation: flash-border 1.5s infinite; background: var(--bg-input); }
     .patient-item.unread { border-left: 4px solid var(--primary); background: var(--bg-input); }
 
     .pi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -181,7 +185,7 @@
     .full-width { grid-column: 1 / -1; }
     .three-col { grid-template-columns: 1fr 1fr 1fr; }
 
-    /* INPUT STYLING - "MODERN SLATE" LOOK */
+    /* INPUT STYLING */
     .input-group { display: flex; flex-direction: column; gap: 6px; }
     .input-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
     
@@ -248,11 +252,41 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .access-denied-box { background: white; padding: 40px; border-radius: 12px; text-align: center; max-width: 400px; color: #333; }
+    
+    /* Toast with Flash Animation for Alert */
     .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+    .toast.alert { background: var(--danger); animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+    /* --- CUSTOM MODAL --- */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-box { 
+      background: var(--bg-panel); width: 90%; max-width: 420px; 
+      border-radius: 16px; padding: 24px; 
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
+      transform: scale(0.95); transition: transform 0.2s; 
+      border: 1px solid var(--border); 
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    
+    .modal-box h3 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; }
+    .modal-content { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+    
+    /* List Styling within Modal */
+    .modal-content ul { margin: 10px 0; padding-left: 20px; list-style-type: disc; }
+    .modal-content li { margin-bottom: 4px; color: var(--text-main); }
+    
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
   </style>
 </head>
-<body class="dark-mode"> <div id="security-overlay" class="loader-overlay">
+<body class="dark-mode">
+
+  <!-- SECURITY / LOADING OVERLAY -->
+  <div id="security-overlay" class="loader-overlay">
     <div id="loader-msg" style="text-align:center;">
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
       <h3>Loading CWC Outreach...</h3>
@@ -264,8 +298,21 @@
     </div>
   </div>
 
+  <!-- CUSTOM MODAL (Replaces window.alert) -->
+  <div id="custom-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h3 id="modal-title">Alert</h3>
+      <div id="modal-msg" class="modal-content">Message goes here.</div>
+      <div class="modal-actions">
+        <button id="btn-modal-cancel" class="btn btn-ghost hidden" onclick="closeModal()">Cancel</button>
+        <button id="btn-modal-ok" class="btn btn-primary" onclick="confirmModal()">OK</button>
+      </div>
+    </div>
+  </div>
+
   <div id="app-container">
     
+    <!-- LEFT SIDEBAR -->
     <aside>
       <div class="sb-header">
         <h3>CWC Outreach</h3>
@@ -283,12 +330,16 @@
 
       <div class="tabs">
         <div id="tab-active" class="tab active" onclick="switchList('active')">Active</div>
-        <div id="tab-archive" class="tab" onclick="switchList('archive')">Archive</div>
+        
+        <!-- DYNAMIC TAB: Archive for CWC, Completed for Pharmacy -->
+        <div id="tab-secondary" class="tab" onclick="switchList('secondary')">Archive</div>
       </div>
 
       <div id="list-wrapper" class="list-container">
-        </div>
+        <!-- Patient Items Injected Here -->
+      </div>
 
+      <!-- CHAT -->
       <div class="chat-section">
         <div class="chat-header">
           <span>Team Chat</span>
@@ -302,6 +353,7 @@
       </div>
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main>
       <header>
         <div class="view-badge">
@@ -321,12 +373,14 @@
 
       <div class="content-area">
         
+        <!-- EMPTY STATE -->
         <div id="empty-state" style="text-align:center; color:var(--text-muted); margin-top:100px;">
           <div style="font-size:48px; opacity:0.2; margin-bottom:20px;">📋</div>
           <h2>No Record Selected</h2>
           <p>Select a patient from the sidebar to view details.</p>
         </div>
 
+        <!-- DETAIL CARD -->
         <div id="detail-card" class="main-card hidden">
           
           <div class="mc-header">
@@ -347,6 +401,7 @@
 
           <form id="patient-form" style="display:flex; flex-direction:column; flex:1;">
             
+            <!-- CWC VIEW CONTAINER -->
             <div id="view-cwc-container">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
@@ -361,6 +416,7 @@
               </div>
 
               <div class="form-container">
+                <!-- Section: Patient Info -->
                 <div id="sec-patient" class="form-grid">
                    <div class="input-group">
                      <label>👤 Name</label>
@@ -408,6 +464,7 @@
                    </div>
                 </div>
 
+                <!-- Section: Clinical -->
                 <div id="sec-meds" class="form-grid hidden">
                    <div class="input-group">
                      <label>💊 Pharmacy</label>
@@ -444,10 +501,12 @@
               </div>
             </div>
 
+            <!-- PHARMACY VIEW CONTAINER -->
             <div id="view-pharm-container" class="hidden">
                <div class="form-container">
                  <div class="pharm-grid" id="pharm-info-card">
-                   </div>
+                   <!-- Injected via JS -->
+                 </div>
                  
                  <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">Pharmacy Actions</h4>
                  
@@ -472,6 +531,7 @@
                </div>
             </div>
 
+            <!-- ACTION BUTTONS -->
             <div class="action-bar">
                <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">Save Changes</button>
                <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">Submit to Pharmacy</button>
@@ -488,15 +548,24 @@
   <div id="toast" class="toast">Notification</div>
 
   <script>
-    let STATE = { records: [], archives: [], config: {}, user: {}, currentList: 'active', blur: true, selectedId: null, dataHash: "", unreadIds: new Set(), sortOrder: 'asc', chatHistory: [], externalStatus: {} };
-    let pollInterval, chatInterval;
+    let STATE = { 
+      records: [], archives: [], config: {}, user: {}, 
+      currentList: 'active', blur: true, selectedId: null, 
+      dataHash: "", unreadIds: new Set(), alertingIds: new Set(),
+      sortOrder: 'asc', chatHistory: [], externalStatus: {} 
+    };
+    
+    let pollInterval, chatInterval, notificationTimer;
+    let modalCallback = null;
+    
+    // Simple Beep Sound (Base64)
+    const alertSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"); 
+
     window.onload = init;
 
     function loadSettings() {
        const savedTheme = localStorage.getItem('cwc_dark_mode');
-       // Default to Dark based on screenshot, but respect toggle
        if(savedTheme === 'false') { document.body.classList.remove('dark-mode'); document.getElementById('chk-theme').checked = false; }
-       
        const savedBlur = localStorage.getItem('cwc_blur_enabled');
        if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
     }
@@ -530,6 +599,9 @@
            document.getElementById('security-overlay').classList.add('hidden');
            document.getElementById('app-container').classList.add('visible');
            
+           // Interaction required for audio in some browsers
+           document.body.addEventListener('click', () => { if(typeof AudioContext !== 'undefined' && AudioContext.state === 'suspended') new AudioContext().resume(); }, {once:true});
+
            setInterval(checkUpdates, 15000); 
            setInterval(refreshChat, 30000);
         })
@@ -542,15 +614,130 @@
     // UI LOGIC
     document.addEventListener('input', (e) => { if (e.target.classList.contains('force-upper')) { const s=e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); e.target.setSelectionRange(s,s); }});
 
+    // --- MODAL LOGIC ---
+    function showDialog(title, msg, isConfirm = false, callback = null) {
+      document.getElementById('modal-title').innerText = title;
+      // msg can now contain HTML (like <ul>)
+      document.getElementById('modal-msg').innerHTML = msg;
+      
+      const btnCancel = document.getElementById('btn-modal-cancel');
+      
+      if (isConfirm) {
+        btnCancel.classList.remove('hidden');
+        modalCallback = callback;
+      } else {
+        btnCancel.classList.add('hidden');
+        modalCallback = null;
+      }
+      
+      document.getElementById('custom-modal').classList.add('active');
+    }
+
+    function confirmModal() {
+      document.getElementById('custom-modal').classList.remove('active');
+      if (modalCallback) modalCallback();
+    }
+
+    function closeModal() {
+      document.getElementById('custom-modal').classList.remove('active');
+    }
+
+    function checkUpdates() {
+      google.script.run.withSuccessHandler(res => {
+        if(res.hasUpdate) {
+           const getStableId = (r) => (r.timestamp||'')+(r.patientName||'')+(r.prn||'');
+           const oldMap = new Map(); 
+           STATE.records.forEach(r => oldMap.set(getStableId(r), r.workflowStatus));
+           
+           STATE.records = res.activeRecords; 
+           STATE.dataHash = res.dataHash;
+           
+           // DETECT NEW/UPDATED ITEMS FOR NOTIFICATION
+           res.activeRecords.forEach(r => {
+             const id = getStableId(r);
+             const oldStatus = oldMap.get(id);
+             const isNew = oldStatus === undefined;
+             const isUpdated = oldStatus !== undefined && oldStatus !== r.workflowStatus;
+             
+             let notify = false;
+             
+             // NOTIFICATION LOGIC
+             if (STATE.user.defaultRole === 'CWC') {
+                // Alert CWC if: New Record (not by me) OR Pharmacy Update
+                if ((isNew && r.creatorEmail !== STATE.user.email) || (isUpdated && r.workflowStatus === STATE.config.flags.PHARMACY_UPDATE)) {
+                   notify = true;
+                }
+             } else {
+                // Alert Pharmacy if: Submitted to Pharmacy
+                if ((isNew || isUpdated) && r.workflowStatus === STATE.config.flags.SUBMITTED_TO_PHARMACY) {
+                   notify = true;
+                }
+             }
+
+             if (notify) {
+                STATE.unreadIds.add(r.rowNum);
+                STATE.alertingIds.add(r.rowNum);
+             }
+           });
+
+           renderList();
+           
+           if (STATE.alertingIds.size > 0) {
+              startNotificationLoop();
+           }
+        }
+      }).checkForUpdates(STATE.dataHash);
+    }
+
+    function startNotificationLoop() {
+       if (notificationTimer) return; // Already running
+       playAlert();
+       notificationTimer = setInterval(() => {
+          if (STATE.alertingIds.size > 0) playAlert();
+          else stopNotificationLoop();
+       }, 60000); // Repeat every 60s
+    }
+
+    function stopNotificationLoop() {
+       if (notificationTimer) {
+          clearInterval(notificationTimer);
+          notificationTimer = null;
+       }
+    }
+
+    function playAlert() {
+       try { alertSound.play(); } catch(e) {}
+       const t = document.getElementById('toast');
+       t.innerText = "⚠️ New Updates Available!";
+       t.classList.add('show', 'alert');
+       setTimeout(() => t.classList.remove('show', 'alert'), 5000);
+    }
+
     function renderList() {
       const listEl = document.getElementById('list-wrapper'); listEl.innerHTML = '';
-      let src = STATE.currentList === 'active' ? STATE.records : STATE.archives;
+      
+      // DETERMINE SOURCE LIST
+      let src = STATE.records;
+      if (STATE.currentList === 'secondary') {
+         // Secondary is Archive for CWC, Completed for Pharmacy
+         if (STATE.user.defaultRole === 'PHARMACY') {
+            // Pharmacy Completed List (Items marked PHARMACY_UPDATE)
+            src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags.PHARMACY_UPDATE);
+         } else {
+            // CWC Archive List
+            src = STATE.archives;
+         }
+      } else {
+         // Active List
+         if (STATE.user.defaultRole === 'PHARMACY') {
+            // Pharmacy Active List (Only items submitted to them)
+            src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags.SUBMITTED_TO_PHARMACY);
+         }
+         // CWC Active list sees everything in Active sheet
+      }
+
       const term = document.getElementById('search').value.toLowerCase();
       let filt = src.filter(r => (r.patientName||'').toLowerCase().includes(term) || (r.prn||'').toLowerCase().includes(term));
-      
-      if(STATE.user.defaultRole === 'PHARMACY' && STATE.currentList === 'active') {
-         filt = filt.filter(r => r.workflowStatus === STATE.config.flags.SUBMITTED_TO_PHARMACY || r.workflowStatus === STATE.config.flags.PHARMACY_UPDATE);
-      }
 
       filt.sort((a, b) => {
          const pA = (a.priority||'').toLowerCase() === 'urgent' ? 1 : 0;
@@ -561,8 +748,10 @@
 
       filt.forEach(r => {
         const div = document.createElement('div');
+        const alerting = STATE.alertingIds.has(r.rowNum);
         const unread = STATE.unreadIds.has(r.rowNum);
-        div.className = `patient-item ${STATE.selectedId === r.rowNum ? 'selected' : ''} ${unread ? 'unread' : ''}`;
+        
+        div.className = `patient-item ${STATE.selectedId === r.rowNum ? 'selected' : ''} ${alerting ? 'alerting' : (unread ? 'unread' : '')}`;
         div.onclick = (e) => { e.stopPropagation(); selectRecord(r); };
         
         let extBadgesHTML = '';
@@ -595,7 +784,15 @@
     }
 
     function selectRecord(r) {
-       if(STATE.currentList === 'archive' && !r.isFullRecord) {
+       // Clear Alert State for this record
+       if (STATE.alertingIds.has(r.rowNum)) {
+          STATE.alertingIds.delete(r.rowNum);
+          STATE.unreadIds.delete(r.rowNum);
+          if (STATE.alertingIds.size === 0) stopNotificationLoop();
+          renderList(); // Re-render to remove red styling
+       }
+
+       if(STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC' && !r.isFullRecord) {
           toggleLoader(true);
           google.script.run.withSuccessHandler(res => {
                toggleLoader(false);
@@ -640,7 +837,7 @@
        document.getElementById('btn-outreach').classList.toggle('hidden', isPharm);
        document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
        
-       const isArchive = STATE.currentList === 'archive';
+       const isArchive = (STATE.currentList === 'secondary' && !isPharm); // Only disable if in CWC Archive
        Array.from(form.elements).forEach(i => {
           i.disabled = isArchive;
           if (!isArchive && !isPharm) {
@@ -659,7 +856,7 @@
             <div class="pg-item"><div class="pg-label">Sex</div><div class="pg-val">${r.sex || '-'}</div></div>
             <div class="pg-item"><div class="pg-label">Phone</div><div class="pg-val">${r.phoneNumber || '-'}</div></div>
             <div class="pg-item"><div class="pg-label">Address</div><div class="pg-val">${r.address || '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">SSN</div><div class="pg-val" onclick="alert('${r.ssn||'No SSN'}')">Click to View</div></div>
+            <div class="pg-item"><div class="pg-label">SSN</div><div class="pg-val" onclick="showDialog('Social Security Number', '${r.ssn||'No SSN'}')">Click to View</div></div>
             <div class="pg-item"><div class="pg-label">Medication</div><div class="pg-val">${r.medicationDetails || '-'}</div></div>
             <div class="pg-item"><div class="pg-label">Provider</div><div class="pg-val">${r.provider || '-'}</div></div>
             <div class="pg-item"><div class="pg-label">Pharmacy</div><div class="pg-val">${r.pharmacy || '-'}</div></div>
@@ -701,7 +898,27 @@
        if (act === 'Submit to Pharmacy') {
          const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
          const missing = req.filter(k => !d[k] || d[k] === '-- Select --');
-         if (missing.length > 0) { toggleLoader(false); alert("Missing: " + missing.join(", ")); return; }
+         if (missing.length > 0) { 
+           toggleLoader(false); 
+           // Mapped "Nice Names" for validation
+           const niceNames = {
+             prn: '🆔 PRN',
+             ssn: '🔒 Social Security',
+             dob: '📅 DOB',
+             sex: '⚧ Sex',
+             phoneNumber: '📞 Phone',
+             address: '🏠 Address',
+             pharmacy: '💊 Pharmacy',
+             provider: '🩺 Provider',
+             medicationDetails: '🧪 Medication',
+             status: '📊 Status',
+             insuranceName: '🛡️ Insurance',
+             insuranceId: '💳 Insurance ID'
+           };
+           const listHTML = "<ul>" + missing.map(f => `<li>${niceNames[f] || f}</li>`).join("") + "</ul>";
+           showDialog("Missing Information", "Please fill in the following required fields:" + listHTML);
+           return; 
+         }
        }
 
        const chkPriority = document.getElementById('chk-priority');
@@ -739,12 +956,18 @@
     function refreshChat() { google.script.run.withSuccessHandler(h=>{if(h.length){STATE.chatHistory=h; renderChat();}}).pollChat(); }
     function checkUpdates() { google.script.run.withSuccessHandler(res=>{if(res.hasUpdate){STATE.records=res.activeRecords; renderList(); toast('Data Updated');}}).checkForUpdates(STATE.dataHash); }
     function switchRole() { STATE.user.defaultRole = STATE.user.defaultRole==='CWC'?'PHARMACY':'CWC'; setupRoleView(); closeDetail(); toast('Switched View'); }
+    
     function setupRoleView() {
        const r = STATE.user.defaultRole;
        document.getElementById('view-indicator').innerText = r + ' View';
        document.getElementById('btn-add-record').classList.toggle('hidden', r==='PHARMACY');
        document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1 && !STATE.user.email.includes('pierre'));
+       
+       // Update Second Tab Text
+       const secTab = document.getElementById('tab-secondary');
+       secTab.innerText = r === 'PHARMACY' ? 'Completed' : 'Archive';
     }
+    
     function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('cwc_dark_mode', document.body.classList.contains('dark-mode')); }
     function toggleBlur() { STATE.blur=!STATE.blur; localStorage.setItem('cwc_blur_enabled',STATE.blur); renderList(); }
     function toggleSSN() { const i=document.getElementById('inp-ssn'); i.type=i.type==='password'?'text':'password'; }
@@ -753,7 +976,7 @@
     function switchList(t) { 
        STATE.currentList = t; 
        document.getElementById('tab-active').classList.toggle('active', t === 'active'); 
-       document.getElementById('tab-archive').classList.toggle('active', t === 'archive'); 
+       document.getElementById('tab-secondary').classList.toggle('active', t === 'secondary'); 
        closeDetail();
     }
   </script>
