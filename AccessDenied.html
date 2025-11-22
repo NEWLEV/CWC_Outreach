@@ -3,40 +3,142 @@
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-    .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); max-width: 450px; width: 90%; border: 1px solid #e5e7eb; }
-    h1 { color: #ef4444; margin-bottom: 10px; font-size: 28px; font-weight: 800; }
-    h3 { color: #1f2937; margin-bottom: 5px; font-size: 16px; font-weight: 700; }
-    p { margin-bottom: 20px; line-height: 1.5; font-size: 15px; color: #6b7280; }
-    .email { font-weight: bold; color: #3b82f6; display: block; margin: 15px 0 25px 0; padding: 12px; background: #eff6ff; border-radius: 8px; font-size: 14px; border: 1px dashed #bfdbfe; }
-    .icon { font-size: 64px; color: #ef4444; margin-bottom: 15px; }
-    button { padding: 12px 25px; background-color: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 700; transition: background-color 0.2s, transform 0.2s; }
-    button:hover { background-color: #2563eb; transform: translateY(-1px); }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background-color: #f3f4f6; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      margin: 0; 
+      color: #374151;
+    }
+    .card {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px -10px rgba(225, 29, 72, 0.15);
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      border: 1px solid #fca5a5; /* Red-300 border */
+    }
+    
+    /* Icon Styling */
+    .icon-container { margin-bottom: 20px; display:flex; justify-content:center; }
+    .stop-icon {
+      width: 60px; height: 60px;
+      background-color: #f43f5e; /* Rose-500 */
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 10px rgba(244, 63, 94, 0.4);
+    }
+    .stop-dash {
+      width: 30px; height: 6px;
+      background-color: white;
+      border-radius: 4px;
+    }
+
+    h1 {
+      color: #e11d48; /* Rose-600 */
+      font-weight: 800;
+      font-size: 26px;
+      margin: 0 0 15px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    p.main-msg {
+      color: #1f2937;
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: #ffe4e6; /* Rose-100 */
+      color: #881337; /* Rose-900 */
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 25px;
+    }
+
+    /* Dynamic Details Section */
+    .tech-details {
+      margin-top: 10px;
+      margin-bottom: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #f3f4f6;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .error-reason { color: #e11d48; font-weight: 600; display: block; margin-top: 4px; }
+
+    .btn {
+      background-color: #3b82f6; /* Blue for action to distinguish from error red */
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.1s;
+    }
+    .btn:hover { background-color: #2563eb; transform: translateY(-1px); }
+
+    .footer-text {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 25px;
+    }
   </style>
+  <script>
+    function tryAgain() {
+       // This ensures the page reloads at the top level, fixing the blank screen issue
+       window.top.location.href = "<?= appUrl ?>";
+    }
+  </script>
 </head>
 <body>
-  <div class="container">
-    <div class="icon">🚫</div>
+  <div class="card">
+    <div class="icon-container">
+      <div class="stop-icon"><div class="stop-dash"></div></div>
+    </div>
+    
     <h1>Access Denied</h1>
+    
+    <p class="main-msg">
+      You are not authorized to access this system.<br>
+      Protected Health Information (PHI) Restricted.
+    </p>
+    
+    <div class="badge">HIPAA Secure Area</div>
+
     <? if (userEmail) { ?>
-      <h3>Unauthorized Account</h3>
-      <span class="email"><?!= userEmail ?></span>
-      <p>
+      <div class="tech-details">
+        Account: <strong><?!= userEmail ?></strong>
         <? if (reason) { ?>
-          <strong>Reason for Denial:</strong> <br><?!= reason ?>
-        <? } else { ?>
-          Your Google account is not listed in the authorized user whitelist.
+           <span class="error-reason"><?!= reason ?></span>
         <? } ?>
-      </p>
-      <button onclick="window.location.reload()">Try Again</button>
+      </div>
+      <button class="btn" onclick="tryAgain()">Try Again</button>
     <? } else { ?>
-      <h3>Login Required</h3>
-      <p>Please log in with the Google Account authorized to access this application.</p>
-      <button onclick="window.location.reload()">Click to Log In</button>
+      <div style="margin-bottom:20px;">
+         <button class="btn" onclick="tryAgain()">Log In With Authorized Account</button>
+      </div>
     <? } ?>
-    <p style="margin-top: 30px; font-size: 12px; color: #9ca3af;">
-      If you require access, please contact the administrator (<?!= CONFIG.ADMIN_EMAIL ?>).
+
+    <p class="footer-text">
+      If you believe this is an error, contact your administrator.
     </p>
   </div>
 </body>
