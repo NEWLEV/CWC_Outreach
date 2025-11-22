@@ -17,6 +17,10 @@
       --text-main: #0f172a;
       --text-muted: #64748b;
       
+      /* Read Only Card Colors */
+      --card-bg: #f1f5f9;
+      --card-border: #e2e8f0;
+      
       /* Brand Colors */
       --primary: #3b82f6; 
       --primary-hover: #2563eb;
@@ -43,17 +47,21 @@
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       
+      /* Read Only Card Colors (Dark) */
+      --card-bg: #334155;
+      --card-border: #475569;
+      
       --chip-new-bg: #1e3a8a; --chip-new-text: #bfdbfe;
       --chip-rev-bg: #78350f; --chip-rev-text: #fcd34d;
       --chip-phm-bg: #064e3b; --chip-phm-text: #6ee7b7;
     }
 
-    body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; width: 100vw; overflow: hidden; transition: background 0.3s ease; font-size: 14px; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; width: 100vw; overflow: hidden; transition: background 0.3s ease; font-size: 13px; }
 
     /* --- LAYOUT STRUCTURE --- */
     #app-container { 
       display: grid; 
-      grid-template-columns: 320px 1fr; 
+      grid-template-columns: 300px 1fr; 
       height: 100%; 
       opacity: 0; /* Loaded via JS */
       transition: opacity 0.3s ease;
@@ -66,175 +74,231 @@
       border-right: 1px solid var(--border); 
       display: flex; flex-direction: column; 
       z-index: 20;
+      height: 100vh; 
     }
 
     .sb-header { 
-      padding: 20px; 
+      padding: 15px; 
       border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
-    .sb-header h3 { color: var(--primary); font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
-    .sb-header .sub-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .sb-header h3 { color: var(--primary); font-weight: 800; font-size: 16px; letter-spacing: -0.5px; margin: 0; }
+    .sb-header .sub-text { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    .search-area { padding: 12px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+    .search-area { padding: 10px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-shrink: 0; }
     .search-input-wrapper { position: relative; flex: 1; }
     .search-input-wrapper input {
-      width: 100%; padding: 8px 10px 8px 30px;
+      width: 100%; padding: 6px 8px 6px 26px; 
       background: var(--bg-input); border: 1px solid transparent;
-      border-radius: 6px; color: var(--text-main); font-size: 13px;
+      border-radius: 6px; color: var(--text-main); font-size: 12px;
       transition: 0.2s;
     }
     .search-input-wrapper input:focus { border-color: var(--primary); background: var(--bg-panel); }
-    .search-icon { position: absolute; left: 8px; top: 8px; font-size: 12px; opacity: 0.5; }
+    .search-icon { position: absolute; left: 7px; top: 7px; font-size: 11px; opacity: 0.5; }
 
-    .tabs { display: flex; padding: 0 12px; gap: 10px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
+    .tabs { display: flex; padding: 0 10px; gap: 10px; border-bottom: 1px solid var(--border); background: var(--bg-panel); flex-shrink: 0; }
     .tab { 
-      padding: 12px 4px; cursor: pointer; font-weight: 600; 
+      padding: 10px 4px; cursor: pointer; font-weight: 600; 
       color: var(--text-muted); border-bottom: 2px solid transparent; font-size: 12px; 
       transition: 0.2s;
     }
     .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-    .list-container { flex: 1; overflow-y: auto; padding: 10px; }
+    /* List takes remaining vertical space */
+    .list-container { flex: 1; overflow-y: auto; padding: 8px; min-height: 0; } 
     
     /* Patient Card in List */
     .patient-item { 
       background: var(--bg-panel); 
-      padding: 12px; margin-bottom: 8px; border-radius: 8px; 
+      padding: 10px; margin-bottom: 6px; border-radius: 6px; 
       border: 1px solid var(--border); cursor: pointer; 
       transition: all 0.2s; position: relative;
     }
-    .patient-item:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .patient-item:hover { transform: translateY(-1px); border-color: var(--primary); }
     .patient-item.selected { background: var(--primary); border-color: var(--primary); color: white; }
     .patient-item.selected .sub-text, .patient-item.selected strong { color: white; }
     
     /* Notification Pulse for Unread Items */
     @keyframes flash-border { 0% { border-color: var(--primary); } 50% { border-color: var(--danger); } 100% { border-color: var(--primary); } }
-    .patient-item.alerting { border-left: 4px solid var(--danger); animation: flash-border 1.5s infinite; background: var(--bg-input); }
-    .patient-item.unread { border-left: 4px solid var(--primary); background: var(--bg-input); }
+    .patient-item.alerting { border-left: 3px solid var(--danger); animation: flash-border 1.5s infinite; background: var(--bg-input); }
+    .patient-item.unread { border-left: 3px solid var(--primary); background: var(--bg-input); }
 
-    .pi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .pi-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-    .pi-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
+    .pi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .pi-name { font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+    .pi-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
     
     /* Chips & Badges */
-    .status-chip { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .status-chip { padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
     .chip-new { background: var(--chip-new-bg); color: var(--chip-new-text); }
     .chip-rev { background: var(--chip-rev-bg); color: var(--chip-rev-text); }
     .chip-phm { background: var(--chip-phm-bg); color: var(--chip-phm-text); }
 
-    .ext-tag { font-size: 9px; padding: 2px 5px; border-radius: 3px; color: white; font-weight: 700; margin-right: 4px; }
+    .ext-tag { font-size: 9px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: 700; margin-right: 4px; }
     .tag-mail { background: var(--tag-mail); }
     .tag-meds { background: var(--tag-meds); }
 
     /* --- CHAT SECTION --- */
     .chat-section { 
-      height: 280px; background: var(--bg-panel); border-top: 1px solid var(--border); 
-      display: flex; flex-direction: column; 
+      height: 200px; 
+      background: var(--bg-panel); border-top: 1px solid var(--border); 
+      display: flex; flex-direction: column; flex-shrink: 0;
     }
     .chat-header { 
-      padding: 8px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); 
+      padding: 6px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); 
       display: flex; justify-content: space-between; background: var(--bg-input);
     }
-    .chat-msgs { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-    .msg { max-width: 85%; padding: 8px 10px; border-radius: 12px; font-size: 12px; line-height: 1.3; }
+    .chat-msgs { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .msg { max-width: 90%; padding: 6px 8px; border-radius: 8px; font-size: 11px; line-height: 1.3; }
     .msg.in { align-self: flex-start; background: var(--bg-input); color: var(--text-main); border-bottom-left-radius: 2px; }
     .msg.out { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
-    .chat-input-box { padding: 8px; border-top: 1px solid var(--border); display: flex; gap: 5px; }
+    .chat-input-box { padding: 6px; border-top: 1px solid var(--border); display: flex; gap: 4px; }
     
     /* --- MAIN CONTENT --- */
-    main { display: flex; flex-direction: column; background: var(--bg-app); height: 100%; overflow: hidden; }
+    main { display: flex; flex-direction: column; background: var(--bg-app); height: 100vh; overflow: hidden; }
     
     header { 
-      height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); 
-      display: flex; justify-content: space-between; align-items: center; padding: 0 24px;
+      height: 50px; 
+      background: var(--bg-panel); border-bottom: 1px solid var(--border); 
+      display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+      flex-shrink: 0;
     }
     .view-badge { 
-      display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; 
-      padding: 4px 10px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; 
+      padding: 3px 8px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border);
     }
-    .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 5px var(--success); }
+    .live-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 4px var(--success); }
 
-    .content-area { flex: 1; padding: 24px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+    /* Flex Column to fill remaining height */
+    .content-area { 
+      flex: 1; 
+      padding: 15px; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+    }
     
     /* THE MAIN CARD */
     .main-card { 
-      width: 100%; max-width: 1000px; 
+      flex: 1; 
+      width: 100%; max-width: 1200px; 
+      margin: 0 auto;
       background: var(--bg-panel); border: 1px solid var(--border); 
-      border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
       display: flex; flex-direction: column; overflow: hidden;
     }
 
     .mc-header { 
-      padding: 20px; border-bottom: 1px solid var(--border); 
-      display: flex; justify-content: space-between; align-items: flex-start; 
+      padding: 15px 20px; border-bottom: 1px solid var(--border); 
+      display: flex; justify-content: space-between; align-items: center; 
+      flex-shrink: 0;
     }
-    .mc-title h1 { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
-    .mc-subtitle { font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; gap: 10px; align-items: center; }
+    .mc-title h1 { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 2px; }
+    .mc-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; display: flex; gap: 10px; align-items: center; }
     
     /* TABS WITHIN CARD */
-    .card-tabs { display: flex; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
+    .card-tabs { 
+      display: flex; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--bg-panel); 
+      flex-shrink: 0;
+    }
     .c-tab { 
-      padding: 15px 0; margin-right: 25px; font-size: 13px; font-weight: 600; 
+      padding: 12px 0; margin-right: 20px; font-size: 12px; font-weight: 600; 
       color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; 
     }
     .c-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-    /* FORM LAYOUT */
-    .form-container { padding: 25px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    /* FORM LAYOUT - SCROLLABLE AREA */
+    #patient-form { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+    .form-scroll-area {
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 20px;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
     .full-width { grid-column: 1 / -1; }
     .three-col { grid-template-columns: 1fr 1fr 1fr; }
 
     /* INPUT STYLING */
-    .input-group { display: flex; flex-direction: column; gap: 6px; }
-    .input-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+    .input-group { display: flex; flex-direction: column; gap: 4px; }
+    .input-group label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px; }
     
     .input-wrapper { position: relative; }
     .input-wrapper input, .input-wrapper select, .input-wrapper textarea {
-      width: 100%; padding: 10px 12px;
+      width: 100%; padding: 8px 10px;
       background: var(--bg-input); border: 1px solid transparent;
       border-radius: 6px; color: var(--text-main); font-size: 13px; font-family: 'Inter', sans-serif;
       transition: all 0.2s ease;
     }
-    .input-wrapper textarea { resize: vertical; min-height: 80px; }
+    .input-wrapper textarea { resize: vertical; min-height: 60px; }
     .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus {
       background: var(--bg-panel); border-color: var(--primary); 
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
     }
     .input-wrapper input:disabled, .input-wrapper select:disabled, .input-wrapper textarea:disabled {
-      opacity: 0.5; cursor: not-allowed; border: 1px dashed var(--border);
+      opacity: 0.6; cursor: not-allowed; border: 1px dashed var(--border); background: transparent;
     }
 
-    /* PHARMACY READ ONLY GRID */
-    .pharm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .pg-item { padding: 10px; background: var(--bg-input); border-radius: 6px; border: 1px solid var(--border); }
-    .pg-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-    .pg-val { font-size: 13px; font-weight: 600; color: var(--text-main); word-break: break-word; }
+    /* --- UPDATED READ-ONLY VIEW --- */
+    .ro-container { 
+      display: flex; flex-direction: column; gap: 15px; 
+    }
+    
+    .ro-section { 
+      border-bottom: 1px solid var(--border); 
+      padding-bottom: 15px; 
+    }
+    .ro-section:last-child { border-bottom: none; padding-bottom: 0; }
+    
+    .ro-header { 
+      font-size: 11px; font-weight: 800; 
+      color: var(--primary); 
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 10px; 
+    }
+    
+    .ro-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+      gap: 15px; 
+    }
+    
+    .ro-field { display: flex; flex-direction: column; gap: 2px; }
+    .ro-label { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .ro-value { font-size: 13px; font-weight: 600; color: var(--text-main); overflow-wrap: break-word; }
+    
+    .ro-ssn-btn { 
+      color: var(--primary); cursor: pointer; 
+      font-size: 11px; font-weight: 700; 
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .ro-ssn-btn:hover { text-decoration: underline; }
 
     /* ACTION BAR */
     .action-bar { 
-      padding: 20px; border-top: 1px solid var(--border); background: var(--bg-panel);
-      display: flex; gap: 15px; justify-content: flex-end;
+      padding: 15px 20px; border-top: 1px solid var(--border); background: var(--bg-panel);
+      display: flex; gap: 10px; justify-content: flex-end;
+      flex-shrink: 0;
     }
 
     /* BUTTONS */
     .btn { 
-      padding: 9px 16px; border-radius: 6px; border: none; cursor: pointer; 
-      font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; 
+      padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; 
+      font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; 
       transition: transform 0.1s, box-shadow 0.2s;
     }
     .btn:active { transform: translateY(1px); }
     
-    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 6px 10px; }
     .btn-ghost:hover { background: var(--bg-input); color: var(--text-main); }
     
-    .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(59,130,246,0.3); }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(59,130,246,0.3); }
     .btn-primary:hover { background: var(--primary-hover); }
     
-    .btn-success { background: var(--success); color: white; box-shadow: 0 2px 5px rgba(16,185,129,0.3); }
-    .btn-purple { background: var(--purple); color: white; box-shadow: 0 2px 5px rgba(139,92,246,0.3); }
+    .btn-success { background: var(--success); color: white; box-shadow: 0 2px 4px rgba(16,185,129,0.3); }
+    .btn-purple { background: var(--purple); color: white; box-shadow: 0 2px 4px rgba(139,92,246,0.3); }
     
-    .btn-block { flex: 1; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; height: 44px; }
+    .btn-block { flex: 1; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; height: 38px; }
 
     /* UTILS */
     .hidden { display: none !important; }
@@ -242,19 +306,19 @@
     .flex-spacer { flex: 1; }
     
     /* TOGGLES & CHECKBOXES */
-    .toggle-label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .urgent-toggle input { accent-color: var(--danger); width: 16px; height: 16px; }
+    .toggle-label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .urgent-toggle input { accent-color: var(--danger); width: 14px; height: 14px; }
     .urgent-text { color: var(--danger); }
 
     /* Loader & Overlays */
     .loader-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(4px); color: white; }
-    .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .access-denied-box { background: white; padding: 40px; border-radius: 12px; text-align: center; max-width: 400px; color: #333; }
+    .access-denied-box { background: white; padding: 30px; border-radius: 12px; text-align: center; max-width: 350px; color: #333; }
     
-    /* Toast with Flash Animation for Alert */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    /* Toast */
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
     .toast.alert { background: var(--danger); animation: pulse 1s infinite; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
@@ -264,22 +328,19 @@
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     
     .modal-box { 
-      background: var(--bg-panel); width: 90%; max-width: 420px; 
-      border-radius: 16px; padding: 24px; 
+      background: var(--bg-panel); width: 90%; max-width: 380px; 
+      border-radius: 12px; padding: 20px; 
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
       transform: scale(0.95); transition: transform 0.2s; 
       border: 1px solid var(--border); 
     }
     .modal-overlay.active .modal-box { transform: scale(1); }
     
-    .modal-box h3 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; }
-    .modal-content { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
-    
-    /* List Styling within Modal */
-    .modal-content ul { margin: 10px 0; padding-left: 20px; list-style-type: disc; }
-    .modal-content li { margin-bottom: 4px; color: var(--text-main); }
-    
-    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .modal-box h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+    .modal-content { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+    .modal-content ul { margin: 8px 0; padding-left: 18px; list-style-type: disc; }
+    .modal-content li { margin-bottom: 3px; color: var(--text-main); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
   </style>
 </head>
@@ -289,7 +350,7 @@
   <div id="security-overlay" class="loader-overlay">
     <div id="loader-msg" style="text-align:center;">
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
-      <h3>Loading CWC Outreach...</h3>
+      <h3 style="font-size:14px; font-weight:500; margin-top:10px;">Loading...</h3>
     </div>
     <div id="access-denied" class="access-denied-box hidden">
       <h2 style="color:var(--danger); margin-bottom:10px;">Access Denied</h2>
@@ -298,7 +359,7 @@
     </div>
   </div>
 
-  <!-- CUSTOM MODAL (Replaces window.alert) -->
+  <!-- CUSTOM MODAL -->
   <div id="custom-modal" class="modal-overlay">
     <div class="modal-box">
       <h3 id="modal-title">Alert</h3>
@@ -316,7 +377,7 @@
     <aside>
       <div class="sb-header">
         <h3>CWC Outreach</h3>
-        <div class="sub-text" id="user-email">Loading user...</div>
+        <div class="sub-text" id="user-email">Loading...</div>
       </div>
       
       <div class="search-area">
@@ -324,14 +385,12 @@
           <span class="search-icon">🔍</span>
           <input type="text" id="search" placeholder="Name or PRN..." onkeyup="handleSearch()">
         </div>
-        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleSort()" id="btn-sort">⬇</button>
-        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleBlur()">👁</button>
+        <button class="btn btn-ghost" style="padding:6px;" onclick="toggleSort()" id="btn-sort">⬇</button>
+        <button class="btn btn-ghost" style="padding:6px;" onclick="toggleBlur()">👁</button>
       </div>
 
       <div class="tabs">
         <div id="tab-active" class="tab active" onclick="switchList('active')">Active</div>
-        
-        <!-- DYNAMIC TAB: Archive for CWC, Completed for Pharmacy -->
         <div id="tab-secondary" class="tab" onclick="switchList('secondary')">Archive</div>
       </div>
 
@@ -360,8 +419,8 @@
           <div class="live-dot"></div>
           <span id="view-indicator">CWC View</span>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button class="btn btn-primary" id="btn-add-record" onclick="addRecord(event)">+ New Record</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn btn-primary btn-ghost" style="border:1px solid var(--primary); background:rgba(59,130,246,0.1); color:var(--primary);" id="btn-add-record" onclick="addRecord(event)">+ New</button>
           <button class="btn btn-ghost" onclick="exportPDF()">📄 PDF</button>
           <button class="btn btn-ghost hidden" id="btn-switch-role" onclick="switchRole()">⇄ Switch</button>
           <button class="btn btn-ghost" onclick="init()">↻</button>
@@ -374,9 +433,9 @@
       <div class="content-area">
         
         <!-- EMPTY STATE -->
-        <div id="empty-state" style="text-align:center; color:var(--text-muted); margin-top:100px;">
-          <div style="font-size:48px; opacity:0.2; margin-bottom:20px;">📋</div>
-          <h2>No Record Selected</h2>
+        <div id="empty-state" style="text-align:center; color:var(--text-muted); margin-top:20vh;">
+          <div style="font-size:48px; opacity:0.2; margin-bottom:15px;">📋</div>
+          <h2 style="font-size:18px;">No Record Selected</h2>
           <p>Select a patient from the sidebar to view details.</p>
         </div>
 
@@ -393,145 +452,153 @@
             </div>
             <div style="text-align:right;">
                <span id="d-status" class="status-chip chip-new">New</span>
-               <div style="margin-top:10px;">
-                 <button class="btn btn-ghost" style="padding:4px 8px; font-size:12px;" onclick="closeDetail()">Close ✕</button>
+               <div style="margin-top:5px;">
+                 <button class="btn btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="closeDetail()">Close ✕</button>
                </div>
             </div>
           </div>
 
-          <form id="patient-form" style="display:flex; flex-direction:column; flex:1;">
+          <form id="patient-form">
             
             <!-- CWC VIEW CONTAINER -->
-            <div id="view-cwc-container">
+            <div id="view-cwc-container" style="display:flex; flex-direction:column; height:100%;">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
                 <div class="c-tab" onclick="showSection('meds', event)">Clinical & Meds</div>
                 <div class="flex-spacer"></div>
                 <div style="display:flex; align-items:center;">
                    <label class="toggle-label urgent-toggle">
-                     <input type="checkbox" name="priority_check" id="chk-priority"> 
+                     <!-- Removed Name Attribute to Prevent Server Conflict -->
+                     <input type="checkbox" id="chk-priority"> 
                      <span class="urgent-text">🔥 Urgent</span>
                    </label>
                 </div>
               </div>
 
-              <div class="form-container">
-                <!-- Section: Patient Info -->
-                <div id="sec-patient" class="form-grid">
-                   <div class="input-group">
-                     <label>👤 Name</label>
-                     <div class="input-wrapper"><input type="text" name="patientName" class="force-upper" required></div>
-                   </div>
-                   <div class="input-group">
-                     <label>🆔 PRN</label>
-                     <div class="input-wrapper"><input type="text" name="prn" class="force-upper" required></div>
-                   </div>
-                   
-                   <div class="input-group">
-                      <label>🔒 SSN</label>
-                      <div class="input-wrapper" style="display:flex; gap:5px;">
-                        <input type="password" name="ssn" id="inp-ssn" placeholder="•••-••-••••">
-                        <button type="button" class="btn btn-ghost" onclick="toggleSSN()">👁</button>
-                      </div>
-                   </div>
-                   <div class="input-group">
-                      <label>📅 DOB</label>
-                      <div class="input-wrapper"><input type="date" name="dob"></div>
-                   </div>
-                   
-                   <div class="input-group">
-                      <label>⚧ Sex</label>
-                      <div class="input-wrapper"><select name="sex" id="opt-sex"></select></div>
-                   </div>
-                   <div class="input-group">
-                      <label>📞 Phone</label>
-                      <div class="input-wrapper"><input type="text" name="phoneNumber"></div>
-                   </div>
-                   
-                   <div class="input-group full-width">
-                      <label>🏠 Address</label>
-                      <div class="input-wrapper"><input type="text" name="address"></div>
-                   </div>
-                   
-                   <div class="input-group full-width">
-                      <label>📝 Reason for Outreach</label>
-                      <div class="input-wrapper"><input type="text" name="reason"></div>
-                   </div>
-                   
-                   <div class="input-group full-width">
-                      <label>📢 Outreach Note</label>
-                      <div class="input-wrapper"><textarea name="outreachNote"></textarea></div>
-                   </div>
-                </div>
+              <div class="form-scroll-area">
+                <div class="form-container">
+                  <!-- Section: Patient Info -->
+                  <div id="sec-patient" class="form-grid">
+                     <div class="input-group">
+                       <label>👤 Name</label>
+                       <div class="input-wrapper"><input type="text" name="patientName" class="force-upper" required></div>
+                     </div>
+                     <div class="input-group">
+                       <label>🆔 PRN</label>
+                       <div class="input-wrapper"><input type="text" name="prn" class="force-upper" required></div>
+                     </div>
+                     
+                     <div class="input-group">
+                        <label>🔒 SSN</label>
+                        <div class="input-wrapper" style="display:flex; gap:5px;">
+                          <input type="password" name="ssn" id="inp-ssn" placeholder="•••-••-••••">
+                          <button type="button" class="btn btn-ghost" onclick="toggleSSN()">👁</button>
+                        </div>
+                     </div>
+                     <div class="input-group">
+                        <label>📅 DOB</label>
+                        <div class="input-wrapper"><input type="date" name="dob"></div>
+                     </div>
+                     
+                     <div class="input-group">
+                        <label>⚧ Sex</label>
+                        <div class="input-wrapper"><select name="sex" id="opt-sex"></select></div>
+                     </div>
+                     <div class="input-group">
+                        <label>📞 Phone</label>
+                        <div class="input-wrapper"><input type="text" name="phoneNumber"></div>
+                     </div>
+                     
+                     <div class="input-group full-width">
+                        <label>🏠 Address</label>
+                        <div class="input-wrapper"><input type="text" name="address"></div>
+                     </div>
+                     
+                     <div class="input-group full-width">
+                        <label>📝 Reason for Outreach</label>
+                        <div class="input-wrapper"><input type="text" name="reason"></div>
+                     </div>
+                     
+                     <div class="input-group full-width">
+                        <label>📢 Outreach Note</label>
+                        <div class="input-wrapper"><textarea name="outreachNote"></textarea></div>
+                     </div>
+                  </div>
 
-                <!-- Section: Clinical -->
-                <div id="sec-meds" class="form-grid hidden">
-                   <div class="input-group">
-                     <label>💊 Pharmacy</label>
-                     <div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div>
-                   </div>
-                   <div class="input-group">
-                     <label>🩺 Provider</label>
-                     <div class="input-wrapper"><select name="provider" id="opt-provider"></select></div>
-                   </div>
-                   
-                   <div class="input-group">
-                     <label>🧪 Medication</label>
-                     <div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div>
-                   </div>
-                   <div class="input-group">
-                     <label>📊 Status</label>
-                     <div class="input-wrapper"><select name="status" id="opt-status"></select></div>
-                   </div>
-                   
-                   <div class="input-group">
-                     <label>🛡️ Insurance</label>
-                     <div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div>
-                   </div>
-                   <div class="input-group">
-                     <label>💳 Insurance ID</label>
-                     <div class="input-wrapper"><input type="text" name="insuranceId"></div>
-                   </div>
-                   
-                   <div class="input-group full-width">
-                      <label>🗒️ Office Notes</label>
-                      <div class="input-wrapper"><textarea name="officeNote"></textarea></div>
-                   </div>
+                  <!-- Section: Clinical -->
+                  <div id="sec-meds" class="form-grid hidden">
+                     <div class="input-group">
+                       <label>💊 Pharmacy</label>
+                       <div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div>
+                     </div>
+                     <div class="input-group">
+                       <label>🩺 Provider</label>
+                       <div class="input-wrapper"><select name="provider" id="opt-provider"></select></div>
+                     </div>
+                     
+                     <div class="input-group">
+                       <label>🧪 Medication</label>
+                       <div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div>
+                     </div>
+                     <div class="input-group">
+                       <label>📊 Status</label>
+                       <div class="input-wrapper"><select name="status" id="opt-status"></select></div>
+                     </div>
+                     
+                     <!-- Reason moved here with Insurance per user request -->
+                     <div class="input-group three-col" style="grid-column: 1 / -1; display:grid; gap:15px;">
+                        <div class="input-group">
+                           <label>🛡️ Insurance</label>
+                           <div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div>
+                        </div>
+                        <div class="input-group">
+                           <label>💳 Insurance ID</label>
+                           <div class="input-wrapper"><input type="text" name="insuranceId"></div>
+                        </div>
+                     </div>
+                     
+                     <div class="input-group full-width">
+                        <label>🗒️ Office Notes</label>
+                        <div class="input-wrapper"><textarea name="officeNote"></textarea></div>
+                     </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- PHARMACY VIEW CONTAINER -->
-            <div id="view-pharm-container" class="hidden">
-               <div class="form-container">
-                 <div class="pharm-grid" id="pharm-info-card">
-                   <!-- Injected via JS -->
-                 </div>
-                 
-                 <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">Pharmacy Actions</h4>
-                 
-                 <div class="form-grid three-col">
-                    <div class="input-group">
-                      <label>📜 Need Script?</label>
-                      <div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div>
-                    </div>
-                    <div class="input-group">
-                      <label>🔄 Policy #</label>
-                      <div class="input-wrapper"><input type="text" name="policyNumber"></div>
-                    </div>
-                    <div class="input-group">
-                      <label>🔄 Update Ins</label>
-                      <div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div>
-                    </div>
-                 </div>
-                 <div class="input-group full-width">
-                    <label>📝 Pharmacy Notes</label>
-                    <div class="input-wrapper"><textarea name="gardenNotes"></textarea></div>
+            <!-- PHARMACY VIEW CONTAINER (Updated Read-Only) -->
+            <div id="view-pharm-container" class="hidden" style="display:flex; flex-direction:column; height:100%;">
+               <div class="form-scroll-area">
+                 <div class="form-container">
+                   <div id="pharm-info-card" class="ro-container">
+                     <!-- Injected via JS using new Sectioned style -->
+                   </div>
+                   
+                   <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:12px; margin-top:25px; font-size:12px; text-transform:uppercase;">Pharmacy Actions</h4>
+                   
+                   <div class="form-grid three-col">
+                      <div class="input-group">
+                        <label>📜 Need Script?</label>
+                        <div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div>
+                      </div>
+                      <div class="input-group">
+                        <label>🔄 Policy #</label>
+                        <div class="input-wrapper"><input type="text" name="policyNumber"></div>
+                      </div>
+                      <div class="input-group">
+                        <label>🔄 Update Ins</label>
+                        <div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div>
+                      </div>
+                   </div>
+                   <div class="input-group full-width">
+                      <label>📝 Pharmacy Notes</label>
+                      <div class="input-wrapper"><textarea name="gardenNotes"></textarea></div>
+                   </div>
                  </div>
                </div>
             </div>
 
-            <!-- ACTION BUTTONS -->
+            <!-- ACTION BUTTONS (Fixed Bottom) -->
             <div class="action-bar">
                <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">Save Changes</button>
                <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">Submit to Pharmacy</button>
@@ -557,11 +624,32 @@
     
     let pollInterval, chatInterval, notificationTimer;
     let modalCallback = null;
+    let idleTime = 0;
+    let idleTimer;
+    let isIdle = false;
     
     // Simple Beep Sound (Base64)
     const alertSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"); 
 
     window.onload = init;
+    
+    // --- SMART POLLING SYSTEM ---
+    function resetIdle() {
+      isIdle = false;
+      idleTime = 0;
+      clearTimeout(idleTimer);
+      // Set idle after 5 minutes of no activity
+      idleTimer = setTimeout(() => { isIdle = true; }, 300000); 
+    }
+
+    document.onmousemove = resetIdle;
+    document.onkeypress = resetIdle;
+    document.onclick = resetIdle;
+
+    function scheduleNextPoll(delay) {
+       if (pollInterval) clearTimeout(pollInterval);
+       pollInterval = setTimeout(checkUpdates, delay);
+    }
 
     function loadSettings() {
        const savedTheme = localStorage.getItem('cwc_dark_mode');
@@ -572,6 +660,8 @@
 
     function init() {
       loadSettings();
+      resetIdle(); // Start idle timer
+      
       google.script.run
         .withSuccessHandler(data => {
            if(data.error || !data.user || !data.user.email) {
@@ -602,8 +692,9 @@
            // Interaction required for audio in some browsers
            document.body.addEventListener('click', () => { if(typeof AudioContext !== 'undefined' && AudioContext.state === 'suspended') new AudioContext().resume(); }, {once:true});
 
-           setInterval(checkUpdates, 15000); 
-           setInterval(refreshChat, 30000);
+           // Start Smart Polling
+           scheduleNextPoll(15000);
+           setInterval(refreshChat, 30000); 
         })
         .withFailureHandler(e => {
            document.getElementById('loader-msg').innerHTML = `<h3 style="color:#ef4444">System Error</h3><p>${e.message}</p>`;
@@ -643,6 +734,9 @@
     }
 
     function checkUpdates() {
+      // Smart Interval: 15s if active, 5 mins if idle
+      const nextDelay = isIdle ? 300000 : 15000;
+      
       google.script.run.withSuccessHandler(res => {
         if(res.hasUpdate) {
            const getStableId = (r) => (r.timestamp||'')+(r.patientName||'')+(r.prn||'');
@@ -661,14 +755,11 @@
              
              let notify = false;
              
-             // NOTIFICATION LOGIC
              if (STATE.user.defaultRole === 'CWC') {
-                // Alert CWC if: New Record (not by me) OR Pharmacy Update
                 if ((isNew && r.creatorEmail !== STATE.user.email) || (isUpdated && r.workflowStatus === STATE.config.flags.PHARMACY_UPDATE)) {
                    notify = true;
                 }
              } else {
-                // Alert Pharmacy if: Submitted to Pharmacy
                 if ((isNew || isUpdated) && r.workflowStatus === STATE.config.flags.SUBMITTED_TO_PHARMACY) {
                    notify = true;
                 }
@@ -686,16 +777,19 @@
               startNotificationLoop();
            }
         }
-      }).checkForUpdates(STATE.dataHash);
+        scheduleNextPoll(nextDelay); // Reschedule next poll
+      })
+      .withFailureHandler(() => scheduleNextPoll(30000)) // Retry in 30s on error
+      .checkForUpdates(STATE.dataHash);
     }
 
     function startNotificationLoop() {
-       if (notificationTimer) return; // Already running
+       if (notificationTimer) return; 
        playAlert();
        notificationTimer = setInterval(() => {
           if (STATE.alertingIds.size > 0) playAlert();
           else stopNotificationLoop();
-       }, 60000); // Repeat every 60s
+       }, 60000); 
     }
 
     function stopNotificationLoop() {
@@ -719,9 +813,8 @@
       // DETERMINE SOURCE LIST
       let src = STATE.records;
       if (STATE.currentList === 'secondary') {
-         // Secondary is Archive for CWC, Completed for Pharmacy
          if (STATE.user.defaultRole === 'PHARMACY') {
-            // Pharmacy Completed List (Items marked PHARMACY_UPDATE)
+            // Pharmacy Completed List
             src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags.PHARMACY_UPDATE);
          } else {
             // CWC Archive List
@@ -730,10 +823,9 @@
       } else {
          // Active List
          if (STATE.user.defaultRole === 'PHARMACY') {
-            // Pharmacy Active List (Only items submitted to them)
+            // Pharmacy Active List
             src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags.SUBMITTED_TO_PHARMACY);
          }
-         // CWC Active list sees everything in Active sheet
       }
 
       const term = document.getElementById('search').value.toLowerCase();
@@ -784,12 +876,11 @@
     }
 
     function selectRecord(r) {
-       // Clear Alert State for this record
        if (STATE.alertingIds.has(r.rowNum)) {
           STATE.alertingIds.delete(r.rowNum);
           STATE.unreadIds.delete(r.rowNum);
           if (STATE.alertingIds.size === 0) stopNotificationLoop();
-          renderList(); // Re-render to remove red styling
+          renderList();
        }
 
        if(STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC' && !r.isFullRecord) {
@@ -837,7 +928,7 @@
        document.getElementById('btn-outreach').classList.toggle('hidden', isPharm);
        document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
        
-       const isArchive = (STATE.currentList === 'secondary' && !isPharm); // Only disable if in CWC Archive
+       const isArchive = (STATE.currentList === 'secondary' && !isPharm); 
        Array.from(form.elements).forEach(i => {
           i.disabled = isArchive;
           if (!isArchive && !isPharm) {
@@ -850,19 +941,49 @@
        });
 
        if(isPharm) {
-          const grid = document.getElementById('pharm-info-card');
-          grid.innerHTML = `
-            <div class="pg-item"><div class="pg-label">DOB</div><div class="pg-val">${r.dob ? new Date(r.dob).toLocaleDateString() : '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">Sex</div><div class="pg-val">${r.sex || '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">Phone</div><div class="pg-val">${r.phoneNumber || '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">Address</div><div class="pg-val">${r.address || '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">SSN</div><div class="pg-val" onclick="showDialog('Social Security Number', '${r.ssn||'No SSN'}')">Click to View</div></div>
-            <div class="pg-item"><div class="pg-label">Medication</div><div class="pg-val">${r.medicationDetails || '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">Provider</div><div class="pg-val">${r.provider || '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">Pharmacy</div><div class="pg-val">${r.pharmacy || '-'}</div></div>
-            <div class="pg-item"><div class="pg-label">Insurance</div><div class="pg-val">${r.insuranceName || '-'}</div></div>
-            <div class="pg-item" style="grid-column:1/-1"><div class="pg-label">Reason</div><div class="pg-val">${r.reason || '-'}</div></div>
-            <div class="pg-item" style="grid-column:1/-1"><div class="pg-label">CWC Note</div><div class="pg-val">${r.outreachNote || '-'}</div></div>
+          const container = document.getElementById('pharm-info-card');
+          container.innerHTML = `
+            <div class="ro-section">
+               <div class="ro-header">Patient Details</div>
+               <div class="ro-grid">
+                  <div class="ro-field"><div class="ro-label">📅 DOB</div><div class="ro-value">${r.dob ? new Date(r.dob).toLocaleDateString() : '-'}</div></div>
+                  <div class="ro-field"><div class="ro-label">⚧ Sex</div><div class="ro-value">${r.sex || '-'}</div></div>
+                  <div class="ro-field"><div class="ro-label">📞 Phone</div><div class="ro-value">${r.phoneNumber || '-'}</div></div>
+                  <div class="ro-field"><div class="ro-label">🏠 Address</div><div class="ro-value">${r.address || '-'}</div></div>
+                  <div class="ro-field">
+                     <div class="ro-label">🔒 SSN</div>
+                     <div class="ro-ssn-btn" onclick="showDialog('Social Security Number', '${r.ssn||'No SSN'}')">👁 Click to View</div>
+                  </div>
+                  <div class="ro-field"><div class="ro-label">📝 Reason</div><div class="ro-value">${r.reason || '-'}</div></div>
+               </div>
+            </div>
+
+            <div class="ro-section">
+               <div class="ro-header">Clinical Information</div>
+               <div class="ro-grid">
+                  <div class="ro-field"><div class="ro-label">🧪 Medication</div><div class="ro-value">${r.medicationDetails || '-'}</div></div>
+                  <div class="ro-field"><div class="ro-label">🩺 Provider</div><div class="ro-value">${r.provider || '-'}</div></div>
+                  <div class="ro-field"><div class="ro-label">💊 Pharmacy</div><div class="ro-value">${r.pharmacy || '-'}</div></div>
+               </div>
+            </div>
+
+            <div class="ro-section">
+               <div class="ro-header">Insurance</div>
+               <div class="ro-grid">
+                  <div class="ro-field"><div class="ro-label">🛡️ Insurance</div><div class="ro-value">${r.insuranceName || '-'}</div></div>
+                  <div class="ro-field"><div class="ro-label">💳 ID</div><div class="ro-value">${r.insuranceId || '-'}</div></div>
+               </div>
+            </div>
+
+            <div class="ro-section">
+               <div class="ro-header">Notes</div>
+               <div class="ro-grid">
+                  <div class="ro-field" style="grid-column: 1 / -1">
+                     <div class="ro-label">📢 CWC Note</div>
+                     <div class="ro-value" style="background:var(--bg-input); padding:10px; border-radius:6px;">${r.outreachNote || 'No notes'}</div>
+                  </div>
+               </div>
+            </div>
           `;
        }
     }
@@ -892,48 +1013,57 @@
     function addRecord(e) { e.stopPropagation(); toggleLoader(true); google.script.run.withSuccessHandler(res => { toggleLoader(false); if(!res.error) { STATE.records=res.allRecords; renderList(); selectRecord(res.updatedRecord); toast('Record Created'); } }).addOutreachRecord(); }
     
     function saveData(act) { 
-       toggleLoader(true); 
-       const f = document.getElementById('patient-form'), d={}; Array.from(f.elements).forEach(e=>{if(e.name)d[e.name]=e.value});
-       
-       if (act === 'Submit to Pharmacy') {
-         const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
-         const missing = req.filter(k => !d[k] || d[k] === '-- Select --');
-         if (missing.length > 0) { 
-           toggleLoader(false); 
-           // Mapped "Nice Names" for validation
-           const niceNames = {
-             prn: '🆔 PRN',
-             ssn: '🔒 Social Security',
-             dob: '📅 DOB',
-             sex: '⚧ Sex',
-             phoneNumber: '📞 Phone',
-             address: '🏠 Address',
-             pharmacy: '💊 Pharmacy',
-             provider: '🩺 Provider',
-             medicationDetails: '🧪 Medication',
-             status: '📊 Status',
-             insuranceName: '🛡️ Insurance',
-             insuranceId: '💳 Insurance ID'
-           };
-           const listHTML = "<ul>" + missing.map(f => `<li>${niceNames[f] || f}</li>`).join("") + "</ul>";
-           showDialog("Missing Information", "Please fill in the following required fields:" + listHTML);
-           return; 
-         }
+       console.log("Saving Data: " + act); 
+       try {
+           toggleLoader(true); 
+           if (!STATE.selectedId) throw new Error("No record selected.");
+
+           const f = document.getElementById('patient-form'), d={}; 
+           Array.from(f.elements).forEach(e=>{if(e.name)d[e.name]=e.value});
+           
+           if (act === 'Submit to Pharmacy') {
+             const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
+             const missing = req.filter(k => !d[k] || d[k] === '-- Select --');
+             if (missing.length > 0) { 
+               toggleLoader(false); 
+               const niceNames = {
+                 prn: '🆔 PRN', ssn: '🔒 Social Security', dob: '📅 DOB', sex: '⚧ Sex',
+                 phoneNumber: '📞 Phone', address: '🏠 Address', pharmacy: '💊 Pharmacy',
+                 provider: '🩺 Provider', medicationDetails: '🧪 Medication', status: '📊 Status',
+                 insuranceName: '🛡️ Insurance', insuranceId: '💳 Insurance ID'
+               };
+               const listHTML = "<ul>" + missing.map(f => `<li>${niceNames[f] || f}</li>`).join("") + "</ul>";
+               showDialog("Missing Information", "Please fill in the following required fields:" + listHTML);
+               return; 
+             }
+           }
+
+           const chkPriority = document.getElementById('chk-priority');
+           if (chkPriority) { d['priority'] = chkPriority.checked ? 'Urgent' : 'Standard'; }
+
+           let fn = 'saveRecordChanges';
+           if(act==='Submit to Pharmacy') fn='submitToPharmacy';
+           else if(act==='Outreach Update') fn='sendOutreachUpdate';
+           else if(act==='Pharmacy Update') fn='submitPharmacyUpdate';
+           
+           if (!google.script.run || !google.script.run[fn]) {
+               throw new Error("Server function '" + fn + "' not found. Please RE-DEPLOY the script as a new version.");
+           }
+
+           google.script.run.withSuccessHandler(res => {
+              toggleLoader(false); 
+              if(res.error) toast('Error: '+res.error); 
+              else { STATE.records=res.allRecords; selectRecord(STATE.records.find(r=>r.rowNum===STATE.selectedId)); toast(res.message); }
+           }).withFailureHandler(e => {
+              toggleLoader(false);
+              toast('Server Error: ' + e.message);
+           })[fn](STATE.selectedId, d);
+
+       } catch (e) {
+           toggleLoader(false);
+           showDialog("Application Error", e.message);
+           console.error(e);
        }
-
-       const chkPriority = document.getElementById('chk-priority');
-       if (chkPriority) { d['priority'] = chkPriority.checked ? 'Urgent' : 'Standard'; }
-
-       let fn = 'saveRecordChanges';
-       if(act==='Submit to Pharmacy') fn='submitToPharmacy';
-       else if(act==='Outreach Update') fn='sendOutreachUpdate';
-       else if(act==='Pharmacy Update') fn='submitPharmacyUpdate';
-       
-       google.script.run.withSuccessHandler(res => {
-          toggleLoader(false); 
-          if(res.error) toast('Error: '+res.error); 
-          else { STATE.records=res.allRecords; selectRecord(STATE.records.find(r=>r.rowNum===STATE.selectedId)); toast(res.message); }
-       })[fn](STATE.selectedId, d);
     }
     function exportPDF() { toggleLoader(true); google.script.run.withSuccessHandler(res => { toggleLoader(false); if(res.error) toast("Error: "+res.error); else window.open(res.url, '_blank'); }).getPDFDownloadUrl(); }
     
@@ -954,7 +1084,7 @@
        c.scrollTop = c.scrollHeight;
     }
     function refreshChat() { google.script.run.withSuccessHandler(h=>{if(h.length){STATE.chatHistory=h; renderChat();}}).pollChat(); }
-    function checkUpdates() { google.script.run.withSuccessHandler(res=>{if(res.hasUpdate){STATE.records=res.activeRecords; renderList(); toast('Data Updated');}}).checkForUpdates(STATE.dataHash); }
+    
     function switchRole() { STATE.user.defaultRole = STATE.user.defaultRole==='CWC'?'PHARMACY':'CWC'; setupRoleView(); closeDetail(); toast('Switched View'); }
     
     function setupRoleView() {
@@ -963,7 +1093,6 @@
        document.getElementById('btn-add-record').classList.toggle('hidden', r==='PHARMACY');
        document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1 && !STATE.user.email.includes('pierre'));
        
-       // Update Second Tab Text
        const secTab = document.getElementById('tab-secondary');
        secTab.innerText = r === 'PHARMACY' ? 'Completed' : 'Archive';
     }
