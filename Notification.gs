@@ -1,6 +1,6 @@
 /**
  * AWARD-WINNING NOTIFICATION SYSTEM
- * Advanced Email & Alert Management with Smart Escalation
+ * Clean, Professional Email Templates
  */
 
 // SMART NOTIFICATION ENGINE
@@ -74,46 +74,26 @@ function getFieldIcon(field) {
   return iconMap[field] || '📌';
 }
 
-// HELPER: Create Info Card for Email
-function createInfoCard(icon, label, value) {
-  if (!value || value === '-- Select --' || value === '') return '';
-  return `
-    <div style="padding: 10px; background: white; border-radius: 6px;">
-      <div style="display: flex; align-items: center;">
-        <span style="font-size: 16px; margin-right: 8px;">${icon}</span>
-        <div>
-          <p style="margin: 0; color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
-            ${label}
-          </p>
-          <p style="margin: 2px 0 0 0; color: #374151; font-size: 13px; font-weight: 600;">
-            ${value}
-          </p>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// BEAUTIFUL EMAIL TEMPLATE
+// CLEAN PROFESSIONAL EMAIL TEMPLATE
 function createEnhancedEmailTemplate(title, patientData, changes, action, priority) {
   const priorityInfo = NotificationEngine.PRIORITY_LEVELS[priority];
-  const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MMM dd, yyyy 'at' h:mm a");
+  const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MMMM dd, yyyy 'at' h:mm a");
   const appUrl = ScriptApp.getService().getUrl();
   
-  // Generate Changes Table
-  const changesHTML = changes && changes.length > 0 ? changes.map(c => `
-    <tr style="border-bottom: 1px solid #f0f0f0;">
-      <td style="padding: 12px; color: #6b7280; font-size: 14px;">
-        ${getFieldIcon(c.field)} ${c.field}
-      </td>
-      <td style="padding: 12px; color: #9ca3af; font-size: 14px; text-decoration: line-through;">
-        ${c.oldValue || 'Empty'}
-      </td>
-      <td style="padding: 12px; color: #10b981; font-weight: 600; font-size: 14px;">
-        ${c.newValue || 'Cleared'}
-      </td>
-    </tr>
-  `).join('') : '';
+  // Format DOB if exists
+  let formattedDOB = patientData.dob || '';
+  if (formattedDOB) {
+    try {
+      const dobDate = new Date(formattedDOB);
+      formattedDOB = Utilities.formatDate(dobDate, Session.getScriptTimeZone(), "MM/dd/yyyy");
+    } catch(e) {
+      // Keep original if parsing fails
+    }
+  }
+  
+  // Build sections based on available data
+  const hasPatientInfo = patientData.patientName && patientData.patientName !== '';
+  const hasPRN = patientData.prn && patientData.prn !== '';
   
   return `
     <!DOCTYPE html>
@@ -122,106 +102,296 @@ function createEnhancedEmailTemplate(title, patientData, changes, action, priori
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
       </style>
     </head>
-    <body style="margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+    <body style="margin: 0; padding: 0; background: #f5f5f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
       
-      <div style="padding: 40px 20px; min-height: 100vh;">
-        <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+      <!-- Wrapper -->
+      <div style="padding: 20px; background: #f5f5f5;">
+        
+        <!-- Main Container -->
+        <div style="max-width: 650px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
           
-          <!-- Priority Banner -->
-          <div style="background: ${priorityInfo.color}; color: white; padding: 15px 25px; text-align: center;">
-            <span style="font-size: 24px; margin-right: 10px;">${priorityInfo.icon}</span>
-            <span style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
-              ${priority} PRIORITY
-            </span>
-          </div>
-          
-          <!-- Header -->
-          <div style="padding: 35px 30px 25px; border-bottom: 2px solid #f3f4f6;">
-            <h1 style="margin: 0 0 8px 0; color: #1f2937; font-size: 28px; font-weight: 800;">
-              ${title}
-            </h1>
-            <p style="margin: 0; color: #6b7280; font-size: 14px;">
-              ${timestamp} • ${patientData.creatorEmail || 'System'}
-            </p>
-          </div>
-          
-          <!-- Patient Card -->
-          <div style="padding: 25px 30px;">
-            <div style="background: linear-gradient(135deg, #f6f8fb 0%, #f0f4f8 100%); border-radius: 12px; padding: 20px;">
-              
-              <!-- Patient Header -->
-              <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-                  <span style="color: white; font-size: 20px; font-weight: bold;">
-                    ${patientData.patientName ? patientData.patientName.charAt(0).toUpperCase() : '?'}
+          <!-- Header with Priority -->
+          <div style="background: ${priorityInfo.color}; padding: 20px 30px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  <h1 style="margin: 0; color: white; font-size: 24px; font-weight: 700;">
+                    ${priorityInfo.icon} ${title}
+                  </h1>
+                  <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+                    ${timestamp}
+                  </p>
+                </td>
+                <td align="right">
+                  <span style="background: rgba(255,255,255,0.2); color: white; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                    ${priority} PRIORITY
                   </span>
-                </div>
-                <div>
-                  <h2 style="margin: 0; color: #1f2937; font-size: 20px; font-weight: 700;">
-                    ${patientData.patientName || 'Unknown Patient'}
-                  </h2>
-                  <p style="margin: 3px 0 0 0; color: #6b7280; font-size: 14px;">
-                    PRN: <strong>${patientData.prn || 'Not Set'}</strong>
-                    ${patientData.phoneNumber ? ` • 📞 ${patientData.phoneNumber}` : ''}
-                  </p>
+                </td>
+              </tr>
+            </table>
+          </div>
+          
+          <!-- Body Content -->
+          <div style="padding: 30px;">
+            
+            <!-- Patient Header Section -->
+            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+              <h2 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 18px; font-weight: 700;">
+                Patient Information
+              </h2>
+              
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="50%">
+                    <p style="margin: 0 0 8px 0;">
+                      <span style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Patient Name</span><br>
+                      <strong style="color: #1a1a1a; font-size: 16px;">${hasPatientInfo ? patientData.patientName : 'Not Provided'}</strong>
+                    </p>
+                  </td>
+                  <td width="50%">
+                    <p style="margin: 0 0 8px 0;">
+                      <span style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">PRN</span><br>
+                      <strong style="color: #1a1a1a; font-size: 16px;">${hasPRN ? patientData.prn : 'Not Provided'}</strong>
+                    </p>
+                  </td>
+                </tr>
+                ${patientData.priority ? `
+                <tr>
+                  <td colspan="2" style="padding-top: 10px;">
+                    <p style="margin: 0;">
+                      <span style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Priority Status</span><br>
+                      <strong style="color: ${patientData.priority === 'Urgent' ? '#dc2626' : '#1a1a1a'}; font-size: 14px;">
+                        ${patientData.priority === 'Urgent' ? '🔥 URGENT' : '📋 Standard'}
+                      </strong>
+                    </p>
+                  </td>
+                </tr>
+                ` : ''}
+              </table>
+            </div>
+            
+            <!-- Demographics Section -->
+            ${(formattedDOB || patientData.sex || patientData.phoneNumber || patientData.address) ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #1a1a1a; font-size: 14px; font-weight: 700; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0;">
+                📋 Demographics
+              </h3>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                ${formattedDOB || patientData.sex ? `
+                <tr>
+                  ${formattedDOB ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Date of Birth</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${formattedDOB}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                  ${patientData.sex ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Sex</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.sex}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                </tr>
+                ` : ''}
+                ${patientData.phoneNumber || patientData.ssn ? `
+                <tr>
+                  ${patientData.phoneNumber ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Phone Number</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.phoneNumber}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                  ${patientData.ssn ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Social Security</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.ssn}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                </tr>
+                ` : ''}
+                ${patientData.address ? `
+                <tr>
+                  <td colspan="2" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Address</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.address}</strong>
+                  </td>
+                </tr>
+                ` : ''}
+              </table>
+            </div>
+            ` : ''}
+            
+            <!-- Clinical Information Section -->
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #1a1a1a; font-size: 14px; font-weight: 700; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0;">
+                💊 Clinical Information
+              </h3>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                ${patientData.reason ? `
+                <tr>
+                  <td colspan="2" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Reason for Outreach</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.reason}</strong>
+                  </td>
+                </tr>
+                ` : ''}
+                ${patientData.medicationDetails || patientData.status ? `
+                <tr>
+                  ${patientData.medicationDetails ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Medication</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.medicationDetails}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                  ${patientData.status ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Prescription Status</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.status}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                </tr>
+                ` : ''}
+                ${patientData.provider || patientData.pharmacy ? `
+                <tr>
+                  ${patientData.provider ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Provider</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.provider}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                  ${patientData.pharmacy ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Pharmacy</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.pharmacy}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                </tr>
+                ` : ''}
+                ${patientData.needsScript ? `
+                <tr>
+                  <td colspan="2" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Needs Script</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.needsScript}</strong>
+                  </td>
+                </tr>
+                ` : ''}
+              </table>
+            </div>
+            
+            <!-- Insurance Information Section -->
+            ${(patientData.insuranceName || patientData.insuranceId || patientData.insuranceDetail || patientData.policyNumber) ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #1a1a1a; font-size: 14px; font-weight: 700; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0;">
+                🛡️ Insurance Information
+              </h3>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                ${patientData.insuranceName || patientData.insuranceId ? `
+                <tr>
+                  ${patientData.insuranceName ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Insurance</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.insuranceName}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                  ${patientData.insuranceId ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Insurance ID</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.insuranceId}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                </tr>
+                ` : ''}
+                ${patientData.insuranceDetail || patientData.policyNumber ? `
+                <tr>
+                  ${patientData.insuranceDetail ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Updated Insurance</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.insuranceDetail}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                  ${patientData.policyNumber ? `
+                  <td width="50%" style="padding-bottom: 12px;">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Policy Number</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.policyNumber}</strong>
+                  </td>
+                  ` : '<td width="50%"></td>'}
+                </tr>
+                ` : ''}
+              </table>
+            </div>
+            ` : ''}
+            
+            <!-- Notes Section -->
+            ${(patientData.outreachNote || patientData.officeNote || patientData.gardenNotes) ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #1a1a1a; font-size: 14px; font-weight: 700; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0;">
+                📝 Notes
+              </h3>
+              ${patientData.outreachNote ? `
+              <div style="margin-bottom: 12px;">
+                <span style="color: #666; font-size: 11px; text-transform: uppercase;">Outreach Note</span><br>
+                <div style="color: #1a1a1a; font-size: 14px; line-height: 1.5; margin-top: 4px; padding: 12px; background: #f8f9fa; border-radius: 6px;">
+                  ${patientData.outreachNote}
                 </div>
               </div>
-              
-              <!-- Info Grid -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px;">
-                ${createInfoCard('📋', 'Reason', patientData.reason)}
-                ${createInfoCard('💊', 'Pharmacy', patientData.pharmacy)}
-                ${createInfoCard('🩺', 'Provider', patientData.provider)}
-                ${createInfoCard('🧪', 'Medication', patientData.medicationDetails)}
-              </div>
-              
-              <!-- Notes -->
-              ${patientData.outreachNote || patientData.gardenNotes ? `
-                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px;">
-                  <h3 style="margin: 0 0 10px 0; color: #4b5563; font-size: 14px; font-weight: 600; text-transform: uppercase;">
-                    📝 Notes
-                  </h3>
-                  <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
-                    ${patientData.outreachNote || patientData.gardenNotes || 'No notes available'}
-                  </p>
+              ` : ''}
+              ${patientData.officeNote ? `
+              <div style="margin-bottom: 12px;">
+                <span style="color: #666; font-size: 11px; text-transform: uppercase;">Office Notes</span><br>
+                <div style="color: #1a1a1a; font-size: 14px; line-height: 1.5; margin-top: 4px; padding: 12px; background: #f8f9fa; border-radius: 6px;">
+                  ${patientData.officeNote}
                 </div>
+              </div>
+              ` : ''}
+              ${patientData.gardenNotes ? `
+              <div style="margin-bottom: 12px;">
+                <span style="color: #666; font-size: 11px; text-transform: uppercase;">Pharmacy Notes</span><br>
+                <div style="color: #1a1a1a; font-size: 14px; line-height: 1.5; margin-top: 4px; padding: 12px; background: #f8f9fa; border-radius: 6px;">
+                  ${patientData.gardenNotes}
+                </div>
+              </div>
               ` : ''}
             </div>
-          </div>
-          
-          <!-- Changes Table -->
-          ${changesHTML ? `
-            <div style="padding: 0 30px 25px;">
-              <h3 style="color: #374151; font-size: 16px; font-weight: 700; margin-bottom: 15px;">
-                📊 Changes Made
-              </h3>
-              <div style="background: #fafafa; border-radius: 10px; overflow: hidden;">
-                <table style="width: 100%; border-collapse: collapse;">
-                  ${changesHTML}
-                </table>
-              </div>
+            ` : ''}
+            
+            <!-- Action Information -->
+            <div style="background: #f0f7ff; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Submitted By</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.creatorEmail || 'System'}</strong>
+                  </td>
+                  <td align="right">
+                    <span style="color: #666; font-size: 11px; text-transform: uppercase;">Workflow Status</span><br>
+                    <strong style="color: #1a1a1a; font-size: 14px;">${patientData.workflowStatus || action}</strong>
+                  </td>
+                </tr>
+              </table>
             </div>
-          ` : ''}
-          
-          <!-- Action Button -->
-          <div style="padding: 0 30px 30px; text-align: center;">
-            <a href="${appUrl}" style="display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
-              Open Dashboard →
-            </a>
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 30px 0 20px 0;">
+              <a href="${appUrl}" style="display: inline-block; padding: 14px 32px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                Open Dashboard →
+              </a>
+            </div>
+            
           </div>
           
           <!-- Footer -->
-          <div style="background: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-            <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 12px;">
+          <div style="background: #f8f9fa; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+            <p style="margin: 0 0 5px 0; color: #666; font-size: 12px;">
               CWC Notification System • Continental Wellness Center
             </p>
-            <p style="margin: 0; color: #9ca3af; font-size: 11px;">
+            <p style="margin: 0; color: #999; font-size: 11px;">
               This is an automated notification. Do not reply to this email.
             </p>
           </div>
+          
         </div>
       </div>
     </body>
@@ -241,7 +411,7 @@ function sendNotificationEmail(recipients, patientData, title, changes) {
   try {
     MailApp.sendEmail({
       to: cleanRecipients.join(','),
-      subject: `${NotificationEngine.PRIORITY_LEVELS[priority].icon} [${priority}] ${title}: ${patientData.patientName}`,
+      subject: `${NotificationEngine.PRIORITY_LEVELS[priority].icon} ${title}: ${patientData.patientName || 'Patient Record'}`,
       htmlBody: htmlBody,
       name: 'CWC Notification System'
     });
@@ -262,17 +432,16 @@ function sendEnhancedWebhookNotification(title, patientData, priority) {
   const priorityInfo = NotificationEngine.PRIORITY_LEVELS[priority];
   const isUrgent = priority === 'CRITICAL' || priority === 'HIGH';
   
-  // Rich message format
   let msg = `${priorityInfo.icon} ${isUrgent ? '🔥 ' : ''}*${title}*\n`;
-  msg += `👤 *${patientData.patientName}* (PRN: ${patientData.prn})\n`;
+  msg += `👤 *${patientData.patientName || 'Patient'}* (PRN: ${patientData.prn || 'N/A'})\n`;
   msg += `📧 By: ${patientData.creatorEmail || 'Unknown'}\n`;
   msg += `⚡ Priority: *${priority}*\n`;
   msg += `────────────────\n`;
   
   if (title === "Pharmacy Update") {
     msg += `💊 *Pharmacy Update Details:*\n`;
-    msg += `• Status: ${patientData.status || 'N/A'}\n`;
-    msg += `• Needs Script: ${patientData.needsScript || 'N/A'}\n`;
+    if (patientData.status) msg += `• Status: ${patientData.status}\n`;
+    if (patientData.needsScript) msg += `• Needs Script: ${patientData.needsScript}\n`;
     if (patientData.insuranceDetail) msg += `• Updated Ins: ${patientData.insuranceDetail}\n`;
     if (patientData.gardenNotes) msg += `• Note: ${patientData.gardenNotes}\n`;
   } else {
@@ -318,7 +487,7 @@ function sendCWCNewEntryAlert(range, headers, headerMap) {
       
       MailApp.sendEmail({
         to: recipients.join(','),
-        subject: `${NotificationEngine.PRIORITY_LEVELS[priority].icon} New Entry: ${patient.patientName}`,
+        subject: `${NotificationEngine.PRIORITY_LEVELS[priority].icon} New Entry: ${patient.patientName || 'Patient Record'}`,
         htmlBody: htmlBody,
         name: 'CWC Notification System'
       });
@@ -326,10 +495,10 @@ function sendCWCNewEntryAlert(range, headers, headerMap) {
 
     const isUrgent = (patient.priority || '').toString().toLowerCase() === 'urgent';
     let chatMsg = `📝 ${isUrgent ? '🔥 ' : ''}*New Entry Received*\n`;
-    chatMsg += `👤 *${patient.patientName}* (PRN: ${patient.prn})\n`;
-    chatMsg += `📧 By: ${patient.creatorEmail}\n`;
-    chatMsg += `• Reason: ${patient.reason}\n`;
-    chatMsg += `• Priority: ${patient.priority}\n`;
+    chatMsg += `👤 *${patient.patientName || 'Patient'}* (PRN: ${patient.prn || 'N/A'})\n`;
+    chatMsg += `📧 By: ${patient.creatorEmail || 'Unknown'}\n`;
+    if (patient.reason) chatMsg += `• Reason: ${patient.reason}\n`;
+    if (patient.priority) chatMsg += `• Priority: ${patient.priority}\n`;
 
     sendWebhookNotification(chatMsg);
   } catch(e) {
