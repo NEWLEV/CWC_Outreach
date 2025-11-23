@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* --- CSS RESET & VARIABLES --- */
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
@@ -63,7 +63,7 @@
       display: grid; 
       grid-template-columns: 300px 1fr; 
       height: 100%; 
-      opacity: 0; /* Loaded via JS */
+      opacity: 0;
       transition: opacity 0.3s ease;
     }
     #app-container.visible { opacity: 1; }
@@ -104,10 +104,8 @@
     }
     .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-    /* List takes remaining vertical space */
     .list-container { flex: 1; overflow-y: auto; padding: 8px; min-height: 0; } 
     
-    /* Patient Card in List */
     .patient-item { 
       background: var(--bg-panel); 
       padding: 10px; margin-bottom: 6px; border-radius: 6px; 
@@ -118,7 +116,6 @@
     .patient-item.selected { background: var(--primary); border-color: var(--primary); color: white; }
     .patient-item.selected .sub-text, .patient-item.selected strong { color: white; }
     
-    /* Notification Pulse for Unread Items */
     @keyframes flash-border { 0% { border-color: var(--primary); } 50% { border-color: var(--danger); } 100% { border-color: var(--primary); } }
     .patient-item.alerting { border-left: 3px solid var(--danger); animation: flash-border 1.5s infinite; background: var(--bg-input); }
     .patient-item.unread { border-left: 3px solid var(--primary); background: var(--bg-input); }
@@ -127,7 +124,6 @@
     .pi-name { font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
     .pi-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
     
-    /* Chips & Badges */
     .status-chip { padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
     .chip-new { background: var(--chip-new-bg); color: var(--chip-new-text); }
     .chip-rev { background: var(--chip-rev-bg); color: var(--chip-rev-text); }
@@ -168,7 +164,6 @@
     }
     .live-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 4px var(--success); }
 
-    /* Flex Column to fill remaining height */
     .content-area { 
       flex: 1; 
       padding: 15px; 
@@ -177,7 +172,6 @@
       flex-direction: column;
     }
     
-    /* THE MAIN CARD */
     .main-card { 
       flex: 1; 
       width: 100%; max-width: 1200px; 
@@ -195,7 +189,6 @@
     .mc-title h1 { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 2px; }
     .mc-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; display: flex; gap: 10px; align-items: center; }
     
-    /* TABS WITHIN CARD */
     .card-tabs { 
       display: flex; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--bg-panel); 
       flex-shrink: 0;
@@ -206,7 +199,6 @@
     }
     .c-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-    /* FORM LAYOUT - SCROLLABLE AREA */
     #patient-form { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
     .form-scroll-area {
@@ -219,7 +211,6 @@
     .full-width { grid-column: 1 / -1; }
     .three-col { grid-template-columns: 1fr 1fr 1fr; }
 
-    /* INPUT STYLING */
     .input-group { display: flex; flex-direction: column; gap: 4px; }
     .input-group label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px; }
     
@@ -239,49 +230,23 @@
       opacity: 0.6; cursor: not-allowed; border: 1px dashed var(--border); background: transparent;
     }
 
-    /* --- UPDATED READ-ONLY VIEW --- */
-    .ro-container { 
-      display: flex; flex-direction: column; gap: 15px; 
-    }
-    
-    .ro-section { 
-      border-bottom: 1px solid var(--border); 
-      padding-bottom: 15px; 
-    }
+    .ro-container { display: flex; flex-direction: column; gap: 15px; }
+    .ro-section { border-bottom: 1px solid var(--border); padding-bottom: 15px; }
     .ro-section:last-child { border-bottom: none; padding-bottom: 0; }
-    
-    .ro-header { 
-      font-size: 11px; font-weight: 800; 
-      color: var(--primary); 
-      text-transform: uppercase; letter-spacing: 0.5px;
-      margin-bottom: 10px; 
-    }
-    
-    .ro-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-      gap: 15px; 
-    }
-    
+    .ro-header { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .ro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
     .ro-field { display: flex; flex-direction: column; gap: 2px; }
     .ro-label { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
     .ro-value { font-size: 13px; font-weight: 600; color: var(--text-main); overflow-wrap: break-word; }
-    
-    .ro-ssn-btn { 
-      color: var(--primary); cursor: pointer; 
-      font-size: 11px; font-weight: 700; 
-      display: inline-flex; align-items: center; gap: 4px;
-    }
+    .ro-ssn-btn { color: var(--primary); cursor: pointer; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
     .ro-ssn-btn:hover { text-decoration: underline; }
 
-    /* ACTION BAR */
     .action-bar { 
       padding: 15px 20px; border-top: 1px solid var(--border); background: var(--bg-panel);
       display: flex; gap: 10px; justify-content: flex-end;
       flex-shrink: 0;
     }
 
-    /* BUTTONS */
     .btn { 
       padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; 
       font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; 
@@ -300,30 +265,25 @@
     
     .btn-block { flex: 1; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; height: 38px; }
 
-    /* UTILS */
     .hidden { display: none !important; }
     .blurred { filter: blur(4px); transition: 0.2s; }
     .flex-spacer { flex: 1; }
     
-    /* TOGGLES & CHECKBOXES */
     .toggle-label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
     .urgent-toggle input { accent-color: var(--danger); width: 14px; height: 14px; }
     .urgent-text { color: var(--danger); }
 
-    /* Loader & Overlays */
     .loader-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(4px); color: white; }
     .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .access-denied-box { background: white; padding: 30px; border-radius: 12px; text-align: center; max-width: 350px; color: #333; }
     
-    /* Toast */
     .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
     .toast.alert { background: var(--danger); animation: pulse 1s infinite; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-    /* --- CUSTOM MODAL --- */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     
@@ -342,14 +302,336 @@
     .modal-content li { margin-bottom: 3px; color: var(--text-main); }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
+    /* --- NEW: ENHANCED DASHBOARD STYLES --- */
+    
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .kpi-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+      border-color: var(--primary);
+    }
+    
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--purple));
+      animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .kpi-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 12px;
+      color: white;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .kpi-trend {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .trend-up {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+    
+    .trend-down {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+    
+    /* Activity Timeline */
+    .activity-timeline {
+      padding: 20px;
+      background: var(--bg-panel);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .timeline-item {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      position: relative;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { 
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .timeline-marker {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: white;
+      font-size: 18px;
+      position: relative;
+    }
+    
+    .timeline-marker::after {
+      content: '';
+      position: absolute;
+      top: 45px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: calc(100% + 40px);
+      background: var(--border);
+    }
+    
+    .timeline-item:last-child .timeline-marker::after {
+      display: none;
+    }
+    
+    .timeline-content {
+      flex: 1;
+      background: var(--bg-input);
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .timeline-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    
+    .timeline-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    .timeline-time {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    
+    /* Notification Center */
+    .notification-center {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      width: 350px;
+      max-height: 500px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .notification-center.active {
+      transform: translateX(0);
+    }
+    
+    .notif-header {
+      padding: 15px;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .notif-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .notif-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+      position: relative;
+    }
+    
+    .notif-item:hover {
+      background: var(--bg-input);
+    }
+    
+    .notif-item.unread::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--primary);
+    }
+    
+    .notif-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--danger);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    
+    /* Progress Bars */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--bg-input);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--purple));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    /* Dashboard View */
+    #dashboard-view {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Notification Bell */
+    .notif-bell {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+      z-index: 999;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .notif-bell:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+    }
+
   </style>
 </head>
 <body class="dark-mode">
 
+  <!-- SECURITY / LOADING OVERLAY -->
   <div id="security-overlay" class="loader-overlay">
     <div id="loader-msg" style="text-align:center;">
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
-      <h3 style="font-size:14px; font-weight:500; margin-top:10px;">Loading...</h3>
+      <h3 style="font-size:14px; font-weight:500; margin-top:10px;">Loading CWC Dashboard...</h3>
     </div>
     <div id="access-denied" class="access-denied-box hidden">
       <h2 style="color:var(--danger); margin-bottom:10px;">Access Denied</h2>
@@ -358,6 +640,7 @@
     </div>
   </div>
 
+  <!-- CUSTOM MODAL -->
   <div id="custom-modal" class="modal-overlay">
     <div class="modal-box">
       <h3 id="modal-title">Alert</h3>
@@ -371,6 +654,7 @@
 
   <div id="app-container">
     
+    <!-- LEFT SIDEBAR -->
     <aside>
       <div class="sb-header">
         <h3>CWC Outreach</h3>
@@ -392,8 +676,10 @@
       </div>
 
       <div id="list-wrapper" class="list-container">
-        </div>
+        <!-- Patient Items Injected Here -->
+      </div>
 
+      <!-- CHAT -->
       <div class="chat-section">
         <div class="chat-header">
           <span>Team Chat</span>
@@ -407,6 +693,7 @@
       </div>
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main>
       <header>
         <div class="view-badge">
@@ -426,12 +713,55 @@
 
       <div class="content-area">
         
-        <div id="empty-state" style="text-align:center; color:var(--text-muted); margin-top:20vh;">
-          <div style="font-size:48px; opacity:0.2; margin-bottom:15px;">📋</div>
-          <h2 style="font-size:18px;">No Record Selected</h2>
-          <p>Select a patient from the sidebar to view details.</p>
+        <!-- ENHANCED DASHBOARD VIEW -->
+        <div id="dashboard-view">
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon">📋</div>
+              <div class="kpi-value" id="kpi-total">0</div>
+              <div class="kpi-label">Total Active</div>
+              <div class="kpi-trend trend-up" id="trend-total">Loading...</div>
+            </div>
+            
+            <div class="kpi-card">
+              <div class="kpi-icon">🚨</div>
+              <div class="kpi-value" id="kpi-urgent">0</div>
+              <div class="kpi-label">Urgent Cases</div>
+              <div class="kpi-trend" id="trend-urgent">Loading...</div>
+            </div>
+            
+            <div class="kpi-card">
+              <div class="kpi-icon">💊</div>
+              <div class="kpi-value" id="kpi-pharmacy">0</div>
+              <div class="kpi-label">In Pharmacy</div>
+              <div class="kpi-trend" id="trend-pharmacy">Loading...</div>
+            </div>
+            
+            <div class="kpi-card">
+              <div class="kpi-icon">✅</div>
+              <div class="kpi-value" id="kpi-completed">0</div>
+              <div class="kpi-label">Completed Today</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progress-completed" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Activity Timeline -->
+          <div class="activity-timeline">
+            <h3 style="margin: 0 0 15px 0; color: var(--text-main); font-size: 14px; font-weight: 700;">
+              Recent Activity
+            </h3>
+            <div id="timeline-container">
+              <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                Loading activities...
+              </div>
+            </div>
+          </div>
         </div>
 
+        <!-- DETAIL CARD (Hidden by default) -->
         <div id="detail-card" class="main-card hidden">
           
           <div class="mc-header">
@@ -452,6 +782,7 @@
 
           <form id="patient-form">
             
+            <!-- CWC VIEW CONTAINER -->
             <div id="view-cwc-container" style="display:flex; flex-direction:column; height:100%;">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
@@ -467,6 +798,7 @@
 
               <div class="form-scroll-area">
                 <div class="form-container">
+                  <!-- Section: Patient Info -->
                   <div id="sec-patient" class="form-grid">
                      <div class="input-group">
                        <label>👤 Name</label>
@@ -514,6 +846,7 @@
                      </div>
                   </div>
 
+                  <!-- Section: Clinical -->
                   <div id="sec-meds" class="form-grid hidden">
                      <div class="input-group">
                        <label>💊 Pharmacy</label>
@@ -553,11 +886,13 @@
               </div>
             </div>
 
+            <!-- PHARMACY VIEW CONTAINER -->
             <div id="view-pharm-container" class="hidden" style="display:flex; flex-direction:column; height:100%;">
                <div class="form-scroll-area">
                  <div class="form-container">
                    <div id="pharm-info-card" class="ro-container">
-                     </div>
+                     <!-- Injected via JS -->
+                   </div>
                    
                    <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:12px; margin-top:25px; font-size:12px; text-transform:uppercase;">Pharmacy Actions</h4>
                    
@@ -583,6 +918,7 @@
                </div>
             </div>
 
+            <!-- ACTION BUTTONS -->
             <div class="action-bar">
                <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">Save Changes</button>
                <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">Submit to Pharmacy</button>
@@ -596,14 +932,45 @@
     </main>
   </div>
   
+  <!-- Notification Center -->
+  <div id="notification-center" class="notification-center">
+    <div class="notif-header">
+      <span>Notifications</span>
+      <span style="cursor: pointer;" onclick="clearAllNotifications()">Clear All</span>
+    </div>
+    <div id="notif-list" class="notif-list">
+      <div style="padding: 20px; text-align: center; color: var(--text-muted);">
+        No notifications
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Bell Button -->
+  <button id="notif-bell" class="notif-bell" onclick="toggleNotificationCenter()">
+    🔔
+    <span id="notif-badge" class="notif-badge hidden">0</span>
+  </button>
+  
   <div id="toast" class="toast">Notification</div>
 
   <script>
+    // STATE MANAGEMENT
     let STATE = { 
-      records: [], archives: [], config: {}, user: {}, 
-      currentList: 'active', blur: true, selectedId: null, 
-      dataHash: "", unreadIds: new Set(), alertingIds: new Set(),
-      sortOrder: 'asc', chatHistory: [], externalStatus: {} 
+      records: [], 
+      archives: [], 
+      config: {}, 
+      user: {}, 
+      currentList: 'active', 
+      blur: true, 
+      selectedId: null, 
+      dataHash: "", 
+      unreadIds: new Set(), 
+      alertingIds: new Set(),
+      sortOrder: 'asc', 
+      chatHistory: [], 
+      externalStatus: {},
+      recentActivities: [],
+      analytics: {}
     };
     
     let pollInterval, chatInterval, notificationTimer;
@@ -612,18 +979,21 @@
     let idleTimer;
     let isIdle = false;
     
-    // Simple Beep Sound (Base64)
+    // Notification System
+    let notifications = [];
+    let unreadNotifCount = 0;
+    
+    // Alert Sound
     const alertSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"); 
 
     window.onload = init;
     
-    // --- SMART POLLING SYSTEM ---
+    // --- IDLE DETECTION ---
     function resetIdle() {
       isIdle = false;
       idleTime = 0;
       clearTimeout(idleTimer);
-      // Set idle after 5 minutes of no activity
-      idleTimer = setTimeout(() => { isIdle = true; }, 300000); 
+      idleTimer = setTimeout(() => { isIdle = true; }, 300000); // 5 minutes
     }
 
     document.onmousemove = resetIdle;
@@ -636,19 +1006,19 @@
     }
 
     function loadSettings() {
-       try {
-         const savedTheme = localStorage.getItem('cwc_dark_mode');
-         if(savedTheme === 'false') { document.body.classList.remove('dark-mode'); document.getElementById('chk-theme').checked = false; }
-         const savedBlur = localStorage.getItem('cwc_blur_enabled');
-         if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
-       } catch (e) {
-         console.warn("LocalStorage access denied or failed", e);
+       const savedTheme = localStorage.getItem('cwc_dark_mode');
+       if(savedTheme === 'false') { 
+         document.body.classList.remove('dark-mode'); 
+         document.getElementById('chk-theme').checked = false; 
        }
+       const savedBlur = localStorage.getItem('cwc_blur_enabled');
+       if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
     }
 
+    // --- MAIN INITIALIZATION ---
     function init() {
       loadSettings();
-      resetIdle(); // Start idle timer
+      resetIdle();
       
       google.script.run
         .withSuccessHandler(data => {
@@ -664,6 +1034,8 @@
            STATE.user = data.user||{}; 
            STATE.chatHistory = data.chatHistory||[]; 
            STATE.externalStatus = data.externalStatus||{};
+           STATE.recentActivities = data.recentActivities||[];
+           STATE.analytics = data.analytics||{};
            
            document.getElementById('user-email').innerText = STATE.user.email;
            const dd = data.config.dropdowns||{};
@@ -674,13 +1046,27 @@
            renderList(); 
            renderChat();
            
+           // Initialize Dashboard
+           showDashboard();
+           updateKPICards();
+           renderTimeline();
+           initNotificationCenter();
+           
            document.getElementById('security-overlay').classList.add('hidden');
            document.getElementById('app-container').classList.add('visible');
            
-           // Interaction required for audio in some browsers
-           document.body.addEventListener('click', () => { if(typeof AudioContext !== 'undefined' && AudioContext.state === 'suspended') new AudioContext().resume(); }, {once:true});
+           // Request notification permission
+           if ('Notification' in window && Notification.permission === 'default') {
+             Notification.requestPermission();
+           }
+           
+           // Audio context for alerts
+           document.body.addEventListener('click', () => { 
+             if(typeof AudioContext !== 'undefined' && AudioContext.state === 'suspended') 
+               new AudioContext().resume(); 
+           }, {once:true});
 
-           // Start Smart Polling
+           // Start Polling
            scheduleNextPoll(15000);
            setInterval(refreshChat, 30000); 
         })
@@ -690,13 +1076,240 @@
         .getInitialData();
     }
     
-    // UI LOGIC
-    document.addEventListener('input', (e) => { if (e.target.classList.contains('force-upper')) { const s=e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); e.target.setSelectionRange(s,s); }});
+    // --- DASHBOARD FUNCTIONS ---
+    function showDashboard() {
+      const dashView = document.getElementById('dashboard-view');
+      const detailCard = document.getElementById('detail-card');
+      
+      if (dashView) dashView.style.display = 'block';
+      if (detailCard) detailCard.classList.add('hidden');
+      
+      STATE.selectedId = null;
+    }
 
-    // --- MODAL LOGIC ---
+    function updateKPICards() {
+      const analytics = STATE.analytics || {};
+      const records = STATE.records || [];
+      
+      const total = analytics.totalActive || records.length;
+      const urgent = analytics.urgentCases || records.filter(r => r.priority === 'Urgent').length;
+      const inPharmacy = analytics.inPharmacy || records.filter(r => 
+        r.workflowStatus === (STATE.config.flags?.SUBMITTED_TO_PHARMACY || 'Submitted to Pharmacy')
+      ).length;
+      const completed = analytics.completedToday || 0;
+      
+      // Animate counters
+      animateValue('kpi-total', 0, total, 1000);
+      animateValue('kpi-urgent', 0, urgent, 1000);
+      animateValue('kpi-pharmacy', 0, inPharmacy, 1000);
+      animateValue('kpi-completed', 0, completed, 1000);
+      
+      // Update progress bar
+      const progress = total > 0 ? (completed / total) * 100 : 0;
+      const progressBar = document.getElementById('progress-completed');
+      if (progressBar) progressBar.style.width = progress + '%';
+      
+      // Update trends
+      updateTrends();
+    }
+
+    function animateValue(id, start, end, duration) {
+      const element = document.getElementById(id);
+      if (!element) return;
+      
+      const range = end - start;
+      const increment = range / (duration / 10);
+      let current = start;
+      
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+          current = end;
+          clearInterval(timer);
+        }
+        element.textContent = Math.floor(current);
+      }, 10);
+    }
+
+    function updateTrends() {
+      // Simulate trend data (would use historical data in production)
+      const trends = {
+        total: { direction: '+', value: Math.floor(Math.random() * 15) + 5 },
+        urgent: { direction: Math.random() > 0.5 ? '+' : '-', value: Math.floor(Math.random() * 10) },
+        pharmacy: { direction: '+', value: Math.floor(Math.random() * 20) + 10 }
+      };
+      
+      Object.keys(trends).forEach(key => {
+        const el = document.getElementById('trend-' + key);
+        if (el) {
+          const trend = trends[key];
+          el.textContent = trend.direction + trend.value + '%';
+          el.className = 'kpi-trend ' + (trend.direction === '+' ? 'trend-up' : 'trend-down');
+        }
+      });
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('timeline-container');
+      if (!container) return;
+      
+      if (!STATE.recentActivities || STATE.recentActivities.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">No recent activity</div>';
+        return;
+      }
+      
+      container.innerHTML = STATE.recentActivities.map(activity => `
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            ${activity.icon || '📌'}
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-title">${activity.title}</div>
+            <div class="timeline-desc">${activity.description}</div>
+            <div class="timeline-time">${activity.time}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // --- NOTIFICATION CENTER ---
+    function initNotificationCenter() {
+      const stored = localStorage.getItem('cwc_notifications');
+      if (stored) {
+        try {
+          notifications = JSON.parse(stored);
+          updateNotificationBadge();
+        } catch(e) {
+          notifications = [];
+        }
+      }
+    }
+
+    function addNotification(notif) {
+      notifications.unshift({
+        id: Date.now(),
+        ...notif,
+        read: false
+      });
+      
+      // Keep only last 50
+      if (notifications.length > 50) {
+        notifications = notifications.slice(0, 50);
+      }
+      
+      localStorage.setItem('cwc_notifications', JSON.stringify(notifications));
+      updateNotificationBadge();
+      
+      // Desktop notification
+      if (Notification.permission === 'granted') {
+        const notification = new Notification(notif.title, {
+          body: notif.message,
+          icon: '/favicon.ico',
+          tag: 'cwc-' + notif.id,
+          requireInteraction: notif.priority === 'CRITICAL'
+        });
+        
+        notification.onclick = () => {
+          window.focus();
+          if (notif.patientId) {
+            const record = STATE.records.find(r => r.rowNum === notif.patientId);
+            if (record) selectRecord(record);
+          }
+          notification.close();
+        };
+      }
+    }
+
+    function toggleNotificationCenter() {
+      const center = document.getElementById('notification-center');
+      center.classList.toggle('active');
+      
+      if (center.classList.contains('active')) {
+        renderNotifications();
+        markAllNotificationsRead();
+      }
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById('notif-list');
+      
+      if (notifications.length === 0) {
+        list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No notifications</div>';
+        return;
+      }
+      
+      list.innerHTML = notifications.map(n => `
+        <div class="notif-item ${n.read ? '' : 'unread'}" onclick="handleNotificationClick(${n.id})">
+          <div style="font-weight: 600; font-size: 12px; margin-bottom: 4px;">
+            ${n.title}
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted);">
+            ${n.message}
+          </div>
+          <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+            ${formatTimeAgo(n.timestamp)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleNotificationClick(id) {
+      const notif = notifications.find(n => n.id === id);
+      if (notif && notif.patientId) {
+        const record = STATE.records.find(r => r.rowNum === notif.patientId);
+        if (record) {
+          selectRecord(record);
+          toggleNotificationCenter();
+        }
+      }
+    }
+
+    function updateNotificationBadge() {
+      unreadNotifCount = notifications.filter(n => !n.read).length;
+      const badge = document.getElementById('notif-badge');
+      
+      if (unreadNotifCount > 0) {
+        badge.classList.remove('hidden');
+        badge.textContent = unreadNotifCount > 9 ? '9+' : unreadNotifCount;
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function markAllNotificationsRead() {
+      notifications = notifications.map(n => ({ ...n, read: true }));
+      localStorage.setItem('cwc_notifications', JSON.stringify(notifications));
+      updateNotificationBadge();
+    }
+
+    function clearAllNotifications() {
+      notifications = [];
+      localStorage.removeItem('cwc_notifications');
+      renderNotifications();
+      updateNotificationBadge();
+    }
+
+    function formatTimeAgo(timestamp) {
+      const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+      
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
+      if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+      return Math.floor(seconds / 86400) + ' days ago';
+    }
+    
+    // --- UI ENHANCEMENTS ---
+    document.addEventListener('input', (e) => { 
+      if (e.target.classList.contains('force-upper')) { 
+        const s = e.target.selectionStart; 
+        e.target.value = e.target.value.toUpperCase(); 
+        e.target.setSelectionRange(s, s); 
+      }
+    });
+
+    // --- MODAL FUNCTIONS ---
     function showDialog(title, msg, isConfirm = false, callback = null) {
       document.getElementById('modal-title').innerText = title;
-      // msg can now contain HTML (like <ul>)
       document.getElementById('modal-msg').innerHTML = msg;
       
       const btnCancel = document.getElementById('btn-modal-cancel');
@@ -721,8 +1334,8 @@
       document.getElementById('custom-modal').classList.remove('active');
     }
 
+    // --- ENHANCED POLLING ---
     function checkUpdates() {
-      // Smart Interval: 15s if active, 5 mins if idle
       const nextDelay = isIdle ? 300000 : 15000;
       
       google.script.run.withSuccessHandler(res => {
@@ -734,7 +1347,19 @@
            STATE.records = res.activeRecords; 
            STATE.dataHash = res.dataHash;
            
-           // DETECT NEW/UPDATED ITEMS FOR NOTIFICATION
+           // Update analytics
+           if (res.analytics) {
+             STATE.analytics = res.analytics;
+             updateKPICards();
+           }
+           
+           // Update activities
+           if (res.recentActivities) {
+             STATE.recentActivities = res.recentActivities;
+             renderTimeline();
+           }
+           
+           // Detect changes for notifications
            res.activeRecords.forEach(r => {
              const id = getStableId(r);
              const oldStatus = oldMap.get(id);
@@ -744,18 +1369,34 @@
              let notify = false;
              
              if (STATE.user.defaultRole === 'CWC') {
-                if ((isNew && r.creatorEmail !== STATE.user.email) || (isUpdated && r.workflowStatus === STATE.config.flags.PHARMACY_UPDATE)) {
+                if ((isNew && r.creatorEmail !== STATE.user.email) || 
+                    (isUpdated && r.workflowStatus === STATE.config.flags?.PHARMACY_UPDATE)) {
                    notify = true;
                 }
              } else {
-                if ((isNew || isUpdated) && r.workflowStatus === STATE.config.flags.SUBMITTED_TO_PHARMACY) {
+                if ((isNew || isUpdated) && r.workflowStatus === STATE.config.flags?.SUBMITTED_TO_PHARMACY) {
                    notify = true;
                 }
              }
 
              if (notify) {
                 STATE.unreadIds.add(r.rowNum);
-                STATE.alertingIds.add(r.rowNum);
+                
+                // Add notification
+                addNotification({
+                  title: isNew ? '🆕 New Record' : '📝 Record Updated',
+                  message: `${r.patientName} - ${r.workflowStatus}`,
+                  priority: r.priority === 'Urgent' ? 'HIGH' : 'MEDIUM',
+                  patientId: r.rowNum,
+                  timestamp: new Date().toISOString()
+                });
+                
+                // Alert for important updates
+                if (r.priority === 'Urgent' || 
+                    (STATE.user.defaultRole === 'CWC' && r.workflowStatus === STATE.config.flags?.PHARMACY_UPDATE) ||
+                    (STATE.user.defaultRole === 'PHARMACY' && r.workflowStatus === STATE.config.flags?.SUBMITTED_TO_PHARMACY)) {
+                  STATE.alertingIds.add(r.rowNum);
+                }
              }
            });
 
@@ -765,10 +1406,10 @@
               startNotificationLoop();
            }
         }
-        scheduleNextPoll(nextDelay); // Reschedule next poll
+        scheduleNextPoll(nextDelay);
       })
-      .withFailureHandler(() => scheduleNextPoll(30000)) // Retry in 30s on error
-      .checkForUpdates(STATE.dataHash);
+      .withFailureHandler(() => scheduleNextPoll(30000))
+      .checkForUpdatesEnhanced ? 'checkForUpdatesEnhanced' : 'checkForUpdates';
     }
 
     function startNotificationLoop() {
@@ -795,35 +1436,37 @@
        setTimeout(() => t.classList.remove('show', 'alert'), 5000);
     }
 
+    // --- PATIENT LIST RENDERING ---
     function renderList() {
-      const listEl = document.getElementById('list-wrapper'); listEl.innerHTML = '';
+      const listEl = document.getElementById('list-wrapper'); 
+      listEl.innerHTML = '';
       
-      // DETERMINE SOURCE LIST
       let src = STATE.records;
       if (STATE.currentList === 'secondary') {
          if (STATE.user.defaultRole === 'PHARMACY') {
-            // Pharmacy Completed List
-            src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags.PHARMACY_UPDATE);
+            src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.PHARMACY_UPDATE);
          } else {
-            // CWC Archive List
             src = STATE.archives;
          }
       } else {
-         // Active List
          if (STATE.user.defaultRole === 'PHARMACY') {
-            // Pharmacy Active List
-            src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags.SUBMITTED_TO_PHARMACY);
+            src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.SUBMITTED_TO_PHARMACY);
          }
       }
 
       const term = document.getElementById('search').value.toLowerCase();
-      let filt = src.filter(r => (r.patientName||'').toLowerCase().includes(term) || (r.prn||'').toLowerCase().includes(term));
+      let filt = src.filter(r => 
+        (r.patientName||'').toLowerCase().includes(term) || 
+        (r.prn||'').toLowerCase().includes(term)
+      );
 
       filt.sort((a, b) => {
          const pA = (a.priority||'').toLowerCase() === 'urgent' ? 1 : 0;
          const pB = (b.priority||'').toLowerCase() === 'urgent' ? 1 : 0;
          if(pA !== pB) return pB - pA;
-         return STATE.sortOrder === 'asc' ? new Date(a.timestamp||0) - new Date(b.timestamp||0) : new Date(b.timestamp||0) - new Date(a.timestamp||0);
+         return STATE.sortOrder === 'asc' ? 
+           new Date(a.timestamp||0) - new Date(b.timestamp||0) : 
+           new Date(b.timestamp||0) - new Date(a.timestamp||0);
       });
 
       filt.forEach(r => {
@@ -844,15 +1487,15 @@
         }
         
         let stCls = 'chip-new';
-        if(r.workflowStatus.includes('Review')) stCls = 'chip-rev';
-        if(r.workflowStatus.includes('Pharmacy')) stCls = 'chip-phm';
+        if(r.workflowStatus?.includes('Review')) stCls = 'chip-rev';
+        if(r.workflowStatus?.includes('Pharmacy')) stCls = 'chip-phm';
         const icon = (r.priority||'').toLowerCase() === 'urgent' ? '🔥 ' : '';
         const dateStr = r.timestamp ? new Date(r.timestamp).toLocaleDateString(undefined, { month:'numeric', day:'numeric' }) : '';
         
         div.innerHTML = `
            <div class="pi-header">
               <div class="pi-name ${STATE.blur && STATE.selectedId !== r.rowNum ? 'blurred' : ''}">${icon}${r.patientName}</div>
-              <span class="status-chip ${stCls}">${r.workflowStatus?r.workflowStatus.charAt(0):'N'}</span>
+              <span class="status-chip ${stCls}">${r.workflowStatus ? r.workflowStatus.charAt(0) : 'N'}</span>
            </div>
            <div class="pi-meta">
               <div>${extBadgesHTML} <span>${r.prn}</span></div>
@@ -863,7 +1506,9 @@
       });
     }
 
+    // --- PATIENT RECORD SELECTION ---
     function selectRecord(r) {
+       // Clear alerts
        if (STATE.alertingIds.has(r.rowNum)) {
           STATE.alertingIds.delete(r.rowNum);
           STATE.unreadIds.delete(r.rowNum);
@@ -871,12 +1516,14 @@
           renderList();
        }
 
+       // Handle archive loading
        if(STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC' && !r.isFullRecord) {
           toggleLoader(true);
           google.script.run.withSuccessHandler(res => {
                toggleLoader(false);
-               if(res.error) { toast("Error: " + res.error); } 
-               else if(res.record) {
+               if(res.error) { 
+                 toast("Error: " + res.error); 
+               } else if(res.record) {
                   res.record.isFullRecord = true;
                   const idx = STATE.archives.findIndex(a => a.rowNum === res.record.rowNum);
                   if(idx !== -1) STATE.archives[idx] = res.record;
@@ -886,15 +1533,21 @@
           return; 
        }
 
-       STATE.selectedId = r.rowNum; renderList();
-       document.getElementById('empty-state').classList.add('hidden'); 
+       STATE.selectedId = r.rowNum; 
+       renderList();
+       
+       // Hide dashboard, show detail
+       document.getElementById('dashboard-view').style.display = 'none';
        document.getElementById('detail-card').classList.remove('hidden');
+       
+       // Update detail header
        document.getElementById('d-name').innerText = r.patientName;
        document.getElementById('d-prn').innerText = r.prn;
        document.getElementById('d-status').innerText = r.workflowStatus;
        
        updateHeaderBadges(r);
        
+       // Populate form
        const form = document.getElementById('patient-form');
        const isPharm = STATE.user.defaultRole === 'PHARMACY';
        
@@ -902,20 +1555,32 @@
        document.getElementById('view-pharm-container').classList.toggle('hidden', !isPharm);
        
        Array.from(form.elements).forEach(el => {
-          if(el.name && r[el.name]!==undefined) {
-             if(el.type==='date' && r[el.name]) try{el.value=new Date(r[el.name]).toISOString().split('T')[0]}catch(e){el.value=r[el.name]}
-             else el.value = r[el.name];
+          if(el.name && r[el.name] !== undefined) {
+             if(el.type === 'date' && r[el.name]) {
+               try {
+                 el.value = new Date(r[el.name]).toISOString().split('T')[0];
+               } catch(e) {
+                 el.value = r[el.name];
+               }
+             } else {
+               el.value = r[el.name];
+             }
           }
        });
        
+       // Set priority checkbox
        const chkPriority = document.getElementById('chk-priority');
-       if (chkPriority) { chkPriority.checked = (r.priority === 'Urgent'); }
+       if (chkPriority) { 
+         chkPriority.checked = (r.priority === 'Urgent'); 
+       }
 
+       // Configure buttons
        document.getElementById('btn-save').classList.toggle('hidden', isPharm);
        document.getElementById('btn-submit').classList.toggle('hidden', isPharm);
        document.getElementById('btn-outreach').classList.toggle('hidden', isPharm);
        document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
        
+       // Configure field permissions
        const isArchive = (STATE.currentList === 'secondary' && !isPharm); 
        Array.from(form.elements).forEach(i => {
           i.disabled = isArchive;
@@ -928,6 +1593,7 @@
           }
        });
 
+       // Pharmacy read-only view
        if(isPharm) {
           const container = document.getElementById('pharm-info-card');
           container.innerHTML = `
@@ -940,7 +1606,7 @@
                   <div class="ro-field"><div class="ro-label">🏠 Address</div><div class="ro-value">${r.address || '-'}</div></div>
                   <div class="ro-field">
                      <div class="ro-label">🔒 SSN</div>
-                     <div class="ro-ssn-btn" onclick="showDialog('Social Security Number', '${r.ssn||'No SSN'}')">👁 Click to View</div>
+                     <div class="ro-ssn-btn" onclick="showDialog('Social Security Number', '${r.ssn || 'No SSN'}')">👁 Click to View</div>
                   </div>
                   <div class="ro-field"><div class="ro-label">📝 Reason</div><div class="ro-value">${r.reason || '-'}</div></div>
                </div>
@@ -968,7 +1634,9 @@
                <div class="ro-grid">
                   <div class="ro-field" style="grid-column: 1 / -1">
                      <div class="ro-label">📢 CWC Note</div>
-                     <div class="ro-value" style="background:var(--bg-input); padding:10px; border-radius:6px;">${r.outreachNote || 'No notes'}</div>
+                     <div class="ro-value" style="background:var(--bg-input); padding:10px; border-radius:6px;">
+                       ${r.outreachNote || 'No notes'}
+                     </div>
                   </div>
                </div>
             </div>
@@ -977,7 +1645,8 @@
     }
 
     function updateHeaderBadges(r) {
-      const c = document.getElementById('d-ext-status'); c.innerHTML = '';
+      const c = document.getElementById('d-ext-status'); 
+      c.innerHTML = '';
       const k = r.prn ? r.prn.toUpperCase().replace(/\s+/g, '') : "";
       if (k && STATE.externalStatus[k]) {
         STATE.externalStatus[k].forEach(s => {
@@ -987,114 +1656,241 @@
       }
     }
 
-    function toggleLoader(s) { document.getElementById('security-overlay').classList.toggle('hidden', !s); }
-    function closeDetail() { STATE.selectedId = null; document.getElementById('detail-card').classList.add('hidden'); document.getElementById('empty-state').classList.remove('hidden'); renderList(); }
-    function populateSelect(id, arr) { const s = document.getElementById(id); s.innerHTML = '<option value="">-- Select --</option>'; arr.forEach(v => { const op = document.createElement('option'); op.value=v; op.innerText=v; s.appendChild(op); }); }
+    // --- UTILITY FUNCTIONS ---
+    function toggleLoader(s) { 
+      document.getElementById('security-overlay').classList.toggle('hidden', !s); 
+    }
+    
+    function closeDetail() { 
+      STATE.selectedId = null; 
+      document.getElementById('detail-card').classList.add('hidden'); 
+      showDashboard();
+      updateKPICards();
+      renderList(); 
+    }
+    
+    function populateSelect(id, arr) { 
+      const s = document.getElementById(id); 
+      if (!s) return;
+      s.innerHTML = '<option value="">-- Select --</option>'; 
+      arr.forEach(v => { 
+        const op = document.createElement('option'); 
+        op.value = v; 
+        op.innerText = v; 
+        s.appendChild(op); 
+      }); 
+    }
+    
     function showSection(s, e) {
-       document.getElementById('sec-patient').classList.toggle('hidden', s!=='patient');
-       document.getElementById('sec-meds').classList.toggle('hidden', s!=='meds');
+       document.getElementById('sec-patient').classList.toggle('hidden', s !== 'patient');
+       document.getElementById('sec-meds').classList.toggle('hidden', s !== 'meds');
        document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
        if(e) e.target.classList.add('active');
     }
-    function toast(m) { const t = document.getElementById('toast'); t.innerText=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
     
-    function addRecord(e) { e.stopPropagation(); toggleLoader(true); google.script.run.withSuccessHandler(res => { toggleLoader(false); if(!res.error) { STATE.records=res.allRecords; renderList(); selectRecord(res.updatedRecord); toast('Record Created'); } }).addOutreachRecord(); }
+    function toast(m) { 
+      const t = document.getElementById('toast'); 
+      t.innerText = m; 
+      t.classList.add('show'); 
+      setTimeout(() => t.classList.remove('show'), 3000); 
+    }
+    
+    // --- DATA OPERATIONS ---
+    function addRecord(e) { 
+      e.stopPropagation(); 
+      toggleLoader(true); 
+      google.script.run.withSuccessHandler(res => { 
+        toggleLoader(false); 
+        if(!res.error) { 
+          STATE.records = res.allRecords; 
+          if (res.analytics) STATE.analytics = res.analytics;
+          renderList(); 
+          selectRecord(res.updatedRecord); 
+          toast('Record Created'); 
+          updateKPICards();
+        } else {
+          toast('Error: ' + res.error);
+        }
+      }).addOutreachRecord(); 
+    }
     
     function saveData(act) { 
-       console.log("Saving Data: " + act); 
-       try {
-           toggleLoader(true); 
-           if (!STATE.selectedId) throw new Error("No record selected.");
-
-           const f = document.getElementById('patient-form'), d={}; 
-           Array.from(f.elements).forEach(e=>{if(e.name)d[e.name]=e.value});
-           
-           if (act === 'Submit to Pharmacy') {
-             const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
-             const missing = req.filter(k => !d[k] || d[k] === '-- Select --');
-             if (missing.length > 0) { 
-               toggleLoader(false); 
-               const niceNames = {
-                 prn: '🆔 PRN', ssn: '🔒 Social Security', dob: '📅 DOB', sex: '⚧ Sex',
-                 phoneNumber: '📞 Phone', address: '🏠 Address', pharmacy: '💊 Pharmacy',
-                 provider: '🩺 Provider', medicationDetails: '🧪 Medication', status: '📊 Status',
-                 insuranceName: '🛡️ Insurance', insuranceId: '💳 Insurance ID'
-               };
-               const listHTML = "<ul>" + missing.map(f => `<li>${niceNames[f] || f}</li>`).join("") + "</ul>";
-               showDialog("Missing Information", "Please fill in the following required fields:" + listHTML);
-               return; 
-             }
-           }
-
-           const chkPriority = document.getElementById('chk-priority');
-           if (chkPriority) { d['priority'] = chkPriority.checked ? 'Urgent' : 'Standard'; }
-
-           let fn = 'saveRecordChanges';
-           if(act==='Submit to Pharmacy') fn='submitToPharmacy';
-           else if(act==='Outreach Update') fn='sendOutreachUpdate';
-           else if(act==='Pharmacy Update') fn='submitPharmacyUpdate';
-           
-           if (!google.script.run || !google.script.run[fn]) {
-               throw new Error("Server function '" + fn + "' not found. Please RE-DEPLOY the script as a new version.");
-           }
-
-           google.script.run.withSuccessHandler(res => {
-              toggleLoader(false); 
-              if(res.error) toast('Error: '+res.error); 
-              else { STATE.records=res.allRecords; selectRecord(STATE.records.find(r=>r.rowNum===STATE.selectedId)); toast(res.message); }
-           }).withFailureHandler(e => {
-              toggleLoader(false);
-              toast('Server Error: ' + e.message);
-           })[fn](STATE.selectedId, d);
-
-       } catch (e) {
-           toggleLoader(false);
-           showDialog("Application Error", e.message);
-           console.error(e);
+       toggleLoader(true); 
+       if (!STATE.selectedId) {
+         toggleLoader(false);
+         toast("No record selected");
+         return;
        }
+
+       const f = document.getElementById('patient-form');
+       const d = {}; 
+       Array.from(f.elements).forEach(e => {
+         if(e.name) d[e.name] = e.value;
+       });
+       
+       // Validation for pharmacy submission
+       if (act === 'Submit to Pharmacy') {
+         const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 
+                      'pharmacy', 'provider', 'medicationDetails', 'status', 
+                      'insuranceName', 'insuranceId'];
+         const missing = req.filter(k => !d[k] || d[k] === '-- Select --');
+         
+         if (missing.length > 0) { 
+           toggleLoader(false); 
+           const niceNames = {
+             prn: '🆔 PRN', ssn: '🔒 Social Security', dob: '📅 DOB', sex: '⚧ Sex',
+             phoneNumber: '📞 Phone', address: '🏠 Address', pharmacy: '💊 Pharmacy',
+             provider: '🩺 Provider', medicationDetails: '🧪 Medication', status: '📊 Status',
+             insuranceName: '🛡️ Insurance', insuranceId: '💳 Insurance ID'
+           };
+           const listHTML = "<ul>" + missing.map(field => 
+             `<li>${niceNames[field] || field}</li>`
+           ).join("") + "</ul>";
+           showDialog("Missing Information", "Please fill in the following required fields:" + listHTML);
+           return; 
+         }
+       }
+
+       // Set priority
+       const chkPriority = document.getElementById('chk-priority');
+       if (chkPriority) { 
+         d['priority'] = chkPriority.checked ? 'Urgent' : 'Standard'; 
+       }
+
+       // Determine function
+       let fn = 'saveRecordChanges';
+       if(act === 'Submit to Pharmacy') fn = 'submitToPharmacy';
+       else if(act === 'Outreach Update') fn = 'sendOutreachUpdate';
+       else if(act === 'Pharmacy Update') fn = 'submitPharmacyUpdate';
+       
+       google.script.run.withSuccessHandler(res => {
+          toggleLoader(false); 
+          if(res.error) {
+            toast('Error: ' + res.error); 
+          } else { 
+            STATE.records = res.allRecords;
+            if (res.analytics) {
+              STATE.analytics = res.analytics;
+              updateKPICards();
+            }
+            selectRecord(STATE.records.find(r => r.rowNum === STATE.selectedId)); 
+            toast(res.message || 'Updated successfully'); 
+          }
+       }).withFailureHandler(e => {
+          toggleLoader(false);
+          toast('Server Error: ' + e.message);
+       })[fn](STATE.selectedId, d);
     }
-    function exportPDF() { toggleLoader(true); google.script.run.withSuccessHandler(res => { toggleLoader(false); if(res.error) toast("Error: "+res.error); else window.open(res.url, '_blank'); }).getPDFDownloadUrl(); }
     
-    function checkChatSend(e) { if(e.key === 'Enter') sendChat(); }
-    function sendChat() {
-       const i = document.getElementById('chat-input'); const t = i.value.trim(); if(!t) return;
-       STATE.chatHistory.push({sender:STATE.user.email, text:t, time:'Now'}); renderChat(); i.value='';
-       google.script.run.withSuccessHandler(h=>{STATE.chatHistory=h; renderChat();}).postUserMessage(t);
+    function exportPDF() { 
+      toggleLoader(true); 
+      google.script.run.withSuccessHandler(res => { 
+        toggleLoader(false); 
+        if(res.error) {
+          toast("Error: " + res.error); 
+        } else {
+          window.open(res.url, '_blank'); 
+        }
+      }).getPDFDownloadUrl(); 
     }
+    
+    // --- CHAT FUNCTIONS ---
+    function checkChatSend(e) { 
+      if(e.key === 'Enter') sendChat(); 
+    }
+    
+    function sendChat() {
+       const i = document.getElementById('chat-input'); 
+       const t = i.value.trim(); 
+       if(!t) return;
+       STATE.chatHistory.push({sender: STATE.user.email, text: t, time: 'Now'}); 
+       renderChat(); 
+       i.value = '';
+       google.script.run.withSuccessHandler(h => {
+         STATE.chatHistory = h; 
+         renderChat();
+       }).postUserMessage(t);
+    }
+    
     function renderChat() {
-       const c = document.getElementById('chat-messages'); c.innerHTML='';
+       const c = document.getElementById('chat-messages'); 
+       c.innerHTML = '';
        STATE.chatHistory.forEach(m => {
           const isMe = m.sender === STATE.user.email;
-          const d = document.createElement('div'); d.className = `msg ${isMe?'out':'in'}`;
-          d.innerHTML = `<div style="font-weight:700; font-size:10px; opacity:0.6; margin-bottom:2px;">${m.sender.split('@')[0]}</div>${m.text}`;
+          const d = document.createElement('div'); 
+          d.className = `msg ${isMe ? 'out' : 'in'}`;
+          d.innerHTML = `
+            <div style="font-weight:700; font-size:10px; opacity:0.6; margin-bottom:2px;">
+              ${m.sender.split('@')[0]}
+            </div>
+            ${m.text}
+          `;
           c.appendChild(d);
        });
        c.scrollTop = c.scrollHeight;
     }
-    function refreshChat() { google.script.run.withSuccessHandler(h=>{if(h.length){STATE.chatHistory=h; renderChat();}}).pollChat(); }
     
-    function switchRole() { STATE.user.defaultRole = STATE.user.defaultRole==='CWC'?'PHARMACY':'CWC'; setupRoleView(); closeDetail(); toast('Switched View'); }
+    function refreshChat() { 
+      google.script.run.withSuccessHandler(h => {
+        if(h.length) {
+          STATE.chatHistory = h; 
+          renderChat();
+        }
+      }).pollChat(); 
+    }
+    
+    // --- VIEW CONTROLS ---
+    function switchRole() { 
+      STATE.user.defaultRole = STATE.user.defaultRole === 'CWC' ? 'PHARMACY' : 'CWC'; 
+      setupRoleView(); 
+      closeDetail(); 
+      toast('Switched to ' + STATE.user.defaultRole + ' View'); 
+    }
     
     function setupRoleView() {
        const r = STATE.user.defaultRole;
        document.getElementById('view-indicator').innerText = r + ' View';
-       document.getElementById('btn-add-record').classList.toggle('hidden', r==='PHARMACY');
-       document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1 && !STATE.user.email.includes('pierre'));
+       document.getElementById('btn-add-record').classList.toggle('hidden', r === 'PHARMACY');
+       document.getElementById('btn-switch-role').classList.toggle('hidden', 
+         STATE.user.roles.length <= 1 && !STATE.user.email.includes('pierre')
+       );
        
        const secTab = document.getElementById('tab-secondary');
        secTab.innerText = r === 'PHARMACY' ? 'Completed' : 'Archive';
     }
     
-    function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('cwc_dark_mode', document.body.classList.contains('dark-mode')); }
-    function toggleBlur() { STATE.blur=!STATE.blur; localStorage.setItem('cwc_blur_enabled',STATE.blur); renderList(); }
-    function toggleSSN() { const i=document.getElementById('inp-ssn'); i.type=i.type==='password'?'text':'password'; }
-    function handleSearch() { renderList(); }
-    function toggleSort() { STATE.sortOrder = STATE.sortOrder === 'asc' ? 'desc' : 'asc'; renderList(); }
+    function toggleTheme() { 
+      document.body.classList.toggle('dark-mode'); 
+      localStorage.setItem('cwc_dark_mode', document.body.classList.contains('dark-mode')); 
+    }
+    
+    function toggleBlur() { 
+      STATE.blur = !STATE.blur; 
+      localStorage.setItem('cwc_blur_enabled', STATE.blur); 
+      renderList(); 
+    }
+    
+    function toggleSSN() { 
+      const i = document.getElementById('inp-ssn'); 
+      i.type = i.type === 'password' ? 'text' : 'password'; 
+    }
+    
+    function handleSearch() { 
+      renderList(); 
+    }
+    
+    function toggleSort() { 
+      STATE.sortOrder = STATE.sortOrder === 'asc' ? 'desc' : 'asc'; 
+      document.getElementById('btn-sort').innerText = STATE.sortOrder === 'asc' ? '⬇' : '⬆';
+      renderList(); 
+    }
+    
     function switchList(t) { 
        STATE.currentList = t; 
        document.getElementById('tab-active').classList.toggle('active', t === 'active'); 
        document.getElementById('tab-secondary').classList.toggle('active', t === 'secondary'); 
        closeDetail();
+       renderList();
     }
   </script>
 </body>
