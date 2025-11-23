@@ -1,5 +1,5 @@
 /**
- * Server-side backend for Web App interactions.
+ * ENHANCED SERVER-SIDE BACKEND WITH ANALYTICS
  */
 function doGet() {
   const check = checkUserAccess();
@@ -9,7 +9,6 @@ function doGet() {
     template.userEmail = check.email || "Unknown (Hidden)";
     template.reason = check.reason;
     template.CONFIG = CONFIG;
-    // ADD THIS LINE: Pass the correct app URL to the template
     template.appUrl = ScriptApp.getService().getUrl(); 
     
     return template.evaluate()
@@ -26,7 +25,6 @@ function checkUserAccess() {
   try {
     const email = Session.getActiveUser().getEmail().toLowerCase();
 
-    // 1. CRITICAL: Check if Google is hiding the email
     if (!email) {
       return { 
         allowed: false, 
@@ -35,7 +33,6 @@ function checkUserAccess() {
       };
     }
   
-    // 2. Always Allow Admin defined in CONFIG (Prevents lockout)
     if (email === CONFIG.ADMIN_EMAIL.toLowerCase()) {
       return { allowed: true, email: email, role: 'ADMIN' };
     }
@@ -48,20 +45,16 @@ function checkUserAccess() {
       return { allowed: false, email: email, reason: "Authorization list is empty." };
     }
 
-    // Fetch J (Email), K (Role), L (Active) using getValues() for native types (Boolean)
     const data = sheet.getRange(2, 10, lastRow - 1, 3).getValues(); 
-    
-    // 3. Find ALL matches for this email (Handle duplicates in list)
     const userMatches = data.filter(r => String(r[0]).trim().toLowerCase() === email);
 
     if (userMatches.length === 0) {
       return { allowed: false, email: email, reason: "User not found in authorized list." };
     }
 
-    // 4. Check if ANY matching row is Active
     const activeMatch = userMatches.find(r => {
       const val = r[2];
-      if (val === true) return true; // Boolean true (Checkbox is checked)
+      if (val === true) return true;
       const sVal = String(val).trim().toLowerCase();
       return sVal === 'true' || sVal === 'yes' || sVal === 'active';
     });
@@ -75,13 +68,11 @@ function checkUserAccess() {
   } catch (e) {
     Logger.log("Access Check Error: " + e.message);
     const fallbackEmail = Session.getActiveUser().getEmail() || "Unknown";
-    // Fail safe: Allow admin in case of error, deny others
     if (fallbackEmail.toLowerCase() === CONFIG.ADMIN_EMAIL.toLowerCase()) return { allowed: true, email: fallbackEmail };
     return { allowed: false, email: fallbackEmail, reason: "System error: " + e.message };
   }
 }
 
-// --- REST OF THE FILE REMAINS UNCHANGED ---
 function getInitialData() {
   try {
     const access = checkUserAccess();
@@ -126,6 +117,9 @@ function getInitialData() {
 
     const chatHistory = getChatHistory();
     const externalStatusResult = fetchExternalStatus(false);
+    const recentActivities = getRecentActivities();
+    const analytics = getAnalytics();
+    
     return {
       user: user,
       activeRecords: activeRecords,
@@ -134,6 +128,8 @@ function getInitialData() {
       chatHistory: chatHistory, 
       externalStatus: externalStatusResult.map,
       diagnostics: externalStatusResult.diagnostics,
+      recentActivities: recentActivities,
+      analytics: analytics,
       config: {
         flags: CONFIG.FLAGS,
         columns: CONFIG.COLUMNS_BY_NAME,
@@ -147,6 +143,125 @@ function getInitialData() {
   }
 }
 
+// NEW: Get Recent Activities for Timeline
+function getRecentActivities() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const auditSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.AUDIT_LOG);
+    
+    if (!auditSheet || auditSheet.getLastRow() < 2) {
+      return [];
+    }
+    
+    const lastRow = auditSheet.getLastRow();
+    const startRow = Math.max(2, lastRow - 19);
+    const numRows = lastRow - startRow + 1;
+    
+    const data = auditSheet.getRange(startRow, 1, numRows, 7).getValues();
+    
+    return data.reverse().map(row => {
+      const [timestamp, user, rowNum, action, field, oldVal, newVal] = row;
+      
+      let type = 'update';
+      let icon = '✏️';
+      if (action === 'Create') { type = 'create'; icon = '➕'; }
+      if (action.includes('Submit')) { type = 'submit'; icon = '📤'; }
+      if (action.includes('Complete')) { type = 'complete'; icon = '✅'; }
+      if (action.includes('Update')) { type = 'update'; icon = '📝'; }
+      
+      return {
+        type: type,
+        icon: icon,
+        title: action,
+        description: `${user.split('@')[0]} - ${field}: ${newVal || 'Updated'}`,
+        time: formatTimeAgo(timestamp),
+        timestamp: timestamp
+      };
+    });
+  } catch (e) {
+    Logger.log('Get Activities Error: ' + e.message);
+    return [];
+  }
+}
+
+// NEW: Analytics Function
+function getAnalytics() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const activeSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
+    const archiveSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ARCHIVED);
+    
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    const metrics = {
+      totalActive: 0,
+      urgentCases: 0,
+      inPharmacy: 0,
+      completedToday: 0,
+      totalArchived: archiveSheet ? archiveSheet.getLastRow() - 1 : 0
+    };
+    
+    if (activeSheet && activeSheet.getLastRow() > 1) {
+      const data = activeSheet.getDataRange().getValues();
+      const headers = data[0];
+      const priorityIdx = headers.indexOf(CONFIG.COLUMNS_BY_NAME.priority);
+      const statusIdx = headers.indexOf(CONFIG.COLUMNS_BY_NAME.workflowStatus);
+      const tsIdx = headers.indexOf(CONFIG.COLUMNS_BY_NAME.sentTimestamp);
+      
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        metrics.totalActive++;
+        
+        if (priorityIdx >= 0 && row[priorityIdx] === 'Urgent') {
+          metrics.urgentCases++;
+        }
+        
+        if (statusIdx >= 0 && row[statusIdx] === CONFIG.FLAGS.SUBMITTED_TO_PHARMACY) {
+          metrics.inPharmacy++;
+        }
+        
+        if (statusIdx >= 0 && row[statusIdx] === CONFIG.FLAGS.CWC_UPDATE_SENT && 
+            tsIdx >= 0 && row[tsIdx]) {
+          const sentDate = new Date(row[tsIdx]);
+          if (sentDate >= todayStart) {
+            metrics.completedToday++;
+          }
+        }
+      }
+    }
+    
+    return metrics;
+  } catch (e) {
+    Logger.log('Analytics Error: ' + e.message);
+    return { totalActive: 0, urgentCases: 0, inPharmacy: 0, completedToday: 0 };
+  }
+}
+
+// NEW: Enhanced Update Check
+function checkForUpdatesEnhanced(clientHash) {
+  const result = checkForUpdates(clientHash);
+  
+  if (result.hasUpdate) {
+    // Get fresh analytics
+    result.analytics = getAnalytics();
+    result.recentActivities = getRecentActivities();
+  }
+  
+  return result;
+}
+
+// Helper: Format Time Ago
+function formatTimeAgo(timestamp) {
+  const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+  return Math.floor(seconds / 86400) + ' days ago';
+}
+
+// Existing functions remain the same...
 function fetchExternalStatus(forceRefresh = false) {
   const cache = CacheService.getScriptCache();
   const cachedData = cache.get("EXTERNAL_STATUS_MAP");
@@ -252,7 +367,6 @@ function getPDFDownloadUrl() {
 }
 
 function getUserInfo() {
-  // Re-use the secure access check
   const access = checkUserAccess();
   let email = Session.getActiveUser().getEmail().toLowerCase();
   
@@ -263,7 +377,6 @@ function getUserInfo() {
     if (role === 'BOTH' || role === 'ADMIN') roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
     else roles.push(role);
   } else {
-     // Fallback for admin if somehow access failed but they are admin
      if (email === CONFIG.ADMIN_EMAIL.toLowerCase()) {
        roles = [CONFIG.ROLES.CWC, CONFIG.ROLES.PHARMACY];
      } else {
@@ -383,7 +496,8 @@ function processUpdate(rowNum, updatedFields, action) {
       dataHash: newDataHash,
       allRecords: allRecords,
       chatHistory: getChatHistory(),
-      externalStatus: extStatus.map 
+      externalStatus: extStatus.map,
+      analytics: getAnalytics()
     };
   } catch (e) {
     return { error: e.message };
