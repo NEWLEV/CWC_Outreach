@@ -1,5 +1,5 @@
 /**
- * Central configuration.
+ * ENHANCED CONFIGURATION WITH NOTIFICATION & DASHBOARD SETTINGS
  */
 const CONFIG = {
   ADMIN_EMAIL: "pierremontalvo@continentalwellnesscenter.com",
@@ -44,12 +44,8 @@ const CONFIG = {
 
   COLUMNS_BY_NAME: {
     timestamp: 'Timestamp',
-    
-    // UPDATED: Changed to match your new Sheet Header
     creatorEmail: 'CWC Staff', 
-    
     priority: 'Priority', 
-
     patientName: 'Patient Name',
     sex: 'Sex',
     dob: 'Date of Birth',
@@ -57,26 +53,49 @@ const CONFIG = {
     prn: 'PRN',
     phoneNumber: 'Current Phone Number (Not CWC Number)',
     address: 'Address',
-
     medicationDetails: 'Medication',
     provider: 'Provider',
     pharmacy: 'Pharmacy',
     status: 'Prescription Status',
     needsScript: 'Need Script?',
-
     reason: 'Reason',
     outreachNote: 'Outreach Note',
     officeNote: 'Additional Notes',
     gardenNotes: 'Pharmacy Notes',
-
     insuranceName: 'Insurance',
     insuranceId: 'Insurance ID',
     insuranceDetail: 'Updated Insurance',
     policyNumber: 'Updated Policy Number',
-
     workflowStatus: 'Workflow Status',
     sentTimestamp: 'Notification Sent Timestamp'
   },
 
-  AUDIT_LOG_HEADERS: ['Timestamp', 'User', 'Row', 'Action', 'Field', 'Old Value', 'New Value']
+  AUDIT_LOG_HEADERS: ['Timestamp', 'User', 'Row', 'Action', 'Field', 'Old Value', 'New Value'],
+
+  // NEW: Notification Settings
+  NOTIFICATION_SETTINGS: {
+    ENABLE_DESKTOP: true,
+    ENABLE_SOUND: true,
+    BATCH_DELAY: 60000,
+    ESCALATION_ENABLED: true,
+    PRIORITY_COLORS: {
+      CRITICAL: '#dc2626',
+      HIGH: '#ef4444',
+      MEDIUM: '#f59e0b',
+      LOW: '#10b981'
+    }
+  },
+
+  // NEW: Dashboard Settings  
+  DASHBOARD_REFRESH: 30000,
+  ACTIVITY_LIMIT: 20,
+  KPI_ANIMATION_DURATION: 1000,
+  
+  // NEW: Sound Alert Data
+  SOUND_PROFILES: {
+    urgent: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
+    alert: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
+    notice: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
+    chime: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"
+  }
 };
