@@ -346,7 +346,6 @@
 </head>
 <body class="dark-mode">
 
-  <!-- SECURITY / LOADING OVERLAY -->
   <div id="security-overlay" class="loader-overlay">
     <div id="loader-msg" style="text-align:center;">
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
@@ -359,7 +358,6 @@
     </div>
   </div>
 
-  <!-- CUSTOM MODAL -->
   <div id="custom-modal" class="modal-overlay">
     <div class="modal-box">
       <h3 id="modal-title">Alert</h3>
@@ -373,7 +371,6 @@
 
   <div id="app-container">
     
-    <!-- LEFT SIDEBAR -->
     <aside>
       <div class="sb-header">
         <h3>CWC Outreach</h3>
@@ -395,10 +392,8 @@
       </div>
 
       <div id="list-wrapper" class="list-container">
-        <!-- Patient Items Injected Here -->
-      </div>
+        </div>
 
-      <!-- CHAT -->
       <div class="chat-section">
         <div class="chat-header">
           <span>Team Chat</span>
@@ -412,7 +407,6 @@
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main>
       <header>
         <div class="view-badge">
@@ -432,14 +426,12 @@
 
       <div class="content-area">
         
-        <!-- EMPTY STATE -->
         <div id="empty-state" style="text-align:center; color:var(--text-muted); margin-top:20vh;">
           <div style="font-size:48px; opacity:0.2; margin-bottom:15px;">📋</div>
           <h2 style="font-size:18px;">No Record Selected</h2>
           <p>Select a patient from the sidebar to view details.</p>
         </div>
 
-        <!-- DETAIL CARD -->
         <div id="detail-card" class="main-card hidden">
           
           <div class="mc-header">
@@ -460,7 +452,6 @@
 
           <form id="patient-form">
             
-            <!-- CWC VIEW CONTAINER -->
             <div id="view-cwc-container" style="display:flex; flex-direction:column; height:100%;">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
@@ -468,7 +459,6 @@
                 <div class="flex-spacer"></div>
                 <div style="display:flex; align-items:center;">
                    <label class="toggle-label urgent-toggle">
-                     <!-- Removed Name Attribute to Prevent Server Conflict -->
                      <input type="checkbox" id="chk-priority"> 
                      <span class="urgent-text">🔥 Urgent</span>
                    </label>
@@ -477,7 +467,6 @@
 
               <div class="form-scroll-area">
                 <div class="form-container">
-                  <!-- Section: Patient Info -->
                   <div id="sec-patient" class="form-grid">
                      <div class="input-group">
                        <label>👤 Name</label>
@@ -525,7 +514,6 @@
                      </div>
                   </div>
 
-                  <!-- Section: Clinical -->
                   <div id="sec-meds" class="form-grid hidden">
                      <div class="input-group">
                        <label>💊 Pharmacy</label>
@@ -545,7 +533,6 @@
                        <div class="input-wrapper"><select name="status" id="opt-status"></select></div>
                      </div>
                      
-                     <!-- Reason moved here with Insurance per user request -->
                      <div class="input-group three-col" style="grid-column: 1 / -1; display:grid; gap:15px;">
                         <div class="input-group">
                            <label>🛡️ Insurance</label>
@@ -566,13 +553,11 @@
               </div>
             </div>
 
-            <!-- PHARMACY VIEW CONTAINER (Updated Read-Only) -->
             <div id="view-pharm-container" class="hidden" style="display:flex; flex-direction:column; height:100%;">
                <div class="form-scroll-area">
                  <div class="form-container">
                    <div id="pharm-info-card" class="ro-container">
-                     <!-- Injected via JS using new Sectioned style -->
-                   </div>
+                     </div>
                    
                    <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:12px; margin-top:25px; font-size:12px; text-transform:uppercase;">Pharmacy Actions</h4>
                    
@@ -598,7 +583,6 @@
                </div>
             </div>
 
-            <!-- ACTION BUTTONS (Fixed Bottom) -->
             <div class="action-bar">
                <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">Save Changes</button>
                <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">Submit to Pharmacy</button>
@@ -652,10 +636,14 @@
     }
 
     function loadSettings() {
-       const savedTheme = localStorage.getItem('cwc_dark_mode');
-       if(savedTheme === 'false') { document.body.classList.remove('dark-mode'); document.getElementById('chk-theme').checked = false; }
-       const savedBlur = localStorage.getItem('cwc_blur_enabled');
-       if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
+       try {
+         const savedTheme = localStorage.getItem('cwc_dark_mode');
+         if(savedTheme === 'false') { document.body.classList.remove('dark-mode'); document.getElementById('chk-theme').checked = false; }
+         const savedBlur = localStorage.getItem('cwc_blur_enabled');
+         if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
+       } catch (e) {
+         console.warn("LocalStorage access denied or failed", e);
+       }
     }
 
     function init() {
