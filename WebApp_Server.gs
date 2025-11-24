@@ -103,7 +103,7 @@ function getInitialData() {
     diagnostics: [],
     analytics: {},
     recentActivities: [],
-    config: { flags: CONFIG.FLAGS, columns: CONFIG.COLUMNS_BY_NAME, roles: CONFIG.ROLES, dropdowns: {} }
+    config: { flags: CONFIG.FLAGS, columns: CONFIG.COLUMNS_BY_NAME, roles: CONFIG.ROLES, dropdowns: {}, soundAlertData: CONFIG.SOUND_PROFILES.newEntryAlert }
   };
 
   try {
@@ -141,7 +141,8 @@ function getInitialData() {
         const headerMap = createHeaderMap(headers);
         const data = activeSheet.getRange(1, 1, activeSheet.getLastRow(), lastCol).getDisplayValues();
         response.activeRecords = getUnifiedPatientData(data, headerMap, false, 2);
-        response.dataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(response.activeRecords)));
+        // Using length for simple client sync
+        response.dataHash = response.activeRecords.length.toString(); 
       }
     } catch(e) { response.diagnostics.push("Active Records error: " + e.message); }
 
@@ -177,6 +178,60 @@ function getInitialData() {
   }
 
   return JSON.stringify(response);
+}
+
+/**
+ * Checks for new records since the client's last active record count.
+ * @param {number} lastRecordCount The number of records the client currently has.
+ * @returns {object} { hasNew: boolean, newRecords: array, currentRecordCount: number }
+ */
+function checkForNewRecords(lastRecordCount) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const activeSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
+
+    if (!activeSheet || activeSheet.getLastRow() <= 1) {
+      return { hasNew: false, newRecords: [], currentRecordCount: 0 };
+    }
+    
+    const lastRow = activeSheet.getLastRow();
+    const currentRecordCount = lastRow - 1;
+
+    if (currentRecordCount > lastRecordCount) {
+      const numNew = currentRecordCount - lastRecordCount;
+      const startRow = lastRow - numNew + 1; // Start fetching from the first new row
+
+      const lastCol = activeSheet.getLastColumn();
+      const headers = activeSheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0];
+      const headerMap = createHeaderMap(headers);
+      
+      // Fetch only the new data rows
+      const newData = activeSheet.getRange(startRow, 1, numNew, lastCol).getDisplayValues();
+      
+      // We must combine headers with data for getUnifiedPatientData to work correctly
+      const dataForProcessing = [headers, ...newData];
+      
+      // Convert to unified format. Base row number needs adjustment if headers are included.
+      const newRecords = getUnifiedPatientData(dataForProcessing, headerMap, false, startRow);
+      
+      return { 
+        hasNew: true, 
+        newRecords: newRecords, 
+        currentRecordCount: currentRecordCount 
+      };
+    }
+
+    // If records were deleted, the count might decrease or stay the same
+    return { 
+      hasNew: false, 
+      newRecords: [], 
+      currentRecordCount: currentRecordCount 
+    };
+
+  } catch (e) {
+    Logger.log("Error in checkForNewRecords: " + e.stack);
+    return { hasNew: false, newRecords: [], currentRecordCount: 0 };
+  }
 }
 
 function fetchExternalStatus(forceRefresh = false) {
@@ -392,7 +447,7 @@ function processUpdate(rowNum, updatedFields, action) {
     // Return fresh data
     const allData = sheet.getDataRange().getDisplayValues();
     const allRecords = getUnifiedPatientData(allData, map, false, 2);
-    const newDataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(allRecords)));
+    const newDataHash = allRecords.length.toString(); // Use count for simple refresh
 
     return {
       message: 'Update successful',
