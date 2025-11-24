@@ -96,11 +96,12 @@ const CONFIG = {
   ACTIVITY_LIMIT: 20,
   KPI_ANIMATION_DURATION: 1000,
   
-  // Sound Alert Data
+  // Sound Alert Data (A simple, high-pitched ding sound)
   SOUND_PROFILES: {
     urgent: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     alert: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     notice: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
-    chime: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"
+    chime: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
+    newEntryAlert: "data:audio/wav;base64,UklGRmRzQ19XQVZFZm10IBAAAAABAAEARKwAAABKAAABAAIAZGF0YUIAAAAAAABhAAAIb21aYmV3fFwAAAAAASJvG4gR6h3kGf4zUvUAAAAAACEkH1Yf83/H/1xP9G1Gg6h3kGf4zUvUAAAAAA" // A distinct, short "pop" sound
   }
 };
