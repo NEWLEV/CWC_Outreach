@@ -4,11 +4,28 @@
  * 2. External Webhook -> For Notifications
  */
 
-// --- INTERNAL CHAT (SIDEBAR) ---
+// --- INTERNAL PHARMACY CHAT (SHEET LOGGING) ---
 
 function postUserMessage(text) {
   const user = Session.getActiveUser().getEmail();
-  postToChatLog(text, user);
+  
+  // LOGGING TO SHEET (This is the PHARMACY CHAT/Internal Log)
+  postToChatLog(text, user); 
+  
+  return getChatHistory();
+}
+
+/**
+ * Sends a message directly to the OUTREACH WEBHOOK.
+ */
+function postUserMessageToWebhook(text, mode) {
+  const user = Session.getActiveUser().getEmail().split('@')[0];
+  const prefix = `[${mode.toUpperCase()}] ${user}: `;
+  
+  // NOTE: This function does NOT save to the internal log.
+  sendChatWebhookNotification(prefix + text);
+  
+  // Return current history so the client chat window can update instantly.
   return getChatHistory();
 }
 
@@ -65,23 +82,6 @@ function getChatHistory() {
 
 /**
  * Sends a notification to the Google Chat Space.
- * Used by Notification.gs when emails are sent.
+ * The implementation is now consolidated into Utilities.gs
  */
-function sendWebhookNotification(text) {
-  if (!CONFIG.CHAT_WEBHOOK_URL || !text) return;
-
-  try {
-    const payload = { text: text };
-    const options = {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    };
-    
-    UrlFetchApp.fetch(CONFIG.CHAT_WEBHOOK_URL, options);
-    Logger.log("Webhook notification sent: " + text);
-  } catch (e) {
-    Logger.log("Webhook Failed: " + e.message);
-  }
-} 
+// function sendWebhookNotification(text) { ... REMOVED - Logic moved to Utilities.gs }
