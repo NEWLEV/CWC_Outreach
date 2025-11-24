@@ -21,6 +21,51 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+/**
+ * Handle POST requests from Google Chat
+ * This is called when the bot receives messages in Google Chat
+ */
+function doPost(e) {
+  try {
+    // Parse the incoming event from Google Chat
+    const event = JSON.parse(e.postData.contents);
+    Logger.log('Received Google Chat event: ' + JSON.stringify(event));
+    
+    // Route to appropriate handler based on event type
+    switch(event.type) {
+      case 'MESSAGE':
+        return ContentService.createTextOutput(
+          JSON.stringify(onMessage(event))
+        ).setMimeType(ContentService.MimeType.JSON);
+        
+      case 'ADDED_TO_SPACE':
+        return ContentService.createTextOutput(
+          JSON.stringify(onAddToSpace(event))
+        ).setMimeType(ContentService.MimeType.JSON);
+        
+      case 'REMOVED_FROM_SPACE':
+        onRemoveFromSpace(event);
+        return ContentService.createTextOutput(JSON.stringify({}));
+        
+      case 'CARD_CLICKED':
+        return ContentService.createTextOutput(
+          JSON.stringify(onCardClick(event))
+        ).setMimeType(ContentService.MimeType.JSON);
+        
+      default:
+        Logger.log('Unknown event type: ' + event.type);
+        return ContentService.createTextOutput(JSON.stringify({
+          text: 'Event received'
+        })).setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch (error) {
+    Logger.log('Error in doPost: ' + error.message + '\n' + error.stack);
+    return ContentService.createTextOutput(JSON.stringify({
+      text: '❌ Error processing request: ' + error.message
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 function checkUserAccess() {
   try {
     const email = Session.getActiveUser().getEmail().toLowerCase();
@@ -103,7 +148,7 @@ function getInitialData() {
     diagnostics: [],
     analytics: {},
     recentActivities: [],
-    config: { flags: CONFIG.FLAGS, columns: CONFIG.COLUMNS_BY_NAME, roles: CONFIG.ROLES, dropdowns: {}, soundAlertData: CONFIG.SOUND_PROFILES.newEntryAlert }
+    config: { flags: CONFIG.FLAGS, columns: CONFIG.COLUMNS_BY_NAME, roles: CONFIG.ROLES, dropdowns: {} }
   };
 
   try {
@@ -141,8 +186,7 @@ function getInitialData() {
         const headerMap = createHeaderMap(headers);
         const data = activeSheet.getRange(1, 1, activeSheet.getLastRow(), lastCol).getDisplayValues();
         response.activeRecords = getUnifiedPatientData(data, headerMap, false, 2);
-        // Using length for simple client sync
-        response.dataHash = response.activeRecords.length.toString(); 
+        response.dataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(response.activeRecords)));
       }
     } catch(e) { response.diagnostics.push("Active Records error: " + e.message); }
 
@@ -178,60 +222,6 @@ function getInitialData() {
   }
 
   return JSON.stringify(response);
-}
-
-/**
- * Checks for new records since the client's last active record count.
- * @param {number} lastRecordCount The number of records the client currently has.
- * @returns {object} { hasNew: boolean, newRecords: array, currentRecordCount: number }
- */
-function checkForNewRecords(lastRecordCount) {
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const activeSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
-
-    if (!activeSheet || activeSheet.getLastRow() <= 1) {
-      return { hasNew: false, newRecords: [], currentRecordCount: 0 };
-    }
-    
-    const lastRow = activeSheet.getLastRow();
-    const currentRecordCount = lastRow - 1;
-
-    if (currentRecordCount > lastRecordCount) {
-      const numNew = currentRecordCount - lastRecordCount;
-      const startRow = lastRow - numNew + 1; // Start fetching from the first new row
-
-      const lastCol = activeSheet.getLastColumn();
-      const headers = activeSheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0];
-      const headerMap = createHeaderMap(headers);
-      
-      // Fetch only the new data rows
-      const newData = activeSheet.getRange(startRow, 1, numNew, lastCol).getDisplayValues();
-      
-      // We must combine headers with data for getUnifiedPatientData to work correctly
-      const dataForProcessing = [headers, ...newData];
-      
-      // Convert to unified format. Base row number needs adjustment if headers are included.
-      const newRecords = getUnifiedPatientData(dataForProcessing, headerMap, false, startRow);
-      
-      return { 
-        hasNew: true, 
-        newRecords: newRecords, 
-        currentRecordCount: currentRecordCount 
-      };
-    }
-
-    // If records were deleted, the count might decrease or stay the same
-    return { 
-      hasNew: false, 
-      newRecords: [], 
-      currentRecordCount: currentRecordCount 
-    };
-
-  } catch (e) {
-    Logger.log("Error in checkForNewRecords: " + e.stack);
-    return { hasNew: false, newRecords: [], currentRecordCount: 0 };
-  }
 }
 
 function fetchExternalStatus(forceRefresh = false) {
@@ -297,12 +287,10 @@ function getUserInfo() {
        roles.push(CONFIG.ROLES.CWC);
      }
   }
-  // Debugging log
   Logger.log(`User Info - Email: ${email}, Roles: ${roles.join(',')}`);
   return { email: email, defaultRole: roles[0], roles: [...new Set(roles)] };
 }
 
-// ... (Standard Getters)
 function getChatHistory() {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -315,10 +303,9 @@ function getChatHistory() {
 
 function pollChat() { return getChatHistory(); }
 
-function checkForUpdates(clientHash) { return { hasUpdate: false }; } // Simplified for brevity in this update
+function checkForUpdates(clientHash) { return { hasUpdate: false }; }
 
 function checkForUpdatesEnhanced(clientHash) {
-  // Re-implemented correctly
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
@@ -420,10 +407,8 @@ function processUpdate(rowNum, updatedFields, action) {
     const updatedRecord = getUnifiedPatientData([headers, newVals], map, false, rowNum)[0];
 
     // NOTIFICATIONS
-    // FIX: Ensure Pharmacy Update triggers notification even if no fields changed
     if (changes.length > 0 || action === 'Submit to Pharmacy' || action === 'Pharmacy Update') {
       
-      // Log status change if it happened implicitly
       if(original.workflowStatus !== updatedRecord.workflowStatus) {
         changes.push({row:rowNum, action:action, field:'Status', oldValue:original.workflowStatus, newValue: updatedRecord.workflowStatus});
       }
@@ -441,13 +426,18 @@ function processUpdate(rowNum, updatedFields, action) {
         }
         
         sendNotificationEmail(targetEmails, updatedRecord, action, changes);
+        
+        // Also send rich card to Google Chat
+        const priority = NotificationEngine.calculatePriority(updatedRecord, action);
+        sendRichNotificationCard(action, updatedRecord, action, priority);
+        
       } catch(e) { Logger.log("Notification failed: " + e.message); }
     }
     
     // Return fresh data
     const allData = sheet.getDataRange().getDisplayValues();
     const allRecords = getUnifiedPatientData(allData, map, false, 2);
-    const newDataHash = allRecords.length.toString(); // Use count for simple refresh
+    const newDataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(allRecords)));
 
     return {
       message: 'Update successful',
@@ -460,5 +450,5 @@ function processUpdate(rowNum, updatedFields, action) {
   finally { lock.releaseLock(); }
 }
 
-function getRecentActivities() { return []; } // Simplified
-function getAnalytics() { return {}; } // Simplified
+function getRecentActivities() { return []; }
+function getAnalytics() { return {}; }
