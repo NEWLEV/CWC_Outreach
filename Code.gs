@@ -105,7 +105,8 @@ function addOutreachRecord() {
 
     const allData = sheet.getDataRange().getDisplayValues();
     const allRecords = getUnifiedPatientData(allData, headerMap, false, 2);
-    const dataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(allRecords)));
+    // Use the count as the data hash for polling
+    const dataHash = allRecords.length.toString(); 
     
     logToAudit([
       { row: nextRow, action: 'Create', field: 'Record', oldValue: 'New', newValue: 'Created' }
@@ -138,15 +139,22 @@ function onFormSubmit(e) {
     const row = e.range.getRow();
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
     const headerMap = createHeaderMap(headers);
+    
+    // 1. Send E-mail & Chat Alerts
     sendCWCNewEntryAlert(e.range, headers, headerMap);
+    
+    // 2. Set Status and Creator Email
     const statusCol = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus];
     const creatorCol = headerMap[CONFIG.COLUMNS_BY_NAME.creatorEmail];
     
     if (statusCol !== undefined) sheet.getRange(row, statusCol + 1).setValue(CONFIG.FLAGS.NEW_ENTRY);
     
+    // Note: If submitted via Google Form, the e.namedValues['Email Address'] is the submitter's email
     if (creatorCol !== undefined && e.namedValues && e.namedValues['Email Address']) {
       sheet.getRange(row, creatorCol + 1).setValue(e.namedValues['Email Address'][0]);
     }
+    
+    // NO NEED FOR LOGGING HERE: The polling mechanism will detect the change on the client side.
     
   } catch (error) {
     sendErrorEmail('onFormSubmit', error);
