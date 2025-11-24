@@ -1,19 +1,46 @@
 /**
- * !!! IMPORTANT: RUN THIS FUNCTION TO FIX PERMISSIONS !!!
+ * !!! CRITICAL: RUN THIS FUNCTION TO AUTHORIZE EXTERNAL SHEETS !!!
  * 1. Select 'FIX_PERMISSIONS' from the dropdown menu above.
  * 2. Click 'Run'.
- * 3. Accept the permissions to "See/Edit spreadsheets" AND "Connect to external service".
+ * 3. You may see a "Authorization Required" popup. Click "Review Permissions".
+ * 4. Allow the script to access your spreadsheets.
  */
 function FIX_PERMISSIONS() {
-  // 1. Force Sheet Authorization
-  const mailSheetId = "1F8xSwdQgJzS9jUq6X2YoVTlaqP0Ryc24uyTwKisfeNI";
-  const ss = SpreadsheetApp.openById(mailSheetId);
-  Logger.log("✅ Sheet Auth OK: " + ss.getName());
+  console.log("--- STARTING PERMISSION CHECK ---");
 
-  // 2. Force Webhook Authorization (UrlFetchApp)
-  // We fetch a dummy URL just to trigger the scope prompt
-  UrlFetchApp.fetch("https://www.google.com");
-  Logger.log("✅ Webhook Auth OK");
+  // 1. Force connection to External Sheets
+  if (CONFIG.EXTERNAL_SHEETS && CONFIG.EXTERNAL_SHEETS.length > 0) {
+    CONFIG.EXTERNAL_SHEETS.forEach(cfg => {
+      try {
+        console.log(`Attempting to connect to [${cfg.label}]...`);
+        const ss = SpreadsheetApp.openById(cfg.id);
+        console.log(`✅ SUCCESS: Connected to '${ss.getName()}'`);
+        
+        const sheet = cfg.sheetName ? ss.getSheetByName(cfg.sheetName) : ss.getSheets()[0];
+        if (sheet) {
+          console.log(`   - Found sheet: '${sheet.getName()}' with ${sheet.getLastRow()} rows.`);
+        } else {
+          console.log(`   - ⚠️ Sheet '${cfg.sheetName}' not found. Using first sheet.`);
+        }
+      } catch (e) {
+        console.error(`❌ FAILURE: Could not connect to [${cfg.label}].`);
+        console.error(`   Error: ${e.message}`);
+        console.error(`   Action: Ensure you have 'Viewer' or 'Editor' access to this sheet ID.`);
+      }
+    });
+  } else {
+    console.log("⚠️ No external sheets configured in Config.gs");
+  }
+
+  // 2. Force Webhook Scope
+  try {
+    UrlFetchApp.fetch("https://www.google.com");
+    console.log("✅ Network/Webhook Scope Authorized");
+  } catch(e) {
+    console.log("Web hook check skipped (expected)");
+  }
+
+  console.log("--- CHECK COMPLETE ---");
 }
 
 /**
@@ -23,7 +50,8 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('CWC Notification App')
     .addItem('Open Notification Manager', 'showWebAppSidebar')
     .addSeparator()
-    .addItem('(Admin) Setup Daily Archive', 'setupDailyArchiveTrigger')
+    .addItem('Re-Authorize Connections', 'FIX_PERMISSIONS')
+    .addItem('Setup Daily Archive', 'setupDailyArchiveTrigger')
     .addToUi();
 }
 
@@ -57,7 +85,8 @@ function addOutreachRecord() {
     const nextRow = sheet.getLastRow() + 1;
     
     if (tsIdx !== undefined) {
-      newRow[tsIdx] = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MM/dd/yyyy HH:mm:ss");
+      // Store as native Date object
+      newRow[tsIdx] = new Date(); 
     }
 
     if (statusIdx !== undefined) newRow[statusIdx] = CONFIG.FLAGS.NEW_ENTRY;
@@ -82,7 +111,7 @@ function addOutreachRecord() {
       { row: nextRow, action: 'Create', field: 'Record', oldValue: 'New', newValue: 'Created' }
     ], userEmail);
     
-    // REFRESH CACHE
+    // Force refresh external status on new record
     const extStatus = fetchExternalStatus(true);
 
     return {
@@ -112,10 +141,13 @@ function onFormSubmit(e) {
     sendCWCNewEntryAlert(e.range, headers, headerMap);
     const statusCol = headerMap[CONFIG.COLUMNS_BY_NAME.workflowStatus];
     const creatorCol = headerMap[CONFIG.COLUMNS_BY_NAME.creatorEmail];
+    
     if (statusCol !== undefined) sheet.getRange(row, statusCol + 1).setValue(CONFIG.FLAGS.NEW_ENTRY);
+    
     if (creatorCol !== undefined && e.namedValues && e.namedValues['Email Address']) {
       sheet.getRange(row, creatorCol + 1).setValue(e.namedValues['Email Address'][0]);
     }
+    
   } catch (error) {
     sendErrorEmail('onFormSubmit', error);
   }
