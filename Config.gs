@@ -4,8 +4,12 @@
 const CONFIG = {
   ADMIN_EMAIL: "pierremontalvo@continentalwellnesscenter.com",
 
-  // WEBHOOK for Notifications (Google Chat Space)
+  // CHAT WEBHOOKS:
+  // 1. OUTREACH_CHAT: For official notifications to the main team (External).
   CHAT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAAAjVEzFx8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=tfyhta4FHkdp4ySX9cxkQCu5wicUvSE4yseB-dZThHA",
+  // 2. PHARMACY_CHAT (INTERNAL): For communication logging within the spreadsheet itself.
+  // Using the same placeholder URL for demonstration, but this can be changed to a second, separate webhook if needed.
+  PHARMACY_CHAT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAAAjVEzFx8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=tfyhta4FHkQCu5wicUvSE4yseB-dZThHA",
 
   // External Sheets to scan for statuses
   EXTERNAL_SHEETS: [
@@ -26,6 +30,7 @@ const CONFIG = {
     ARCHIVED: "Archived Data",
     AUDIT_LOG: "Audit Log",
     SETTINGS: "Settings",
+    SECURITY: "Security", // NEW: Separate sheet for user access
     CHAT_LOG: "Chat Log"
   },
 
@@ -67,12 +72,12 @@ const CONFIG = {
     insuranceDetail: 'Updated Insurance',
     policyNumber: 'Updated Policy Number',
     workflowStatus: 'Workflow Status',
-    sentTimestamp: 'Notification Sent Timestamp'
+    sentTimestamp: 'Notification Sent Timestamp' 
   },
 
   AUDIT_LOG_HEADERS: ['Timestamp', 'User', 'Row', 'Action', 'Field', 'Old Value', 'New Value'],
 
-  // NEW: Notification Settings
+  // Notification Settings
   NOTIFICATION_SETTINGS: {
     ENABLE_DESKTOP: true,
     ENABLE_SOUND: true,
@@ -86,12 +91,12 @@ const CONFIG = {
     }
   },
 
-  // NEW: Dashboard Settings  
+  // Dashboard Settings  
   DASHBOARD_REFRESH: 30000,
   ACTIVITY_LIMIT: 20,
   KPI_ANIMATION_DURATION: 1000,
   
-  // NEW: Sound Alert Data
+  // Sound Alert Data
   SOUND_PROFILES: {
     urgent: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     alert: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
