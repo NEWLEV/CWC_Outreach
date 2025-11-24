@@ -382,7 +382,8 @@
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
   </style>
 </head>
-<body class="dark-mode">
+<!-- Add one-time click listener to unlock audio -->
+<body class="dark-mode" onclick="unmuteAudio()">
 
   <!-- SECURITY OVERLAY -->
   <div id="security-overlay" class="loader-overlay">
@@ -786,12 +787,40 @@
       chatMode: 'internal',
       externalStatus: {}, 
       recentActivities: [], 
-      analytics: {} 
+      analytics: {} ,
+      newEntrySound: null,
+      audioUnlocked: false, // New flag to track audio permission
+      lastRecordCount: 0 // New state variable for polling
     };
     
     let pollInterval, notificationTimer;
     let notifications = [], unreadNotifCount = 0;
-    const alertSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
+    // NOTE: alertSound is no longer used, we rely on STATE.newEntrySound
+
+    /**
+     * Attempts to unmute audio by playing a silent sound.
+     * Must be triggered by a user interaction (like the body onclick event).
+     */
+    function unmuteAudio() {
+        if (STATE.audioUnlocked || !STATE.newEntrySound) return;
+        
+        // Play and pause immediately to establish user interaction context
+        STATE.newEntrySound.volume = 0;
+        const playPromise = STATE.newEntrySound.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                STATE.newEntrySound.pause();
+                STATE.newEntrySound.volume = 1;
+                STATE.audioUnlocked = true;
+                console.log("Audio Unlocked successfully.");
+                document.body.onclick = null; // Remove the listener after success
+            }).catch(error => {
+                console.warn("Audio unlock failed, sound alerts may be disabled by browser policy.", error);
+            });
+        }
+    }
+
 
     // --- INITIALIZATION ---
     window.onload = init;
@@ -810,6 +839,7 @@
              if(data.error) { showError("Server Error", data.error); return; }
              if (!data.user || !data.user.email) { showError("Access Denied", "User identity not found."); return; }
              
+             // Update STATE with initial data
              STATE = Object.assign(STATE, {
                records: data.activeRecords || [], 
                archives: data.archivedRecords || [], 
@@ -818,8 +848,16 @@
                chatHistory: data.chatHistory || [], 
                externalStatus: data.externalStatus || {},
                recentActivities: data.recentActivities || [], 
-               analytics: data.analytics || {}
+               analytics: data.analytics || {},
+               lastRecordCount: data.activeRecords ? data.activeRecords.length : 0 // Set initial count
              });
+
+             // Initialize the new entry sound
+             if (STATE.config.soundAlertData) {
+                 STATE.newEntrySound = new Audio(STATE.config.soundAlertData);
+                 // Preload the sound file
+                 STATE.newEntrySound.load(); 
+             }
              
              console.log('User:', STATE.user);
              console.log('Records:', STATE.records.length);
@@ -844,10 +882,10 @@
              document.getElementById('security-overlay').classList.add('hidden');
              document.getElementById('app-container').classList.add('visible');
              
-             // Auto-refresh chat
-             setInterval(refreshChat, 30000);
+             // Start polling for new records and chat refresh
+             startPolling(); 
              
-             // Request notification permission
+             // Request desktop notification permission
              if ('Notification' in window && Notification.permission === 'default') {
                Notification.requestPermission();
              }
@@ -891,6 +929,78 @@
        document.getElementById('tab-secondary').innerText = r === 'PHARMACY' ? 'Completed' : 'Archive';
     }
 
+    // --- REAL-TIME POLLING ---
+    function startPolling() {
+      // Clear any existing poll
+      if (pollInterval) clearInterval(pollInterval);
+      
+      // Poll every 10 seconds (10000ms)
+      pollInterval = setInterval(() => {
+        pollForNewRecords();
+        refreshChat();
+      }, 10000); 
+
+      // Run immediately
+      pollForNewRecords();
+    }
+
+    function pollForNewRecords() {
+        // Only poll if the current list view is 'active' (or if we are on a pharmacy view filtered by 'Submitted to Pharmacy' status)
+        if (STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC') return;
+
+        google.script.run
+            .withSuccessHandler(res => {
+                if (res.hasNew) {
+                    console.log('New records detected:', res.newRecords);
+                    handleNewRecordAlert(res.newRecords);
+                    // Update state and refresh UI
+                    STATE.records.push(...res.newRecords);
+                    STATE.lastRecordCount = res.currentRecordCount;
+                    renderList();
+                    updateKPICards();
+                } else if (res.currentRecordCount !== STATE.lastRecordCount) {
+                    // This handles manual deletion/archiving from the sheet
+                    console.log('Record count mismatch, forcing full refresh.');
+                    init(); // Re-initialize to get a fresh list
+                }
+            })
+            .withFailureHandler(e => {
+                console.error('Polling error:', e);
+            })
+            .checkForNewRecords(STATE.lastRecordCount);
+    }
+
+    function handleNewRecordAlert(newRecords) {
+        if (!newRecords || newRecords.length === 0) return;
+
+        newRecords.forEach(r => {
+            // 1. Audible Alert - Only play if audio is unlocked by user interaction
+            if (STATE.newEntrySound && STATE.audioUnlocked) {
+                STATE.newEntrySound.play().catch(e => console.error("Sound play failed:", e));
+            } else if (!STATE.audioUnlocked) {
+                console.warn("Sound alert blocked. Click anywhere on the page to enable audio.");
+            }
+
+            // 2. Visible Toast
+            toast(`🔔 NEW ENTRY: ${r.patientName || 'Unnamed Patient'} added!`, 'alert');
+
+            // 3. Notification Center Update
+            const priority = r.priority === 'Urgent' ? 'URGENT' : 'STANDARD';
+            addNotification(`New Patient Entry (${priority})`, `Record for ${r.patientName || 'Unnamed'} (PRN: ${r.prn || 'N/A'}) received.`);
+            
+            // 4. Highlight in list (if visible)
+            STATE.alertingIds.add(r.rowNum);
+            
+            // 5. Desktop Notification (if permitted)
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(`CWC ALERT: New Patient Record`, {
+                    body: `${r.patientName || 'Unnamed Patient'} has been added to the active list. Status: ${r.workflowStatus || 'New Entry'}`,
+                    icon: '🚨'
+                });
+            }
+        });
+    }
+
     // --- LIST RENDERING ---
     function renderList() {
       const listEl = document.getElementById('list-wrapper'); 
@@ -908,8 +1018,22 @@
          }
       }
 
+      // Apply sorting based on state (optional: you may want to sort new entries to the top)
+      const sorted = [...src].sort((a, b) => {
+          const aAlert = STATE.alertingIds.has(a.rowNum) ? 1 : 0;
+          const bAlert = STATE.alertingIds.has(b.rowNum) ? 1 : 0;
+          if (aAlert !== bAlert) return bAlert - aAlert; // New records always float to top
+
+          // Secondary sort: by name/PRN (default behavior)
+          const nameA = a.patientName || '';
+          const nameB = b.patientName || '';
+          if (STATE.sortOrder === 'asc') return nameA.localeCompare(nameB);
+          return nameB.localeCompare(nameA);
+      });
+
+
       const term = (document.getElementById('search')?.value || '').toLowerCase();
-      const filtered = src.filter(r => 
+      const filtered = sorted.filter(r => 
         (r.patientName||'').toLowerCase().includes(term) || 
         (r.prn||'').toLowerCase().includes(term)
       );
@@ -924,7 +1048,8 @@
         const alerting = STATE.alertingIds.has(r.rowNum);
         const isSelected = STATE.selectedId === r.rowNum;
         
-        div.className = `patient-item ${isSelected ? 'selected' : ''} ${alerting ? 'alerting' : ''}`;
+        // Remove 'alerting' class if selected
+        div.className = `patient-item ${isSelected ? 'selected' : ''} ${alerting && !isSelected ? 'alerting' : ''}`;
         div.onclick = () => selectRecord(r);
         
         let extBadgesHTML = '';
@@ -954,11 +1079,10 @@
     function selectRecord(r) {
        console.log('Selecting record:', r);
        
-       // Clear alert state
+       // Clear alert state for the selected record
        if (STATE.alertingIds.has(r.rowNum)) { 
          STATE.alertingIds.delete(r.rowNum); 
-         STATE.unreadIds.delete(r.rowNum); 
-         renderList(); 
+         renderList(); // Re-render to remove the flash animation
        }
        
        // Handle archived records
@@ -1141,6 +1265,7 @@
           } else { 
             STATE.records = res.allRecords || STATE.records;
             STATE.chatHistory = res.chatHistory || STATE.chatHistory;
+            STATE.lastRecordCount = STATE.records.length; // Update for next poll
             
             const updatedRecord = STATE.records.find(r => r.rowNum === STATE.selectedId);
             if (updatedRecord) {
@@ -1465,11 +1590,18 @@
           toggleLoader(false); 
           
           if(!res.error) { 
+            // Add new record to list and update count
             STATE.records = res.allRecords; 
+            STATE.lastRecordCount = STATE.records.length;
+            
+            // Trigger client alert for the newly created record
+            if (res.updatedRecord) {
+              handleNewRecordAlert([res.updatedRecord]);
+            }
+
             renderList(); 
             selectRecord(res.updatedRecord); 
             toast('New record created successfully', 'success'); 
-            addNotification('New Record', 'A new patient record was created');
           } else {
             toast('Error: ' + res.error, 'alert'); 
           }
