@@ -6,7 +6,7 @@ const CONFIG = {
 
   // CHAT WEBHOOKS:
   // 1. OUTREACH_CHAT: For official notifications to the main team (External).
-  CHAT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAAAjVEzFx8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=tfyhta4FHkdp4ySX9cxkQCu5wicUvSE4yseB-dZThHA",
+  CHAT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAQA-bmmN08/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=h-wWfHSSZAYqxnxr_6-oajjHqX3qCOND4ojY7TixtGE",
   // 2. PHARMACY_CHAT (INTERNAL): For communication logging within the spreadsheet itself.
   // Using the same placeholder URL for demonstration, but this can be changed to a second, separate webhook if needed.
   PHARMACY_CHAT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAAAjVEzFx8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=tfyhta4FHkQCu5wicUvSE4yseB-dZThHA",
