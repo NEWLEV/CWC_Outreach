@@ -137,18 +137,35 @@
 
     /* --- CHAT SECTION --- */
     .chat-section { 
-      height: 250px; 
+      height: 280px; 
       background: var(--bg-panel); border-top: 1px solid var(--border); 
       display: flex; flex-direction: column; flex-shrink: 0;
     }
     .chat-header { 
       padding: 10px 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); 
-      display: flex; justify-content: space-between; background: var(--bg-input);
+      display: flex; justify-content: space-between; align-items: center; background: var(--bg-input);
+    }
+    .chat-mode-selector {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .chat-mode-btn {
+      padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+    }
+    .chat-mode-btn.active {
+      background: var(--primary); color: white;
+    }
+    .chat-mode-btn:not(.active) {
+      background: transparent; color: var(--text-muted); border-color: var(--border);
+    }
+    .chat-mode-btn:hover:not(.active) {
+      background: var(--bg-input); color: var(--text-main);
     }
     .chat-msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
     .msg { max-width: 90%; padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; }
     .msg.in { align-self: flex-start; background: var(--bg-input); color: var(--text-main); border-bottom-left-radius: 2px; }
     .msg.out { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+    .msg-sender { font-weight: 700; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
     .chat-input-box { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
 
     /* --- USER FOOTER --- */
@@ -176,7 +193,8 @@
       display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; 
       padding: 6px 14px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border);
     }
-    .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 5px var(--success); }
+    .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 5px var(--success); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
     .content-area { flex: 1; padding: 25px; overflow: hidden; display: flex; flex-direction: column; }
     .main-card { 
@@ -193,13 +211,14 @@
     .card-tabs { display: flex; padding: 0 30px; border-bottom: 1px solid var(--border); background: var(--bg-panel); flex-shrink: 0; }
     .c-tab { padding: 15px 0; margin-right: 30px; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; }
     .c-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .flex-spacer { flex: 1; }
 
     /* FIXED LAYOUT FOR FORM SCROLLING */
     #patient-form { 
       display: flex; 
       flex-direction: column; 
-      flex: 1; /* Grow to fill remaining space */
-      min-height: 0; /* Critical for nested flex scrolling */
+      flex: 1; 
+      min-height: 0; 
       overflow: hidden; 
     }
 
@@ -225,7 +244,7 @@
     .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus {
       background: var(--bg-panel); border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     }
-    .input-wrapper textarea { resize: vertical; min-height: 100px; }
+    .input-wrapper textarea { resize: vertical; min-height: 100px; font-family: 'Inter', sans-serif; }
     .input-wrapper input:disabled, .input-wrapper select:disabled { opacity: 0.6; cursor: not-allowed; border: 1px dashed var(--border); background: transparent; }
 
     .action-bar { padding: 25px 30px; border-top: 1px solid var(--border); background: var(--bg-panel); display: flex; gap: 15px; justify-content: flex-end; flex-shrink: 0; }
@@ -262,8 +281,9 @@
     
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-    .toast.alert { background: var(--danger); animation: pulse 1s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    .toast.success { background: var(--success); }
+    .toast.alert { background: var(--danger); animation: pulse-toast 1s infinite; }
+    @keyframes pulse-toast { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -286,56 +306,85 @@
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 30px; }
     .kpi-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 30px; position: relative; overflow: hidden; transition: all 0.3s ease; }
     .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15); border-color: var(--primary); }
-    .kpi-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), #60a5fa); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 20px; color: white; }
+    .kpi-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), #60a5fa); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
     .kpi-value { font-size: 36px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
     .kpi-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     
+    .activity-timeline { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 30px; }
+    .activity-timeline h3 { margin: 0 0 20px 0; color: var(--text-main); font-size: 18px; font-weight: 700; }
+    .timeline-item { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-marker { width: 40px; height: 40px; background: var(--bg-input); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .timeline-content { flex: 1; }
+    .timeline-title { font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+    .timeline-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+    .timeline-time { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    
+    .ro-container { padding: 0; }
     .ro-section { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; }
+    .ro-section:last-child { border-bottom: none; }
     .ro-header { font-size: 13px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
     .ro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-    .ro-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .ro-field { }
+    .ro-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
     .ro-value { font-size: 16px; font-weight: 600; color: var(--text-main); }
 
     /* NOTIFICATION CENTER */
     .notification-center {
-      position: fixed; top: 60px; right: 30px; width: 350px; max-height: 500px;
+      position: fixed; top: 80px; right: 30px; width: 380px; max-height: 500px;
       background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: 12px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; overflow: hidden;
+      border-radius: 12px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      z-index: 1000; transform: translateX(450px); transition: transform 0.3s ease; 
+      overflow: hidden; display: flex; flex-direction: column;
     }
     .notification-center.active { transform: translateX(0); }
     .notif-header {
-      padding: 15px; background: linear-gradient(135deg, var(--primary), #60a5fa);
+      padding: 15px 20px; background: linear-gradient(135deg, var(--primary), #60a5fa);
       color: white; font-weight: 700; font-size: 14px;
       display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
     }
-    .notif-list { max-height: 400px; overflow-y: auto; }
+    .notif-actions { display: flex; gap: 10px; }
+    .notif-action-btn {
+      background: rgba(255,255,255,0.2); color: white; border: none;
+      padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
+      font-weight: 600; transition: 0.2s;
+    }
+    .notif-action-btn:hover { background: rgba(255,255,255,0.3); }
+    .notif-list { flex: 1; overflow-y: auto; }
     .notif-item {
-      padding: 12px 15px; border-bottom: 1px solid var(--border);
+      padding: 15px 20px; border-bottom: 1px solid var(--border);
       cursor: pointer; transition: background 0.2s; position: relative;
     }
     .notif-item:hover { background: var(--bg-input); }
     .notif-item.unread::before {
       content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--danger);
     }
+    .notif-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: var(--text-main); }
+    .notif-message { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .notif-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+    
     .notif-bell {
-      position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px;
+      position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
       border-radius: 50%; background: linear-gradient(135deg, var(--primary), #60a5fa);
       box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); z-index: 999; border: none;
-      color: white; font-size: 24px; cursor: pointer; transition: all 0.3s ease;
+      color: white; font-size: 26px; cursor: pointer; transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center;
     }
-    .notif-bell:hover { transform: scale(1.1); box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4); }
+    .notif-bell:hover { transform: scale(1.1) rotate(15deg); box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4); }
     .notif-badge {
       position: absolute; top: -5px; right: -5px; background: var(--danger);
-      color: white; width: 24px; height: 24px; border-radius: 50%;
+      color: white; min-width: 24px; height: 24px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
       font-size: 11px; font-weight: 700; animation: bounce 2s infinite;
+      padding: 0 6px; border: 3px solid var(--bg-app);
     }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
   </style>
 </head>
 <body class="dark-mode">
 
+  <!-- SECURITY OVERLAY -->
   <div id="security-overlay" class="loader-overlay">
     <div id="loader-msg" style="text-align:center;">
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
@@ -345,6 +394,7 @@
     <div id="js-error-box" style="margin-top:20px; color:#ef4444; font-size:13px; display:none; max-width:90%; word-break:break-all;"></div>
   </div>
 
+  <!-- MODAL -->
   <div id="custom-modal" class="modal-overlay">
     <div class="modal-box">
       <h3 id="modal-title">Alert</h3>
@@ -356,8 +406,30 @@
     </div>
   </div>
 
+  <!-- NOTIFICATION CENTER -->
+  <div id="notification-center" class="notification-center">
+    <div class="notif-header">
+      <span>🔔 Notifications</span>
+      <div class="notif-actions">
+        <button class="notif-action-btn" onclick="clearAllNotifications()">Clear All</button>
+        <button class="notif-action-btn" onclick="toggleNotificationCenter()">✕</button>
+      </div>
+    </div>
+    <div id="notif-list" class="notif-list">
+      <div style="padding: 20px; text-align: center; color: var(--text-muted);">No notifications</div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION BELL -->
+  <button id="notif-bell" class="notif-bell" onclick="toggleNotificationCenter()">
+    🔔
+    <span id="notif-badge" class="notif-badge hidden">0</span>
+  </button>
+
+  <!-- MAIN APP -->
   <div id="app-container">
     
+    <!-- SIDEBAR -->
     <aside>
       <div class="sb-header">
         <h3>CWC Outreach</h3>
@@ -368,8 +440,8 @@
           <span class="search-icon">🔍</span>
           <input type="text" id="search" placeholder="Name or PRN..." onkeyup="handleSearch()">
         </div>
-        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleSort()" id="btn-sort">⬇</button>
-        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleBlur()">👁</button>
+        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleSort()" id="btn-sort" title="Sort Order">⬇</button>
+        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleBlur()" title="Toggle PHI Blur">👁</button>
       </div>
 
       <div class="tabs">
@@ -379,15 +451,20 @@
 
       <div id="list-wrapper" class="list-container"></div>
 
+      <!-- CHAT SECTION -->
       <div class="chat-section">
         <div class="chat-header">
-          <span>Team Chat</span>
-          <span style="cursor:pointer;" onclick="refreshChat()">↻</span>
+          <div class="chat-mode-selector">
+            <span style="margin-right: 8px;">Chat:</span>
+            <div class="chat-mode-btn active" id="chat-mode-internal" onclick="setChatMode('internal')">Internal</div>
+            <div class="chat-mode-btn" id="chat-mode-outreach" onclick="setChatMode('outreach')">Outreach</div>
+          </div>
+          <span style="cursor:pointer;" onclick="refreshChat()" title="Refresh">↻</span>
         </div>
         <div id="chat-messages" class="chat-msgs"></div>
         <div class="chat-input-box">
-          <input type="text" id="chat-input" class="input-wrapper" style="width:100%; background:var(--bg-input); border:none; padding:10px;" placeholder="Message..." onkeydown="checkChatSend(event)">
-          <button class="btn btn-primary" style="padding:8px 14px;" onclick="sendChat()">➤</button>
+          <input type="text" id="chat-input" style="flex: 1; background:var(--bg-input); border:1px solid var(--border); border-radius:6px; padding:10px; color:var(--text-main);" placeholder="Type message..." onkeydown="checkChatSend(event)">
+          <button class="btn btn-primary" style="padding:8px 16px;" onclick="sendChat()">➤</button>
         </div>
       </div>
       
@@ -402,113 +479,216 @@
       </div>
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main>
       <header>
-        <div class="view-badge"><div class="live-dot"></div><span id="view-indicator">CWC View</span></div>
+        <div class="view-badge">
+          <div class="live-dot"></div>
+          <span id="view-indicator">CWC View</span>
+        </div>
         <div style="display:flex; gap:12px; align-items:center;">
-          <button class="btn btn-primary btn-ghost" style="border:1px solid var(--primary); background:rgba(37,99,235,0.1); color:var(--primary);" id="btn-add-record" onclick="addRecord(event)">+ New</button>
-          <button class="btn btn-ghost" onclick="exportPDF()">📄 PDF</button>
-          <button class="btn btn-ghost hidden" id="btn-switch-role" onclick="switchRole()">⇄ Switch</button>
-          <button class="btn btn-ghost" onclick="init()">↻</button>
-          <label class="toggle-label" style="margin-left:15px;"><input type="checkbox" id="chk-theme" checked onchange="toggleTheme()"> Dark</label>
+          <button class="btn btn-primary" style="background:var(--primary);" id="btn-add-record" onclick="addRecord(event)">+ New Record</button>
+          <button class="btn btn-ghost" onclick="exportPDF()" title="Export to PDF">📄 PDF</button>
+          <button class="btn btn-ghost hidden" id="btn-switch-role" onclick="switchRole()" title="Switch Role View">⇄ Switch</button>
+          <button class="btn btn-ghost" onclick="init()" title="Refresh Data">↻</button>
+          <label class="toggle-label" style="margin-left:15px;">
+            <input type="checkbox" id="chk-theme" checked onchange="toggleTheme()"> 
+            <span>Dark</span>
+          </label>
         </div>
       </header>
 
       <div class="content-area">
         
+        <!-- DASHBOARD VIEW -->
         <div id="dashboard-view">
-          <div style="padding:50px; text-align:center; color:var(--text-muted);">
+          <div style="padding:50px; text-align:center; color:var(--text-muted); margin-bottom: 30px;">
             <h3 style="font-size:20px;">Select a patient to view details</h3>
+            <p style="margin-top: 10px; font-size: 14px;">Or view analytics below</p>
           </div>
+          
+          <!-- KPI CARDS -->
           <div class="kpi-grid">
             <div class="kpi-card">
-              <div class="kpi-icon">📋</div><div class="kpi-value" id="kpi-total">0</div><div class="kpi-label">Total Active</div>
+              <div class="kpi-icon">📋</div>
+              <div class="kpi-value" id="kpi-total">0</div>
+              <div class="kpi-label">Total Active</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon">🚨</div><div class="kpi-value" id="kpi-urgent">0</div><div class="kpi-label">Urgent Cases</div>
+              <div class="kpi-icon">🚨</div>
+              <div class="kpi-value" id="kpi-urgent">0</div>
+              <div class="kpi-label">Urgent Cases</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon">💊</div><div class="kpi-value" id="kpi-pharmacy">0</div><div class="kpi-label">In Pharmacy</div>
+              <div class="kpi-icon">💊</div>
+              <div class="kpi-value" id="kpi-pharmacy">0</div>
+              <div class="kpi-label">In Pharmacy</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon">✅</div><div class="kpi-value" id="kpi-completed">0</div><div class="kpi-label">Completed Today</div>
+              <div class="kpi-icon">✅</div>
+              <div class="kpi-value" id="kpi-completed">0</div>
+              <div class="kpi-label">Completed Today</div>
             </div>
           </div>
+          
+          <!-- ACTIVITY TIMELINE -->
           <div class="activity-timeline">
-            <h3 style="margin: 0 0 20px 0; color: var(--text-main); font-size: 18px; font-weight: 700;">Recent Activity</h3>
-            <div id="timeline-container"><div style="text-align: center; color: var(--text-muted); padding: 25px;">Loading...</div></div>
+            <h3>📊 Recent Activity</h3>
+            <div id="timeline-container">
+              <div style="text-align: center; color: var(--text-muted); padding: 25px;">Loading activities...</div>
+            </div>
           </div>
         </div>
 
+        <!-- DETAIL CARD -->
         <div id="detail-card" class="main-card hidden">
           <div class="mc-header">
-            <div class="mc-title"><h1 id="d-name">Patient Name</h1><div class="mc-subtitle"><span id="d-prn">PRN123</span><div id="d-ext-status" style="display:flex; gap:8px;"></div></div></div>
-            <div style="text-align:right;"><span id="d-status" class="status-chip chip-new">New</span><div style="margin-top:8px;"><button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeDetail()">Close ✕</button></div></div>
+            <div class="mc-title">
+              <h1 id="d-name">Patient Name</h1>
+              <div class="mc-subtitle">
+                <span id="d-prn">PRN123</span>
+                <div id="d-ext-status" style="display:flex; gap:8px;"></div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <span id="d-status" class="status-chip chip-new">New</span>
+              <div style="margin-top:8px;">
+                <button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeDetail()">Close ✕</button>
+              </div>
+            </div>
           </div>
 
           <form id="patient-form">
+            <!-- CWC VIEW -->
             <div id="view-cwc-container" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
                 <div class="c-tab" onclick="showSection('meds', event)">Clinical & Meds</div>
                 <div class="flex-spacer"></div>
                 <div style="display:flex; align-items:center;">
-                   <label class="toggle-label urgent-toggle"><input type="checkbox" id="chk-priority"> <span class="urgent-text">🔥 Urgent</span></label>
+                   <label class="toggle-label urgent-toggle">
+                     <input type="checkbox" id="chk-priority"> 
+                     <span class="urgent-text">🔥 Urgent</span>
+                   </label>
                 </div>
               </div>
 
               <div class="form-scroll-area">
                 <div class="form-container">
+                  <!-- PATIENT INFO SECTION -->
                   <div id="sec-patient" class="form-grid">
-                     <div class="input-group"><label>👤 Name</label><div class="input-wrapper"><input type="text" name="patientName" class="force-upper" required></div></div>
-                     <div class="input-group"><label>🆔 PRN</label><div class="input-wrapper"><input type="text" name="prn" class="force-upper" required></div></div>
-                     <div class="input-group"><label>🔒 SSN</label><div class="input-wrapper" style="display:flex; gap:5px;"><input type="password" name="ssn" id="inp-ssn" placeholder="•••-••-••••"><button type="button" class="btn btn-ghost" onclick="toggleSSN()">👁</button></div></div>
-                     <div class="input-group"><label>📅 DOB</label><div class="input-wrapper"><input type="date" name="dob"></div></div>
-                     <div class="input-group"><label>⚧ Sex</label><div class="input-wrapper"><select name="sex" id="opt-sex"></select></div></div>
-                     <div class="input-group"><label>📞 Phone</label><div class="input-wrapper"><input type="text" name="phoneNumber"></div></div>
-                     
-                     <!-- REORDERED & SAME ROW -->
-                     <div class="input-group"><label>📝 Reason</label><div class="input-wrapper"><input type="text" name="reason"></div></div>
-                     <div class="input-group"><label>🏠 Address</label><div class="input-wrapper"><input type="text" name="address"></div></div>
-                     
-                     <div class="input-group full-width"><label>📢 Outreach Note</label><div class="input-wrapper"><textarea name="outreachNote"></textarea></div></div>
+                     <div class="input-group">
+                       <label>👤 Patient Name</label>
+                       <div class="input-wrapper"><input type="text" name="patientName" required></div>
+                     </div>
+                     <div class="input-group">
+                       <label>🆔 PRN</label>
+                       <div class="input-wrapper"><input type="text" name="prn" required></div>
+                     </div>
+                     <div class="input-group">
+                       <label>🔒 SSN</label>
+                       <div class="input-wrapper" style="display:flex; gap:5px;">
+                         <input type="password" name="ssn" id="inp-ssn" placeholder="•••-••-••••" style="flex: 1;">
+                         <button type="button" class="btn btn-ghost" style="padding: 8px 12px;" onclick="toggleSSN()">👁</button>
+                       </div>
+                     </div>
+                     <div class="input-group">
+                       <label>📅 Date of Birth</label>
+                       <div class="input-wrapper"><input type="date" name="dob"></div>
+                     </div>
+                     <div class="input-group">
+                       <label>⚧ Sex</label>
+                       <div class="input-wrapper"><select name="sex" id="opt-sex"></select></div>
+                     </div>
+                     <div class="input-group">
+                       <label>📞 Phone Number</label>
+                       <div class="input-wrapper"><input type="text" name="phoneNumber"></div>
+                     </div>
+                     <div class="input-group">
+                       <label>📝 Reason</label>
+                       <div class="input-wrapper"><input type="text" name="reason"></div>
+                     </div>
+                     <div class="input-group">
+                       <label>🏠 Address</label>
+                       <div class="input-wrapper"><input type="text" name="address"></div>
+                     </div>
+                     <div class="input-group full-width">
+                       <label>📢 Outreach Note</label>
+                       <div class="input-wrapper"><textarea name="outreachNote"></textarea></div>
+                     </div>
                   </div>
 
+                  <!-- MEDS SECTION -->
                   <div id="sec-meds" class="form-grid hidden">
-                     <div class="input-group"><label>💊 Pharmacy</label><div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div></div>
-                     <div class="input-group"><label>🩺 Provider</label><div class="input-wrapper"><select name="provider" id="opt-provider"></select></div></div>
-                     <div class="input-group"><label>🧪 Medication</label><div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div></div>
-                     <div class="input-group"><label>📊 Status</label><div class="input-wrapper"><select name="status" id="opt-status"></select></div></div>
-                     <div class="input-group three-col" style="grid-column: 1 / -1; display:grid; gap:20px;">
-                        <div class="input-group"><label>🛡️ Insurance</label><div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div></div>
-                        <div class="input-group"><label>💳 Insurance ID</label><div class="input-wrapper"><input type="text" name="insuranceId"></div></div>
+                     <div class="input-group">
+                       <label>💊 Pharmacy</label>
+                       <div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div>
                      </div>
-                     <div class="input-group full-width"><label>🗒️ Office Notes</label><div class="input-wrapper"><textarea name="officeNote"></textarea></div></div>
+                     <div class="input-group">
+                       <label>🩺 Provider</label>
+                       <div class="input-wrapper"><select name="provider" id="opt-provider"></select></div>
+                     </div>
+                     <div class="input-group">
+                       <label>🧪 Medication</label>
+                       <div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div>
+                     </div>
+                     <div class="input-group">
+                       <label>📊 Prescription Status</label>
+                       <div class="input-wrapper"><select name="status" id="opt-status"></select></div>
+                     </div>
+                     <div class="input-group three-col" style="grid-column: 1 / -1; display:grid; gap:20px;">
+                        <div class="input-group">
+                          <label>🛡️ Insurance</label>
+                          <div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div>
+                        </div>
+                        <div class="input-group">
+                          <label>💳 Insurance ID</label>
+                          <div class="input-wrapper"><input type="text" name="insuranceId"></div>
+                        </div>
+                     </div>
+                     <div class="input-group full-width">
+                       <label>🗒️ Office Notes</label>
+                       <div class="input-wrapper"><textarea name="officeNote"></textarea></div>
+                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            <!-- PHARMACY VIEW -->
             <div id="view-pharm-container" class="hidden" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
                <div class="form-scroll-area">
                  <div class="form-container">
                    <div id="pharm-info-card" class="ro-container"></div>
                    <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:15px; margin-top:30px; font-size:15px; text-transform:uppercase;">Pharmacy Actions</h4>
                    <div class="form-grid three-col">
-                      <div class="input-group"><label>📜 Need Script?</label><div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div></div>
-                      <div class="input-group"><label>🔄 Policy #</label><div class="input-wrapper"><input type="text" name="policyNumber"></div></div>
-                      <div class="input-group"><label>🔄 Update Ins</label><div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div></div>
+                      <div class="input-group">
+                        <label>📜 Need Script?</label>
+                        <div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div>
+                      </div>
+                      <div class="input-group">
+                        <label>🔄 Policy Number</label>
+                        <div class="input-wrapper"><input type="text" name="policyNumber"></div>
+                      </div>
+                      <div class="input-group">
+                        <label>🔄 Update Insurance</label>
+                        <div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div>
+                      </div>
                    </div>
-                   <div class="input-group full-width"><label>📝 Pharmacy Notes</label><div class="input-wrapper"><textarea name="gardenNotes"></textarea></div></div>
+                   <div class="input-group full-width">
+                     <label>📝 Pharmacy Notes</label>
+                     <div class="input-wrapper"><textarea name="gardenNotes"></textarea></div>
+                   </div>
                  </div>
                </div>
             </div>
 
+            <!-- ACTION BAR -->
             <div class="action-bar">
-               <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">Save Changes</button>
-               <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">Submit to Pharmacy</button>
-               <button type="button" class="btn btn-primary btn-block" style="background:var(--primary)" id="btn-outreach" onclick="saveData('Outreach Update')">Send Outreach Update</button>
-               <button type="button" class="btn btn-primary btn-block hidden" style="background:var(--primary)" id="btn-pharm-update" onclick="saveData('Pharmacy Update')">Submit Update</button>
+               <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">💾 Save Changes</button>
+               <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">📤 Submit to Pharmacy</button>
+               <button type="button" class="btn btn-primary btn-block" style="background:#7c3aed;" id="btn-outreach" onclick="saveData('Outreach Update')">📢 Send Outreach Update</button>
+               <button type="button" class="btn btn-primary btn-block hidden" style="background:var(--success);" id="btn-pharm-update" onclick="saveData('Pharmacy Update')">✅ Submit Update</button>
             </div>
           </form>
         </div>
@@ -516,10 +696,11 @@
     </main>
   </div>
   
+  <!-- TOAST -->
   <div id="toast" class="toast">Notification</div>
 
   <script>
-    // --- GLOBAL HELPERS (DEFINED FIRST) ---
+    // --- GLOBAL ERROR HANDLER ---
     window.onerror = function(msg, url, line, col, error) {
       const box = document.getElementById('js-error-box');
       if (box) {
@@ -530,15 +711,18 @@
       return false;
     };
 
-    function toggleLoader(s) { 
-      document.getElementById('security-overlay').classList.toggle('hidden', !s); 
+    // --- GLOBAL HELPERS ---
+    function toggleLoader(show) { 
+      document.getElementById('security-overlay').classList.toggle('hidden', !show); 
     }
     
-    function toast(m) { 
-      const t = document.getElementById('toast'); 
-      t.innerText = m; 
-      t.classList.add('show'); 
-      setTimeout(() => t.classList.remove('show'), 3000); 
+    function toast(msg, type = 'default') { 
+      const t = document.getElementById('toast');
+      t.className = 'toast show';
+      if (type === 'success') t.classList.add('success');
+      if (type === 'alert') t.classList.add('alert');
+      t.innerText = msg; 
+      setTimeout(() => t.className = 'toast', 3000); 
     }
     
     function populateSelect(id, arr) { 
@@ -548,18 +732,21 @@
       if(!arr) return;
       arr.forEach(v => { 
         const op = document.createElement('option'); 
-        op.value = v; op.innerText = v; s.appendChild(op); 
+        op.value = v; 
+        op.innerText = v; 
+        s.appendChild(op); 
       }); 
     }
     
-    function showSection(s, e) {
-       document.getElementById('sec-patient').classList.toggle('hidden', s !== 'patient');
-       document.getElementById('sec-meds').classList.toggle('hidden', s !== 'meds');
+    function showSection(section, e) {
+       document.getElementById('sec-patient').classList.toggle('hidden', section !== 'patient');
+       document.getElementById('sec-meds').classList.toggle('hidden', section !== 'meds');
        document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
        if(e && e.target) e.target.classList.add('active');
     }
 
     function formatTimeAgo(timestamp) {
+      if (!timestamp) return 'Unknown';
       const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
       if (seconds < 60) return 'Just now';
       if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
@@ -577,46 +764,105 @@
     function closeModal() { 
       document.getElementById('custom-modal').classList.remove('active'); 
     }
+    
+    function confirmModal() {
+      closeModal();
+    }
 
-    // --- STATE ---
-    let STATE = { records: [], archives: [], config: {}, user: {}, currentList: 'active', blur: true, selectedId: null, dataHash: "", unreadIds: new Set(), alertingIds: new Set(), sortOrder: 'asc', chatHistory: [], externalStatus: {}, recentActivities: [], analytics: {} };
+    // --- STATE MANAGEMENT ---
+    let STATE = { 
+      records: [], 
+      archives: [], 
+      config: {}, 
+      user: {}, 
+      currentList: 'active', 
+      blur: true, 
+      selectedId: null, 
+      dataHash: "", 
+      unreadIds: new Set(), 
+      alertingIds: new Set(), 
+      sortOrder: 'asc', 
+      chatHistory: [], 
+      chatMode: 'internal',
+      externalStatus: {}, 
+      recentActivities: [], 
+      analytics: {} 
+    };
+    
     let pollInterval, notificationTimer;
     let notifications = [], unreadNotifCount = 0;
-    const alertSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"); 
+    const alertSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
 
+    // --- INITIALIZATION ---
     window.onload = init;
 
     function init() {
+      console.log('Initializing CWC Dashboard...');
       loadSettings();
-      google.script.run.withSuccessHandler(dataRaw => {
+      
+      google.script.run
+        .withSuccessHandler(dataRaw => {
            try {
              const data = JSON.parse(dataRaw);
+             console.log('Received data:', data);
+             
              if(!data) throw new Error("Server returned empty data.");
              if(data.error) { showError("Server Error", data.error); return; }
              if (!data.user || !data.user.email) { showError("Access Denied", "User identity not found."); return; }
              
              STATE = Object.assign(STATE, {
-               records: data.activeRecords || [], archives: data.archivedRecords || [], config: data.config || {},
-               user: data.user || {}, chatHistory: data.chatHistory || [], externalStatus: data.externalStatus || {},
-               recentActivities: data.recentActivities || [], analytics: data.analytics || {}
+               records: data.activeRecords || [], 
+               archives: data.archivedRecords || [], 
+               config: data.config || {},
+               user: data.user || {}, 
+               chatHistory: data.chatHistory || [], 
+               externalStatus: data.externalStatus || {},
+               recentActivities: data.recentActivities || [], 
+               analytics: data.analytics || {}
              });
+             
+             console.log('User:', STATE.user);
+             console.log('Records:', STATE.records.length);
              
              document.getElementById('user-email').innerText = STATE.user.email;
              document.getElementById('user-role-display').innerText = STATE.user.defaultRole;
              
              const dd = data.config.dropdowns || {};
-             ['sex','pharmacy','provider','medication','status','insurance','needsScript'].forEach(k => populateSelect('opt-'+k, dd[k]||[]));
+             ['sex','pharmacy','provider','medication','status','insurance','needsScript'].forEach(k => {
+               populateSelect('opt-'+k, dd[k]||[]);
+             });
              populateSelect('opt-insurance-update', dd.insurance||[]);
              
-             setupRoleView(); renderList(); renderChat(); showDashboard(); updateKPICards(); renderTimeline(); initNotificationCenter();
+             setupRoleView(); 
+             renderList(); 
+             renderChat(); 
+             showDashboard(); 
+             updateKPICards(); 
+             renderTimeline(); 
+             initNotificationCenter();
              
              document.getElementById('security-overlay').classList.add('hidden');
              document.getElementById('app-container').classList.add('visible');
              
+             // Auto-refresh chat
              setInterval(refreshChat, 30000);
-             if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
-           } catch(e) { console.error(e); showError("Rendering Error", e.message); }
-        }).withFailureHandler(e => showError("Connection Error", e.message)).getInitialData();
+             
+             // Request notification permission
+             if ('Notification' in window && Notification.permission === 'default') {
+               Notification.requestPermission();
+             }
+             
+             toast('Dashboard loaded successfully', 'success');
+           } catch(e) { 
+             console.error('Rendering error:', e); 
+             showError("Rendering Error", e.message); 
+           }
+        })
+        .withFailureHandler(e => {
+          console.error('Connection error:', e);
+          showError("Connection Error", e.message);
+        })
+        .getInitialData();
     }
 
     function showError(title, msg) {
@@ -628,7 +874,10 @@
     
     function loadSettings() {
        const savedTheme = localStorage.getItem('cwc_dark_mode');
-       if(savedTheme === 'false') { document.body.classList.remove('dark-mode'); document.getElementById('chk-theme').checked = false; }
+       if(savedTheme === 'false') { 
+         document.body.classList.remove('dark-mode'); 
+         document.getElementById('chk-theme').checked = false; 
+       }
        const savedBlur = localStorage.getItem('cwc_blur_enabled');
        if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
     }
@@ -637,178 +886,494 @@
        const r = STATE.user.defaultRole || 'CWC';
        document.getElementById('view-indicator').innerText = r + ' View';
        document.getElementById('btn-add-record').classList.toggle('hidden', r === 'PHARMACY');
-       document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1 && !STATE.user.email.includes('pierre'));
+       document.getElementById('btn-switch-role').classList.toggle('hidden', 
+         STATE.user.roles.length <= 1 && !STATE.user.email.includes('pierre'));
        document.getElementById('tab-secondary').innerText = r === 'PHARMACY' ? 'Completed' : 'Archive';
     }
 
+    // --- LIST RENDERING ---
     function renderList() {
       const listEl = document.getElementById('list-wrapper'); 
       if(!listEl) return;
       listEl.innerHTML = '';
+      
       let src = STATE.records;
       if (STATE.currentList === 'secondary') {
-         src = STATE.user.defaultRole === 'PHARMACY' ? STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.PHARMACY_UPDATE) : STATE.archives;
+         src = STATE.user.defaultRole === 'PHARMACY' 
+           ? STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.PHARMACY_UPDATE) 
+           : STATE.archives;
       } else {
-         if (STATE.user.defaultRole === 'PHARMACY') src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.SUBMITTED_TO_PHARMACY);
+         if (STATE.user.defaultRole === 'PHARMACY') {
+           src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.SUBMITTED_TO_PHARMACY);
+         }
       }
 
       const term = (document.getElementById('search')?.value || '').toLowerCase();
-      src.filter(r => (r.patientName||'').toLowerCase().includes(term) || (r.prn||'').toLowerCase().includes(term))
-         .forEach(r => {
-            const div = document.createElement('div');
-            const alerting = STATE.alertingIds.has(r.rowNum);
-            div.className = `patient-item ${STATE.selectedId === r.rowNum ? 'selected' : ''} ${alerting ? 'alerting' : ''}`;
-            div.onclick = () => selectRecord(r);
-            
-            let extBadgesHTML = '';
-            const k = r.prn ? r.prn.toUpperCase().replace(/\s+/g, '') : "";
-            if (k && STATE.externalStatus[k]) {
-               STATE.externalStatus[k].forEach(s => { extBadgesHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
-            }
-            
-            div.innerHTML = `<div class="pi-header"><div class="pi-name ${STATE.blur && STATE.selectedId !== r.rowNum ? 'blurred' : ''}">${r.patientName}</div><span class="status-chip chip-new">${r.workflowStatus ? r.workflowStatus.charAt(0) : 'N'}</span></div><div class="pi-meta"><div>${extBadgesHTML} <span>${r.prn}</span></div></div>`;
-            listEl.appendChild(div);
-         });
+      const filtered = src.filter(r => 
+        (r.patientName||'').toLowerCase().includes(term) || 
+        (r.prn||'').toLowerCase().includes(term)
+      );
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No records found</div>';
+        return;
+      }
+
+      filtered.forEach(r => {
+        const div = document.createElement('div');
+        const alerting = STATE.alertingIds.has(r.rowNum);
+        const isSelected = STATE.selectedId === r.rowNum;
+        
+        div.className = `patient-item ${isSelected ? 'selected' : ''} ${alerting ? 'alerting' : ''}`;
+        div.onclick = () => selectRecord(r);
+        
+        let extBadgesHTML = '';
+        const k = r.prn ? r.prn.toUpperCase().replace(/\s+/g, '') : "";
+        if (k && STATE.externalStatus[k]) {
+           STATE.externalStatus[k].forEach(s => { 
+             extBadgesHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; 
+           });
+        }
+        
+        const statusText = r.workflowStatus ? r.workflowStatus.substring(0, 1) : 'N';
+        const shouldBlur = STATE.blur && !isSelected;
+        
+        div.innerHTML = `
+          <div class="pi-header">
+            <div class="pi-name ${shouldBlur ? 'blurred' : ''}">${r.patientName || 'Unnamed'}</div>
+            <span class="status-chip chip-new">${statusText}</span>
+          </div>
+          <div class="pi-meta">
+            <div>${extBadgesHTML} <span style="font-weight: 600;">${r.prn || 'No PRN'}</span></div>
+          </div>
+        `;
+        listEl.appendChild(div);
+      });
     }
 
     function selectRecord(r) {
-       if (STATE.alertingIds.has(r.rowNum)) { STATE.alertingIds.delete(r.rowNum); STATE.unreadIds.delete(r.rowNum); renderList(); }
+       console.log('Selecting record:', r);
+       
+       // Clear alert state
+       if (STATE.alertingIds.has(r.rowNum)) { 
+         STATE.alertingIds.delete(r.rowNum); 
+         STATE.unreadIds.delete(r.rowNum); 
+         renderList(); 
+       }
+       
+       // Handle archived records
        if(STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC' && !r.isFullRecord) {
           toggleLoader(true);
-          google.script.run.withSuccessHandler(res => {
+          google.script.run
+            .withSuccessHandler(res => {
                toggleLoader(false);
                if(res.error) { 
-                 toast("Error: " + res.error); 
+                 toast("Error: " + res.error, 'alert'); 
                } else if(res.record) {
                   res.record.isFullRecord = true;
                   const idx = STATE.archives.findIndex(a => a.rowNum === res.record.rowNum);
                   if(idx !== -1) STATE.archives[idx] = res.record;
                   selectRecord(res.record);
                }
-            }).getFullArchivedRecord(r.rowNum);
+            })
+            .withFailureHandler(e => {
+              toggleLoader(false);
+              toast('Error loading record: ' + e.message, 'alert');
+            })
+            .getFullArchivedRecord(r.rowNum);
           return; 
        }
 
-       STATE.selectedId = r.rowNum; renderList();
+       STATE.selectedId = r.rowNum; 
+       renderList();
+       
+       // Hide dashboard, show detail card
        document.getElementById('dashboard-view').style.display = 'none';
        document.getElementById('detail-card').classList.remove('hidden');
-       document.getElementById('d-name').innerText = r.patientName;
-       document.getElementById('d-prn').innerText = r.prn;
-       document.getElementById('d-status').innerText = r.workflowStatus;
-       document.getElementById('d-ext-status').innerHTML = '';
        
+       // Update header
+       document.getElementById('d-name').innerText = r.patientName || 'Unnamed Patient';
+       document.getElementById('d-prn').innerText = r.prn || 'No PRN';
+       document.getElementById('d-status').innerText = r.workflowStatus || 'New';
+       
+       // External status tags
+       document.getElementById('d-ext-status').innerHTML = '';
        const k = r.prn ? r.prn.toUpperCase().replace(/\s+/g, '') : "";
        if (k && STATE.externalStatus[k]) {
-         STATE.externalStatus[k].forEach(s => { document.getElementById('d-ext-status').innerHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
+         STATE.externalStatus[k].forEach(s => { 
+           document.getElementById('d-ext-status').innerHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; 
+         });
        }
 
+       // Configure view based on role
        const form = document.getElementById('patient-form');
        const isPharm = STATE.user.defaultRole === 'PHARMACY';
+       
        document.getElementById('view-cwc-container').classList.toggle('hidden', isPharm);
        document.getElementById('view-pharm-container').classList.toggle('hidden', !isPharm);
        
+       // Populate form fields
        Array.from(form.elements).forEach(el => {
           if(el.name && r[el.name] !== undefined) {
-             if(el.type === 'date' && r[el.name]) { try { el.value = new Date(r[el.name]).toISOString().split('T')[0]; } catch(e) { el.value = r[el.name]; } } 
-             else el.value = r[el.name];
+             if(el.type === 'date' && r[el.name]) { 
+               try { 
+                 el.value = new Date(r[el.name]).toISOString().split('T')[0]; 
+               } catch(e) { 
+                 el.value = r[el.name]; 
+               } 
+             } else {
+               el.value = r[el.name];
+             }
           }
        });
        
-       if (document.getElementById('chk-priority')) document.getElementById('chk-priority').checked = (r.priority === 'Urgent');
+       // Priority checkbox
+       if (document.getElementById('chk-priority')) {
+         document.getElementById('chk-priority').checked = (r.priority === 'Urgent');
+       }
+       
+       // Action buttons visibility
        document.getElementById('btn-save').classList.toggle('hidden', isPharm);
        document.getElementById('btn-submit').classList.toggle('hidden', isPharm);
        document.getElementById('btn-outreach').classList.toggle('hidden', isPharm);
        document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
        
+       // Pharmacy read-only view
        if(isPharm) {
           document.getElementById('pharm-info-card').innerHTML = `
-            <div class="ro-section"><div class="ro-header">Patient</div><div class="ro-grid"><div class="ro-field"><div class="ro-label">Name</div><div class="ro-value">${r.patientName}</div></div><div class="ro-field"><div class="ro-label">PRN</div><div class="ro-value">${r.prn}</div></div></div></div>
-            <div class="ro-section"><div class="ro-header">Meds</div><div class="ro-grid"><div class="ro-field"><div class="ro-label">Medication</div><div class="ro-value">${r.medicationDetails || '-'}</div></div></div></div>
-            <div class="ro-section"><div class="ro-header">Notes</div><div class="ro-value" style="background:var(--bg-input); padding:10px; border-radius:6px;">${r.outreachNote || 'No notes'}</div></div>`;
+            <div class="ro-section">
+              <div class="ro-header">Patient Information</div>
+              <div class="ro-grid">
+                <div class="ro-field">
+                  <div class="ro-label">Name</div>
+                  <div class="ro-value">${r.patientName || 'N/A'}</div>
+                </div>
+                <div class="ro-field">
+                  <div class="ro-label">PRN</div>
+                  <div class="ro-value">${r.prn || 'N/A'}</div>
+                </div>
+                <div class="ro-field">
+                  <div class="ro-label">Phone</div>
+                  <div class="ro-value">${r.phoneNumber || 'N/A'}</div>
+                </div>
+                <div class="ro-field">
+                  <div class="ro-label">DOB</div>
+                  <div class="ro-value">${r.dob || 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+            <div class="ro-section">
+              <div class="ro-header">Clinical Details</div>
+              <div class="ro-grid">
+                <div class="ro-field">
+                  <div class="ro-label">Medication</div>
+                  <div class="ro-value">${r.medicationDetails || 'N/A'}</div>
+                </div>
+                <div class="ro-field">
+                  <div class="ro-label">Provider</div>
+                  <div class="ro-value">${r.provider || 'N/A'}</div>
+                </div>
+                <div class="ro-field">
+                  <div class="ro-label">Pharmacy</div>
+                  <div class="ro-value">${r.pharmacy || 'N/A'}</div>
+                </div>
+                <div class="ro-field">
+                  <div class="ro-label">Insurance</div>
+                  <div class="ro-value">${r.insuranceName || 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+            <div class="ro-section">
+              <div class="ro-header">Notes</div>
+              <div class="ro-value" style="background:var(--bg-input); padding:15px; border-radius:8px; line-height: 1.6;">
+                ${r.outreachNote || r.officeNote || 'No notes available'}
+              </div>
+            </div>
+          `;
        }
     }
 
-    function saveData(act) { 
-       if (!STATE.selectedId) return;
-       toggleLoader(true);
-       const f = document.getElementById('patient-form'); const d = {}; Array.from(f.elements).forEach(e => { if(e.name) d[e.name] = e.value; });
-       if (document.getElementById('chk-priority')) d['priority'] = document.getElementById('chk-priority').checked ? 'Urgent' : 'Standard';
+    // --- SAVE OPERATIONS ---
+    function saveData(action) { 
+       if (!STATE.selectedId) {
+         toast('No record selected', 'alert');
+         return;
+       }
+       
+       const f = document.getElementById('patient-form'); 
+       const d = {}; 
+       
+       Array.from(f.elements).forEach(e => { 
+         if(e.name) d[e.name] = e.value; 
+       });
+       
+       if (document.getElementById('chk-priority')) {
+         d['priority'] = document.getElementById('chk-priority').checked ? 'Urgent' : 'Standard';
+       }
        
        // VALIDATION FOR PHARMACY SUBMISSION
-       if (act === 'Submit to Pharmacy') {
+       if (action === 'Submit to Pharmacy') {
          const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
-         const missing = req.filter(k => !d[k] || d[k] === '-- Select --');
-         if (missing.length > 0) { toggleLoader(false); showDialog("Missing Info", "Please fill all required fields."); return; }
+         const missing = req.filter(k => !d[k] || d[k] === '' || d[k] === '-- Select --');
+         
+         if (missing.length > 0) { 
+           toggleLoader(false); 
+           showDialog("Missing Information", `Please fill in the following required fields:<br><br>${missing.join(', ')}`); 
+           return; 
+         }
        }
 
-       let fn = 'saveRecordChanges';
-       if(act === 'Submit to Pharmacy') fn = 'submitToPharmacy';
-       else if(act === 'Outreach Update') fn = 'sendOutreachUpdate';
-       else if(act === 'Pharmacy Update') fn = 'submitPharmacyUpdate';
+       toggleLoader(true);
        
-       google.script.run.withSuccessHandler(res => { 
+       let fn = 'saveRecordChanges';
+       if(action === 'Submit to Pharmacy') fn = 'submitToPharmacy';
+       else if(action === 'Outreach Update') fn = 'sendOutreachUpdate';
+       else if(action === 'Pharmacy Update') fn = 'submitPharmacyUpdate';
+       
+       console.log(`Saving with action: ${action}, function: ${fn}`);
+       
+       google.script.run
+         .withSuccessHandler(res => { 
           toggleLoader(false); 
-          if(res.error) toast(res.error); 
-          else { STATE.records = res.allRecords; selectRecord(STATE.records.find(r => r.rowNum === STATE.selectedId)); toast('Saved'); } 
-       }).withFailureHandler(e => { toggleLoader(false); toast(e.message); })[fn](STATE.selectedId, d);
+          
+          if(res.error) {
+            toast('Error: ' + res.error, 'alert'); 
+          } else { 
+            STATE.records = res.allRecords || STATE.records;
+            STATE.chatHistory = res.chatHistory || STATE.chatHistory;
+            
+            const updatedRecord = STATE.records.find(r => r.rowNum === STATE.selectedId);
+            if (updatedRecord) {
+              selectRecord(updatedRecord);
+            }
+            
+            renderList();
+            renderChat();
+            updateKPICards();
+            
+            toast(`✅ ${action} completed successfully`, 'success');
+            
+            // Add to notifications
+            addNotification(`${action} Completed`, `Successfully processed for ${d.patientName || 'patient'}`);
+          } 
+       })
+       .withFailureHandler(e => { 
+         toggleLoader(false); 
+         toast('Error: ' + e.message, 'alert'); 
+       })[fn](STATE.selectedId, d);
     }
 
-    function showDashboard() { document.getElementById('dashboard-view').style.display = 'block'; document.getElementById('detail-card').classList.add('hidden'); STATE.selectedId = null; }
-    function closeDetail() { showDashboard(); renderList(); }
-    function toggleSSN() { const i = document.getElementById('inp-ssn'); i.type = i.type === 'password' ? 'text' : 'password'; }
-    function handleSearch() { renderList(); }
-    function toggleSort() { renderList(); }
-    function switchList(t) { STATE.currentList = t; document.getElementById('tab-active').classList.toggle('active', t === 'active'); document.getElementById('tab-secondary').classList.toggle('active', t === 'secondary'); closeDetail(); }
-    function switchRole() { STATE.user.defaultRole = STATE.user.defaultRole === 'CWC' ? 'PHARMACY' : 'CWC'; setupRoleView(); closeDetail(); toast('Switched View'); }
-    function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('cwc_dark_mode', document.body.classList.contains('dark-mode')); }
-    function toggleBlur() { STATE.blur = !STATE.blur; localStorage.setItem('cwc_blur_enabled', STATE.blur); renderList(); }
-    function addRecord(e) { e.stopPropagation(); toggleLoader(true); google.script.run.withSuccessHandler(res => { toggleLoader(false); if(!res.error) { STATE.records = res.allRecords; renderList(); selectRecord(res.updatedRecord); toast('Created'); } else toast(res.error); }).addOutreachRecord(); }
-    function exportPDF() { toggleLoader(true); google.script.run.withSuccessHandler(res => { toggleLoader(false); if(res.error) toast(res.error); else window.open(res.url, '_blank'); }).getPDFDownloadUrl(); }
-    
-    // CHAT & NOTIFICATIONS
-    function checkChatSend(e) { if(e.key === 'Enter') sendChat(); }
-    function sendChat() { const i = document.getElementById('chat-input'); const t = i.value.trim(); if(!t) return; STATE.chatHistory.push({sender: STATE.user.email, text: t, time: 'Now'}); renderChat(); i.value = ''; google.script.run.withSuccessHandler(h => { STATE.chatHistory = h; renderChat(); }).postUserMessage(t); }
-    function renderChat() { const c = document.getElementById('chat-messages'); c.innerHTML = ''; STATE.chatHistory.forEach(m => { const d = document.createElement('div'); d.className = `msg ${m.sender === STATE.user.email ? 'out' : 'in'}`; d.innerHTML = `<div style="font-weight:700; font-size:10px; opacity:0.6; margin-bottom:2px;">${m.sender.split('@')[0]}</div>${m.text}`; c.appendChild(d); }); c.scrollTop = c.scrollHeight; }
-    function refreshChat() { google.script.run.withSuccessHandler(h => { if(h.length) { STATE.chatHistory = h; renderChat(); } }).pollChat(); }
+    // --- CHAT FUNCTIONS ---
+    function setChatMode(mode) {
+      STATE.chatMode = mode;
+      document.getElementById('chat-mode-internal').classList.toggle('active', mode === 'internal');
+      document.getElementById('chat-mode-outreach').classList.toggle('active', mode === 'outreach');
+      
+      if (mode === 'outreach') {
+        toast('Outreach mode: Messages sent to Google Chat webhook', 'default');
+      } else {
+        toast('Internal mode: Messages logged to spreadsheet', 'default');
+      }
+    }
 
+    function checkChatSend(e) { 
+      if(e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChat(); 
+      }
+    }
+    
+    function sendChat() { 
+      const input = document.getElementById('chat-input'); 
+      const text = input.value.trim(); 
+      
+      if(!text) return;
+      
+      // Add to UI immediately for responsiveness
+      STATE.chatHistory.push({
+        sender: STATE.user.email, 
+        text: text, 
+        time: 'Sending...'
+      }); 
+      renderChat(); 
+      input.value = '';
+      
+      if (STATE.chatMode === 'outreach') {
+        // Send to webhook (external)
+        google.script.run
+          .withSuccessHandler(h => { 
+            STATE.chatHistory = h || STATE.chatHistory; 
+            renderChat(); 
+            toast('Message sent to outreach chat', 'success');
+          })
+          .withFailureHandler(e => {
+            toast('Chat error: ' + e.message, 'alert');
+          })
+          .postUserMessageToWebhook(text, 'outreach');
+      } else {
+        // Save to internal log
+        google.script.run
+          .withSuccessHandler(h => { 
+            STATE.chatHistory = h || STATE.chatHistory; 
+            renderChat(); 
+          })
+          .withFailureHandler(e => {
+            toast('Chat error: ' + e.message, 'alert');
+          })
+          .postUserMessage(text);
+      }
+    }
+    
+    function renderChat() { 
+      const container = document.getElementById('chat-messages'); 
+      container.innerHTML = ''; 
+      
+      if (STATE.chatHistory.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">No messages yet. Start a conversation!</div>';
+        return;
+      }
+      
+      STATE.chatHistory.forEach(m => { 
+        const div = document.createElement('div'); 
+        const isOwn = m.sender === STATE.user.email || m.sender.includes(STATE.user.email.split('@')[0]);
+        
+        div.className = `msg ${isOwn ? 'out' : 'in'}`; 
+        
+        const senderName = m.sender.split('@')[0];
+        const displayTime = m.time || 'Now';
+        
+        div.innerHTML = `
+          <div class="msg-sender">${senderName}</div>
+          <div>${m.text}</div>
+          <div style="font-size: 9px; opacity: 0.5; margin-top: 4px;">${displayTime}</div>
+        `; 
+        
+        container.appendChild(div); 
+      }); 
+      
+      container.scrollTop = container.scrollHeight; 
+    }
+    
+    function refreshChat() { 
+      google.script.run
+        .withSuccessHandler(h => { 
+          if(h && h.length > 0) { 
+            STATE.chatHistory = h; 
+            renderChat(); 
+          } 
+        })
+        .withFailureHandler(e => {
+          console.error('Chat refresh error:', e);
+        })
+        .pollChat(); 
+    }
+
+    // --- NOTIFICATION CENTER ---
     function initNotificationCenter() {
       const stored = localStorage.getItem('cwc_notifications');
-      if (stored) { try { notifications = JSON.parse(stored); updateNotificationBadge(); } catch(e) { notifications = []; } }
+      if (stored) { 
+        try { 
+          notifications = JSON.parse(stored); 
+          updateNotificationBadge(); 
+        } catch(e) { 
+          notifications = []; 
+        } 
+      }
     }
+
     function toggleNotificationCenter() {
       const center = document.getElementById('notification-center');
+      const isActive = center.classList.contains('active');
+      
       center.classList.toggle('active');
-      if (center.classList.contains('active')) { renderNotifications(); markAllNotificationsRead(); }
+      
+      if (!isActive) { 
+        renderNotifications(); 
+        markAllNotificationsRead(); 
+      }
     }
+
     function renderNotifications() {
       const list = document.getElementById('notif-list');
-      if (notifications.length === 0) { list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No notifications</div>'; return; }
-      list.innerHTML = notifications.map(n => `<div class="notif-item ${n.read ? '' : 'unread'}"><div style="font-weight: 600; font-size: 12px; margin-bottom: 4px;">${n.title}</div><div style="font-size: 11px; color: var(--text-muted);">${n.message}</div></div>`).join('');
+      
+      if (notifications.length === 0) { 
+        list.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No notifications yet</div>'; 
+        return; 
+      }
+      
+      list.innerHTML = notifications.map((n, idx) => `
+        <div class="notif-item ${n.read ? '' : 'unread'}">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-message">${n.message}</div>
+          <div class="notif-time">${formatTimeAgo(n.timestamp)}</div>
+        </div>
+      `).join('');
     }
+
     function updateNotificationBadge() {
       unreadNotifCount = notifications.filter(n => !n.read).length;
       const badge = document.getElementById('notif-badge');
-      if (unreadNotifCount > 0) { badge.classList.remove('hidden'); badge.textContent = unreadNotifCount > 9 ? '9+' : unreadNotifCount; } else { badge.classList.add('hidden'); }
+      
+      if (unreadNotifCount > 0) { 
+        badge.classList.remove('hidden'); 
+        badge.textContent = unreadNotifCount > 9 ? '9+' : unreadNotifCount; 
+      } else { 
+        badge.classList.add('hidden'); 
+      }
     }
+
     function markAllNotificationsRead() {
       notifications = notifications.map(n => ({ ...n, read: true }));
       localStorage.setItem('cwc_notifications', JSON.stringify(notifications));
       updateNotificationBadge();
     }
+
     function clearAllNotifications() {
-      notifications = []; localStorage.removeItem('cwc_notifications'); renderNotifications(); updateNotificationBadge();
+      notifications = []; 
+      localStorage.removeItem('cwc_notifications'); 
+      renderNotifications(); 
+      updateNotificationBadge();
+      toast('All notifications cleared', 'success');
     }
 
+    function addNotification(title, message) {
+      const notif = {
+        title: title,
+        message: message,
+        timestamp: new Date().toISOString(),
+        read: false
+      };
+      
+      notifications.unshift(notif);
+      
+      // Keep only last 50 notifications
+      if (notifications.length > 50) {
+        notifications = notifications.slice(0, 50);
+      }
+      
+      localStorage.setItem('cwc_notifications', JSON.stringify(notifications));
+      updateNotificationBadge();
+      
+      // Desktop notification if permitted
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, {
+          body: message,
+          icon: '🔔'
+        });
+      }
+    }
+
+    // --- ANALYTICS & DASHBOARD ---
     function updateKPICards() {
       const an = STATE.analytics || {};
       const recs = STATE.records || [];
+      
       const total = typeof an.totalActive === 'number' ? an.totalActive : recs.length;
       const urgent = typeof an.urgentCases === 'number' ? an.urgentCases : recs.filter(r => r.priority === 'Urgent').length;
       const phmFlag = (STATE.config && STATE.config.flags && STATE.config.flags.SUBMITTED_TO_PHARMACY) ? STATE.config.flags.SUBMITTED_TO_PHARMACY : 'Submitted to Pharmacy';
       const inPharm = typeof an.inPharmacy === 'number' ? an.inPharmacy : recs.filter(r => r.workflowStatus === phmFlag).length;
       const completed = an.completedToday || 0;
       
-      // Add placeholders elements if they exist in HTML
       if(document.getElementById('kpi-total')) document.getElementById('kpi-total').innerText = total;
       if(document.getElementById('kpi-urgent')) document.getElementById('kpi-urgent').innerText = urgent;
       if(document.getElementById('kpi-pharmacy')) document.getElementById('kpi-pharmacy').innerText = inPharm;
@@ -816,12 +1381,125 @@
     }
 
     function renderTimeline() {
-      const c = document.getElementById('timeline-container');
-      if(!c) return;
-      if (!STATE.recentActivities || STATE.recentActivities.length === 0) { c.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">No recent activity</div>'; return; }
-      c.innerHTML = STATE.recentActivities.map(a => `
-        <div class="timeline-item"><div class="timeline-marker">${a.icon || '📌'}</div><div class="timeline-content"><div class="timeline-title">${a.title}</div><div class="timeline-desc">${a.description}</div><div class="timeline-time">${a.time}</div></div></div>
+      const container = document.getElementById('timeline-container');
+      if(!container) return;
+      
+      if (!STATE.recentActivities || STATE.recentActivities.length === 0) { 
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 30px;">No recent activity</div>'; 
+        return; 
+      }
+      
+      container.innerHTML = STATE.recentActivities.map(a => `
+        <div class="timeline-item">
+          <div class="timeline-marker">${a.icon || '📌'}</div>
+          <div class="timeline-content">
+            <div class="timeline-title">${a.title || 'Activity'}</div>
+            <div class="timeline-desc">${a.description || 'No description'}</div>
+            <div class="timeline-time">${a.time || 'Unknown time'}</div>
+          </div>
+        </div>
       `).join('');
+    }
+
+    // --- UI HELPERS ---
+    function showDashboard() { 
+      document.getElementById('dashboard-view').style.display = 'block'; 
+      document.getElementById('detail-card').classList.add('hidden'); 
+      STATE.selectedId = null;
+      renderList();
+    }
+    
+    function closeDetail() { 
+      showDashboard(); 
+    }
+    
+    function toggleSSN() { 
+      const i = document.getElementById('inp-ssn'); 
+      i.type = i.type === 'password' ? 'text' : 'password'; 
+    }
+    
+    function handleSearch() { 
+      renderList(); 
+    }
+    
+    function toggleSort() { 
+      STATE.sortOrder = STATE.sortOrder === 'asc' ? 'desc' : 'asc';
+      document.getElementById('btn-sort').innerText = STATE.sortOrder === 'asc' ? '⬇' : '⬆';
+      renderList(); 
+    }
+    
+    function switchList(type) { 
+      STATE.currentList = type; 
+      document.getElementById('tab-active').classList.toggle('active', type === 'active'); 
+      document.getElementById('tab-secondary').classList.toggle('active', type === 'secondary'); 
+      closeDetail();
+      renderList();
+    }
+    
+    function switchRole() { 
+      STATE.user.defaultRole = STATE.user.defaultRole === 'CWC' ? 'PHARMACY' : 'CWC'; 
+      setupRoleView(); 
+      closeDetail(); 
+      renderList();
+      toast('Switched to ' + STATE.user.defaultRole + ' view', 'success'); 
+    }
+    
+    function toggleTheme() { 
+      document.body.classList.toggle('dark-mode'); 
+      localStorage.setItem('cwc_dark_mode', document.body.classList.contains('dark-mode')); 
+    }
+    
+    function toggleBlur() { 
+      STATE.blur = !STATE.blur; 
+      localStorage.setItem('cwc_blur_enabled', STATE.blur); 
+      renderList(); 
+      toast(STATE.blur ? 'PHI blur enabled' : 'PHI blur disabled', 'default');
+    }
+    
+    function addRecord(e) { 
+      e.stopPropagation(); 
+      toggleLoader(true); 
+      
+      google.script.run
+        .withSuccessHandler(res => { 
+          toggleLoader(false); 
+          
+          if(!res.error) { 
+            STATE.records = res.allRecords; 
+            renderList(); 
+            selectRecord(res.updatedRecord); 
+            toast('New record created successfully', 'success'); 
+            addNotification('New Record', 'A new patient record was created');
+          } else {
+            toast('Error: ' + res.error, 'alert'); 
+          }
+        })
+        .withFailureHandler(e => {
+          toggleLoader(false);
+          toast('Error: ' + e.message, 'alert');
+        })
+        .addOutreachRecord(); 
+    }
+    
+    function exportPDF() { 
+      toggleLoader(true); 
+      
+      google.script.run
+        .withSuccessHandler(res => { 
+          toggleLoader(false); 
+          
+          if(res.error) {
+            toast('Error: ' + res.error, 'alert'); 
+          } else {
+            window.open(res.url, '_blank'); 
+            toast('Opening PDF export...', 'success');
+          }
+        })
+        .withFailureHandler(e => {
+          toggleLoader(false);
+          toast('Error: ' + e.message, 'alert');
+        })
+        .getPDFDownloadUrl(); 
     }
   </script>
 </body>
