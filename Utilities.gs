@@ -23,10 +23,8 @@ function getUnifiedPatientData(data, headerMap, indexOnly = false, baseRowNum = 
   const records = [];
   const keyToHeader = createKeyToHeaderMap();
   const headerToKey = {};
-  // Build reverse map (Header -> InternalKey)
   for (const k in keyToHeader) headerToKey[keyToHeader[k]] = k;
-  
-  // Robust lookup for main columns
+
   const findCol = (name) => {
     if (headerMap[name] !== undefined) return headerMap[name];
     if (headerMap[name.toLowerCase()] !== undefined) return headerMap[name.toLowerCase()];
@@ -47,18 +45,17 @@ function getUnifiedPatientData(data, headerMap, indexOnly = false, baseRowNum = 
       prn: (prnIdx > -1 ? row[prnIdx] : '') || '',
       workflowStatus: (statusIdx > -1 ? row[statusIdx] : '') || ''
     };
-    
     if (!indexOnly) {
       for (const header in headerMap) {
-        let key = headerToKey[header]; 
+        let key = headerToKey[header];
         if(!key) {
            for(const k in CONFIG.COLUMNS_BY_NAME) {
              if(CONFIG.COLUMNS_BY_NAME[k].toLowerCase() === header.toLowerCase()) {
-               key = k; break;
+               key = k;
+               break;
              }
            }
         }
-        
         if (key && !record.hasOwnProperty(key)) {
             record[key] = row[headerMap[header]] || '';
         }
@@ -77,7 +74,6 @@ function getRecipients() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
     const pharmacy = sheet.getRange('A2:A').getDisplayValues().flat().filter(String);
     const outreach = sheet.getRange('B2:B').getDisplayValues().flat().filter(String);
-
     const result = { cwc: outreach, pharmacy: pharmacy, outreach: outreach };
     cache.put('emailRecipients', JSON.stringify(result), 600);
     return result;
@@ -90,7 +86,6 @@ function getAuditChanges(original, updated, row, action) {
   const changes = [];
   const map = createKeyToHeaderMap();
   for (const key in updated) {
-    // Only log changes where old value != new value
     if (original[key] !== updated[key]) {
       changes.push({
         row: row, action: action, field: map[key] || key,
@@ -110,12 +105,10 @@ function sendErrorEmail(context, error) {
 function archiveProcessedData() {
   const lock = LockService.getScriptLock();
   if(!lock.tryLock(30000)) return;
-
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const src = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
     const dest = ss.getSheetByName(CONFIG.SHEET_NAMES.ARCHIVED);
-    
     if (!src || !dest || src.getLastRow() < 2) return;
     
     const data = src.getDataRange().getValues();
@@ -126,10 +119,9 @@ function archiveProcessedData() {
     const toDelete = [];
 
     const archiveFlags = [CONFIG.FLAGS.SUBMITTED_TO_PHARMACY, CONFIG.FLAGS.CWC_UPDATE_SENT, CONFIG.FLAGS.PHARMACY_UPDATE];
-
     for(let i = data.length - 1; i >= 1; i--) {
       if(statusIdx >= 0 && archiveFlags.includes(data[i][statusIdx])) {
-        toArchive.unshift(data[i]); 
+        toArchive.unshift(data[i]);
         toDelete.push(i + 1); 
       }
     }
@@ -146,11 +138,6 @@ function archiveProcessedData() {
   }
 }
 
-/**
- * Retrieves the Chat Webhook URL based on the mode.
- * Checks Script Properties first (Secure), then falls back to Config.gs (Easy).
- * @param {string} mode 'outreach' or 'pharmacy'
- */
 function getNotificationWebhookUrl(mode = 'outreach') {
   const properties = PropertiesService.getScriptProperties();
   let url;
@@ -163,20 +150,17 @@ function getNotificationWebhookUrl(mode = 'outreach') {
     key = 'PHARMACY_CHAT_WEBHOOK_URL';
     url = properties.getProperty(key) || CONFIG.PHARMACY_CHAT_WEBHOOK_URL;
   }
-
-  if (!url) {
-    Logger.log(`⚠️ ERROR: No Webhook URL found for mode '${mode}'. Notifications disabled.`);
-  }
   return url;
 }
 
 /**
- * Sends a notification to the Google Chat Space.
+ * UPDATED: Sends notification to Google Chat AND logs to Sidebar Memory
  */
 function sendChatWebhookNotification(text, mode = 'outreach') {
   const webhookUrl = getNotificationWebhookUrl(mode); 
   if (!webhookUrl || !text) return;
-  
+
+  // 1. Send to Google Chat
   try {
     const payload = { text: text };
     const options = {
@@ -186,8 +170,17 @@ function sendChatWebhookNotification(text, mode = 'outreach') {
       muteHttpExceptions: true
     };
     UrlFetchApp.fetch(webhookUrl, options); 
-    Logger.log(`Webhook notification sent to ${mode} chat.`);
   } catch (e) {
-    Logger.log(`Webhook Failed for ${mode} chat: ${e.message}`);
+    Logger.log(`Webhook Failed: ${e.message}`);
+  }
+
+  // 2. Log to Sidebar Memory (Only for Outreach to avoid clutter)
+  if (mode === 'outreach' && typeof logChatMessage === 'function') {
+    try {
+       // 'System' sender so it looks distinct in the sidebar
+       logChatMessage('System', text);
+    } catch(e) {
+       Logger.log('Failed to log system message: ' + e.message);
+    }
   }
 }
