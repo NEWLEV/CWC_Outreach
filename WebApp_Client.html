@@ -382,10 +382,8 @@
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
   </style>
 </head>
-<!-- Add one-time click listener to unlock audio -->
 <body class="dark-mode" onclick="unmuteAudio()">
 
-  <!-- SECURITY OVERLAY -->
   <div id="security-overlay" class="loader-overlay">
     <div id="loader-msg" style="text-align:center;">
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
@@ -395,7 +393,6 @@
     <div id="js-error-box" style="margin-top:20px; color:#ef4444; font-size:13px; display:none; max-width:90%; word-break:break-all;"></div>
   </div>
 
-  <!-- MODAL -->
   <div id="custom-modal" class="modal-overlay">
     <div class="modal-box">
       <h3 id="modal-title">Alert</h3>
@@ -407,7 +404,6 @@
     </div>
   </div>
 
-  <!-- NOTIFICATION CENTER -->
   <div id="notification-center" class="notification-center">
     <div class="notif-header">
       <span>🔔 Notifications</span>
@@ -421,16 +417,13 @@
     </div>
   </div>
 
-  <!-- NOTIFICATION BELL -->
   <button id="notif-bell" class="notif-bell" onclick="toggleNotificationCenter()">
     🔔
     <span id="notif-badge" class="notif-badge hidden">0</span>
   </button>
 
-  <!-- MAIN APP -->
   <div id="app-container">
     
-    <!-- SIDEBAR -->
     <aside>
       <div class="sb-header">
         <h3>CWC Outreach</h3>
@@ -452,14 +445,11 @@
 
       <div id="list-wrapper" class="list-container"></div>
 
-      <!-- CHAT SECTION -->
       <div class="chat-section">
         <div class="chat-header">
-          <div class="chat-mode-selector">
-            <span style="margin-right: 8px;">Chat:</span>
-            <div class="chat-mode-btn active" id="chat-mode-internal" onclick="setChatMode('internal')">Internal</div>
-            <div class="chat-mode-btn" id="chat-mode-outreach" onclick="setChatMode('outreach')">Outreach</div>
-          </div>
+          <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">
+            Chat (Outreach Webhook)
+          </span>
           <span style="cursor:pointer;" onclick="refreshChat()" title="Refresh">↻</span>
         </div>
         <div id="chat-messages" class="chat-msgs"></div>
@@ -469,7 +459,6 @@
         </div>
       </div>
       
-      <!-- USER FOOTER -->
       <div class="user-footer">
         <div class="user-line">
            <strong style="color:var(--text-main)">User:</strong> <span id="user-email" style="opacity:0.8; font-size: 11px;">Loading...</span>
@@ -480,7 +469,6 @@
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main>
       <header>
         <div class="view-badge">
@@ -501,14 +489,12 @@
 
       <div class="content-area">
         
-        <!-- DASHBOARD VIEW -->
         <div id="dashboard-view">
           <div style="padding:50px; text-align:center; color:var(--text-muted); margin-bottom: 30px;">
             <h3 style="font-size:20px;">Select a patient to view details</h3>
             <p style="margin-top: 10px; font-size: 14px;">Or view analytics below</p>
           </div>
           
-          <!-- KPI CARDS -->
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-icon">📋</div>
@@ -532,7 +518,6 @@
             </div>
           </div>
           
-          <!-- ACTIVITY TIMELINE -->
           <div class="activity-timeline">
             <h3>📊 Recent Activity</h3>
             <div id="timeline-container">
@@ -541,7 +526,6 @@
           </div>
         </div>
 
-        <!-- DETAIL CARD -->
         <div id="detail-card" class="main-card hidden">
           <div class="mc-header">
             <div class="mc-title">
@@ -560,7 +544,6 @@
           </div>
 
           <form id="patient-form">
-            <!-- CWC VIEW -->
             <div id="view-cwc-container" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
@@ -576,7 +559,6 @@
 
               <div class="form-scroll-area">
                 <div class="form-container">
-                  <!-- PATIENT INFO SECTION -->
                   <div id="sec-patient" class="form-grid">
                      <div class="input-group">
                        <label>👤 Patient Name</label>
@@ -619,7 +601,6 @@
                      </div>
                   </div>
 
-                  <!-- MEDS SECTION -->
                   <div id="sec-meds" class="form-grid hidden">
                      <div class="input-group">
                        <label>💊 Pharmacy</label>
@@ -656,7 +637,6 @@
               </div>
             </div>
 
-            <!-- PHARMACY VIEW -->
             <div id="view-pharm-container" class="hidden" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
                <div class="form-scroll-area">
                  <div class="form-container">
@@ -684,7 +664,6 @@
                </div>
             </div>
 
-            <!-- ACTION BAR -->
             <div class="action-bar">
                <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">💾 Save Changes</button>
                <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">📤 Submit to Pharmacy</button>
@@ -697,7 +676,6 @@
     </main>
   </div>
   
-  <!-- TOAST -->
   <div id="toast" class="toast">Notification</div>
 
   <script>
@@ -784,7 +762,7 @@
       alertingIds: new Set(), 
       sortOrder: 'asc', 
       chatHistory: [], 
-      chatMode: 'internal',
+      // chatMode removed
       externalStatus: {}, 
       recentActivities: [], 
       analytics: {} ,
@@ -1289,17 +1267,7 @@
     }
 
     // --- CHAT FUNCTIONS ---
-    function setChatMode(mode) {
-      STATE.chatMode = mode;
-      document.getElementById('chat-mode-internal').classList.toggle('active', mode === 'internal');
-      document.getElementById('chat-mode-outreach').classList.toggle('active', mode === 'outreach');
-      
-      if (mode === 'outreach') {
-        toast('Outreach mode: Messages sent to Google Chat webhook', 'default');
-      } else {
-        toast('Internal mode: Messages logged to spreadsheet', 'default');
-      }
-    }
+    // Removed setChatMode
 
     function checkChatSend(e) { 
       if(e.key === 'Enter' && !e.shiftKey) {
@@ -1323,30 +1291,17 @@
       renderChat(); 
       input.value = '';
       
-      if (STATE.chatMode === 'outreach') {
-        // Send to webhook (external)
-        google.script.run
-          .withSuccessHandler(h => { 
-            STATE.chatHistory = h || STATE.chatHistory; 
-            renderChat(); 
-            toast('Message sent to outreach chat', 'success');
-          })
-          .withFailureHandler(e => {
-            toast('Chat error: ' + e.message, 'alert');
-          })
-          .postUserMessageToWebhook(text, 'outreach');
-      } else {
-        // Save to internal log
-        google.script.run
-          .withSuccessHandler(h => { 
-            STATE.chatHistory = h || STATE.chatHistory; 
-            renderChat(); 
-          })
-          .withFailureHandler(e => {
-            toast('Chat error: ' + e.message, 'alert');
-          })
-          .postUserMessage(text);
-      }
+      // Send to Outreach webhook and log internally (postOutreachMessage handles both)
+      google.script.run
+        .withSuccessHandler(h => { 
+          STATE.chatHistory = h || STATE.chatHistory; 
+          renderChat(); 
+          toast('Message sent to outreach chat', 'success');
+        })
+        .withFailureHandler(e => {
+          toast('Chat error: ' + e.message, 'alert');
+        })
+        .postOutreachMessage(text);
     }
     
     function renderChat() { 
