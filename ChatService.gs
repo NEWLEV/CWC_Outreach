@@ -1,87 +1,93 @@
 /**
- * Handles Chat Logging.
- * 1. Internal Chat (Sheet-based) -> For Sidebar
- * 2. External Webhook -> For Notifications
+ * CORE CHAT SERVICE
+ * Centralizes all chat logic for Sidebar <-> Google Chat sync.
+ * Uses ScriptProperties for storage (NO SPREADSHEET).
  */
 
-// --- INTERNAL PHARMACY CHAT (SHEET LOGGING) ---
+const CHAT_PROP_KEY = 'CWC_CHAT_HISTORY';
+const MAX_HISTORY_LENGTH = 30; // Keep last 30 messages in memory
 
-function postUserMessage(text) {
-  const user = Session.getActiveUser().getEmail();
+/**
+ * Called by Sidebar when user sends a message.
+ * 1. Sends to Outreach Webhook.
+ * 2. Saves to Script Properties.
+ */
+function postOutreachMessage(text) {
+  const userEmail = Session.getActiveUser().getEmail();
+  const userName = userEmail.split('@')[0]; // Short name
   
-  // LOGGING TO SHEET (This is the PHARMACY CHAT/Internal Log)
-  postToChatLog(text, user); 
+  // 1. Send to Google Chat Webhook
+  const webhookText = `*${userName}* (Sidebar): ${text}`;
+  sendChatWebhookNotification(webhookText, 'outreach');
+
+  // 2. Log to Internal History (Script Properties)
+  logChatMessage(userName, text);
   
+  // 3. Return updated history
   return getChatHistory();
 }
 
 /**
- * Sends a message directly to the OUTREACH WEBHOOK.
+ * Shared logging function used by BOTH:
+ * - postOutreachMessage (Sidebar users)
+ * - GoogleChatBot.gs (Incoming Google Chat users)
+ * - System Notifications
  */
-function postUserMessageToWebhook(text, mode) {
-  const user = Session.getActiveUser().getEmail().split('@')[0];
-  const prefix = `[${mode.toUpperCase()}] ${user}: `;
+function logChatMessage(sender, message) {
+  if (!message) return;
   
-  // NOTE: This function does NOT save to the internal log.
-  sendChatWebhookNotification(prefix + text);
-  
-  // Return current history so the client chat window can update instantly.
-  return getChatHistory();
-}
-
-function testChatConnection() {
-  // Check Sheet Permission
-  if (CONFIG.EXTERNAL_SHEETS && CONFIG.EXTERNAL_SHEETS.length > 0) {
-    try {
-      const id = CONFIG.EXTERNAL_SHEETS[0].id;
-      SpreadsheetApp.openById(id);
-    } catch (e) {}
-  }
-  // Check Webhook Permission
+  const lock = LockService.getScriptLock();
   try {
-    UrlFetchApp.fetch("https://www.google.com");
-  } catch(e) {}
-
-  postToChatLog("🔔 System: Permissions Check Successful", "System");
-}
-
-function postToChatLog(text, sender) {
-  if (!text) return;
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.CHAT_LOG);
-    if (!sheet) {
-      sheet = ss.insertSheet(CONFIG.SHEET_NAMES.CHAT_LOG);
-      sheet.appendRow(['Timestamp', 'Sender', 'Message']);
+    // Wait up to 2 seconds for other processes to finish
+    if (lock.tryLock(2000)) {
+      const props = PropertiesService.getScriptProperties();
+      const json = props.getProperty(CHAT_PROP_KEY);
+      let history = json ? JSON.parse(json) : [];
+      
+      const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MM/dd HH:mm");
+      
+      // Add new message
+      history.push({
+        time: timestamp,
+        sender: sender,
+        text: message
+      });
+      
+      // Trim to max length (FIFO) to prevent memory overflow
+      if (history.length > MAX_HISTORY_LENGTH) {
+        history = history.slice(history.length - MAX_HISTORY_LENGTH);
+      }
+      
+      // Save back
+      props.setProperty(CHAT_PROP_KEY, JSON.stringify(history));
     }
-    const ts = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MM/dd HH:mm");
-    sheet.appendRow([ts, sender, text]);
-    if (sheet.getLastRow() > 200) sheet.deleteRow(2);
   } catch (e) {
-    Logger.log("Chat Log Error: " + e.message);
+    console.error("Chat Log Error: " + e.message);
+  } finally {
+    lock.releaseLock();
   }
 }
 
+/**
+ * Retrieve history for the sidebar.
+ */
 function getChatHistory() {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.CHAT_LOG);
-    if (!sheet) return [];
-    const lastRow = sheet.getLastRow();
-    if (lastRow < 2) return [];
-    const startRow = Math.max(2, lastRow - 49);
-    const numRows = lastRow - startRow + 1;
-    const data = sheet.getRange(startRow, 1, numRows, 3).getDisplayValues();
-    return data.map(r => ({ time: r[0], sender: r[1], text: r[2] }));
+    const props = PropertiesService.getScriptProperties();
+    const json = props.getProperty(CHAT_PROP_KEY);
+    return json ? JSON.parse(json) : [];
   } catch (e) {
+    console.error("Get History Error: " + e.message);
     return [];
   }
 }
 
-// --- EXTERNAL WEBHOOK (NOTIFICATIONS) ---
+// Helper alias for client polling
+function pollChat() {
+  return getChatHistory();
+}
 
-/**
- * Sends a notification to the Google Chat Space.
- * The implementation is now consolidated into Utilities.gs
- */
-// function sendWebhookNotification(text) { ... REMOVED - Logic moved to Utilities.gs }
+// Helper to manually clear chat (run from editor if needed)
+function clearChatHistory() {
+  PropertiesService.getScriptProperties().deleteProperty(CHAT_PROP_KEY);
+}
