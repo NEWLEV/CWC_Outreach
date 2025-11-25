@@ -278,11 +278,9 @@ function createEnhancedEmailTemplate(title, patientData, changes, action, priori
 function sendNotificationEmail(recipients, patientData, title, changes) {
   const cleanRecipients = [...new Set(recipients)].filter(isValidEmail);
   if (cleanRecipients.length === 0) return;
-  
   const priority = NotificationEngine.calculatePriority(patientData, title);
   const notificationId = Utilities.getUuid();
   const htmlBody = createEnhancedEmailTemplate(title, patientData, changes, title, priority);
-  
   try {
     MailApp.sendEmail({
       to: cleanRecipients.join(','),
@@ -290,9 +288,9 @@ function sendNotificationEmail(recipients, patientData, title, changes) {
       htmlBody: htmlBody,
       name: 'CWC Notification System'
     });
-    
     NotificationEngine.trackNotification(notificationId, priority, cleanRecipients);
-    sendEnhancedWebhookNotification(title, patientData, priority);
+    // REMOVED: This was causing the duplicate text-based webhook notification.
+    // sendEnhancedWebhookNotification(title, patientData, priority); 
     
   } catch (e) {
     Logger.log('Notification Error: ' + e.message);
