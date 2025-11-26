@@ -1,6 +1,10 @@
 /**
  * Shared utilities.
+ * Updated: Robust Data Mapping to ensure all fields are captured.
  */
+
+// --- HEADERS & DATA MAPPING ---
+
 function createHeaderMap(headerRow) {
   const map = {};
   headerRow.forEach((h, i) => {
@@ -21,49 +25,111 @@ function createKeyToHeaderMap() {
 
 function getUnifiedPatientData(data, headerMap, indexOnly = false, baseRowNum = 2) {
   const records = [];
-  const keyToHeader = createKeyToHeaderMap();
-  const headerToKey = {};
-  for (const k in keyToHeader) headerToKey[keyToHeader[k]] = k;
+  const keyToHeader = createKeyToHeaderMap(); // Maps internal keys (patientName) to Header Names ("Patient Name")
 
-  const findCol = (name) => {
-    if (headerMap[name] !== undefined) return headerMap[name];
-    if (headerMap[name.toLowerCase()] !== undefined) return headerMap[name.toLowerCase()];
-    return -1;
-  };
-
-  const nameIdx = findCol(CONFIG.COLUMNS_BY_NAME.patientName);
-  const prnIdx = findCol(CONFIG.COLUMNS_BY_NAME.prn);
-  const statusIdx = findCol(CONFIG.COLUMNS_BY_NAME.workflowStatus);
+  // Pre-calculate indices for all known columns to avoid repeated lookups
+  const colIndices = {};
+  for (const key in keyToHeader) {
+    const headerName = keyToHeader[key];
+    // Try exact match, then lowercase
+    if (headerMap[headerName] !== undefined) {
+      colIndices[key] = headerMap[headerName];
+    } else if (headerMap[headerName.toLowerCase()] !== undefined) {
+      colIndices[key] = headerMap[headerName.toLowerCase()];
+    } else {
+      colIndices[key] = -1; // Column not found
+    }
+  }
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
+    // Skip empty rows
     if (row.join('').trim() === '') continue;
 
     let record = {
-      rowNum: (baseRowNum - 1) + i,
-      patientName: (nameIdx > -1 ? row[nameIdx] : '') || '',
-      prn: (prnIdx > -1 ? row[prnIdx] : '') || '',
-      workflowStatus: (statusIdx > -1 ? row[statusIdx] : '') || ''
+      rowNum: (baseRowNum - 1) + i
     };
-    if (!indexOnly) {
-      for (const header in headerMap) {
-        let key = headerToKey[header];
-        if(!key) {
-           for(const k in CONFIG.COLUMNS_BY_NAME) {
-             if(CONFIG.COLUMNS_BY_NAME[k].toLowerCase() === header.toLowerCase()) {
-               key = k;
-               break;
-             }
-           }
-        }
-        if (key && !record.hasOwnProperty(key)) {
-            record[key] = row[headerMap[header]] || '';
-        }
+
+    // Map ALL fields defined in CONFIG
+    for (const key in colIndices) {
+      const idx = colIndices[key];
+      if (idx > -1 && idx < row.length) {
+        record[key] = row[idx];
+      } else {
+        record[key] = ''; // Default to empty string if missing
       }
     }
+
+    // Specific handling for critical fields if they might be missing/empty
+    record.patientName = record.patientName || 'Unnamed';
+    record.prn = record.prn || '';
+    record.workflowStatus = record.workflowStatus || '';
+
     records.push(record);
   }
   return records;
+}
+
+// --- EXTERNAL STATUS (MAIL / MEDS) ---
+
+function fetchExternalStatus(forceRefresh = false) {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get('externalStatus');
+  
+  if (cached && !forceRefresh) {
+    try {
+      return JSON.parse(cached);
+    } catch(e) {}
+  }
+
+  const statusMap = {};
+  
+  if (CONFIG.EXTERNAL_SHEETS) {
+    CONFIG.EXTERNAL_SHEETS.forEach(conf => {
+      try {
+        const ss = SpreadsheetApp.openById(conf.id);
+        const sheet = conf.sheetName ? ss.getSheetByName(conf.sheetName) : ss.getSheets()[0];
+        if (!sheet) return;
+        
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return;
+        
+        const data = sheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues().flat();
+        
+        data.forEach(val => {
+          if (!val) return;
+          const key = String(val).toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (!statusMap[key]) statusMap[key] = [];
+          if (!statusMap[key].includes(conf.label)) statusMap[key].push(conf.label);
+        });
+      } catch (e) {
+        console.error(`Error fetching ${conf.label}: ${e.message}`);
+      }
+    });
+  }
+  
+  cache.put('externalStatus', JSON.stringify(statusMap), 300);
+  return statusMap;
+}
+
+// --- WEBHOOK NOTIFICATION ---
+
+function sendChatWebhookNotification(text) {
+  const url = CONFIG.CHAT_WEBHOOK_URL;
+  if (!url || !text) return;
+
+  try {
+    const payload = { text: text };
+    const options = {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+    UrlFetchApp.fetch(url, options);
+  } catch (e) {
+    console.error("Webhook Error: " + e.message);
+  }
 }
 
 function getRecipients() {
@@ -135,52 +201,5 @@ function archiveProcessedData() {
     sendErrorEmail('Archiving', e);
   } finally {
     lock.releaseLock();
-  }
-}
-
-function getNotificationWebhookUrl(mode = 'outreach') {
-  const properties = PropertiesService.getScriptProperties();
-  let url;
-  let key;
-
-  if (mode === 'outreach') {
-    key = 'CHAT_WEBHOOK_URL';
-    url = properties.getProperty(key) || CONFIG.CHAT_WEBHOOK_URL;
-  } else if (mode === 'pharmacy') {
-    key = 'PHARMACY_CHAT_WEBHOOK_URL';
-    url = properties.getProperty(key) || CONFIG.PHARMACY_CHAT_WEBHOOK_URL;
-  }
-  return url;
-}
-
-/**
- * UPDATED: Sends notification to Google Chat AND logs to Sidebar Memory
- */
-function sendChatWebhookNotification(text, mode = 'outreach') {
-  const webhookUrl = getNotificationWebhookUrl(mode); 
-  if (!webhookUrl || !text) return;
-
-  // 1. Send to Google Chat
-  try {
-    const payload = { text: text };
-    const options = {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    };
-    UrlFetchApp.fetch(webhookUrl, options); 
-  } catch (e) {
-    Logger.log(`Webhook Failed: ${e.message}`);
-  }
-
-  // 2. Log to Sidebar Memory (Only for Outreach to avoid clutter)
-  if (mode === 'outreach' && typeof logChatMessage === 'function') {
-    try {
-       // 'System' sender so it looks distinct in the sidebar
-       logChatMessage('System', text);
-    } catch(e) {
-       Logger.log('Failed to log system message: ' + e.message);
-    }
   }
 }
