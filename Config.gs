@@ -1,28 +1,16 @@
 /**
- * ENHANCED CONFIGURATION WITH NOTIFICATION & DASHBOARD SETTINGS
+ * CONFIGURATION
+ * Updated: Restored Google Chat Webhook for Notifications
  */
 const CONFIG = {
   ADMIN_EMAIL: "pierremontalvo@continentalwellnesscenter.com",
 
-  // CHAT WEBHOOKS:
-  // 1. OUTREACH_CHAT: For official notifications to the main team (External).
+  // RESTORED WEBHOOK URL
   CHAT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAQA-bmmN08/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=h-wWfHSSZAYqxnxr_6-oajjHqX3qCOND4ojY7TixtGE",
-  // 2. PHARMACY_CHAT (INTERNAL): For communication logging within the spreadsheet itself.
-  // Using the same placeholder URL for demonstration, but this can be changed to a second, separate webhook if needed.
-  PHARMACY_CHAT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAAAjVEzFx8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=tfyhta4FHkQCu5wicUvSE4yseB-dZThHA",
 
-  // External Sheets to scan for statuses
   EXTERNAL_SHEETS: [
-    { 
-      id: "1F8xSwdQgJzS9jUq6X2YoVTlaqP0Ryc24uyTwKisfeNI", 
-      sheetName: "Mail", 
-      label: "MAIL" 
-    },
-    { 
-      id: "1QJqa9EAUOkq0DgSFyaiiEKDW7sfeWLKHRZw_vUTzkzo", 
-      sheetName: "Data", 
-      label: "MEDS IN OFFICE" 
-    }
+    { id: "1F8xSwdQgJzS9jUq6X2YoVTlaqP0Ryc24uyTwKisfeNI", sheetName: "Mail", label: "MAIL" },
+    { id: "1QJqa9EAUOkq0DgSFyaiiEKDW7sfeWLKHRZw_vUTzkzo", sheetName: "Data", label: "MEDS IN OFFICE" }
   ],
 
   SHEET_NAMES: {
@@ -30,7 +18,7 @@ const CONFIG = {
     ARCHIVED: "Archived Data",
     AUDIT_LOG: "Audit Log",
     SETTINGS: "Settings",
-    SECURITY: "Security", // NEW: Separate sheet for user access
+    SECURITY: "Security",
     CHAT_LOG: "Chat Log"
   },
 
