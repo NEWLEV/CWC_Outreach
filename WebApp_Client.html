@@ -6,320 +6,110 @@
   <title>CWC Notification Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* --- CSS RESET & VARIABLES --- */
-    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-    
+    /* --- CSS --- */
     :root {
-      /* Light Mode */
       --bg-app: #f8fafc; --bg-panel: #ffffff; --bg-input: #f1f5f9; --border: #e2e8f0;
       --text-main: #0f172a; --text-muted: #64748b;
-      --card-bg: #f1f5f9; --card-border: #e2e8f0;
-      
-      /* Colors - Royal Blue */
-      --primary: #2563eb; 
-      --primary-hover: #1d4ed8;
-      --success: #10b981; 
-      --danger: #ef4444;
-      
-      /* Status Chips */
+      --primary: #2563eb; --primary-hover: #1d4ed8;
+      --success: #10b981; --danger: #ef4444;
       --chip-new-bg: #dbeafe; --chip-new-text: #1e40af;
-      --chip-rev-bg: #fef3c7; --chip-rev-text: #92400e;
-      --chip-phm-bg: #d1fae5; --chip-phm-text: #065f46;
-      
-      /* Tags */
       --tag-mail: #6366f1; --tag-meds: #ec4899;
     }
-
     body.dark-mode {
       --bg-app: #0f172a; --bg-panel: #1e293b; --bg-input: #334155; --border: #334155;
       --text-main: #f8fafc; --text-muted: #94a3b8;
-      --card-bg: #334155; --card-border: #475569;
-      
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      
+      --primary: #3b82f6; --primary-hover: #2563eb;
       --chip-new-bg: #1e3a8a; --chip-new-text: #bfdbfe;
-      --chip-rev-bg: #78350f; --chip-rev-text: #fcd34d;
-      --chip-phm-bg: #064e3b; --chip-phm-text: #6ee7b7;
     }
-
-    body { 
-      font-family: 'Inter', sans-serif; 
-      background: var(--bg-app); 
-      color: var(--text-main); 
-      height: 100vh; 
-      width: 100vw; 
-      overflow: hidden; 
-      font-size: 16px; 
-      line-height: 1.5;
-    }
-
-    /* --- LAYOUT --- */
-    #app-container { 
-      display: grid; 
-      grid-template-columns: 320px 1fr; 
-      height: 100%; 
-      opacity: 0; 
-      transition: opacity 0.3s ease;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 16px; line-height: 1.5; }
+    
+    #app-container { display: grid; grid-template-columns: 320px 1fr; height: 100%; opacity: 0; transition: opacity 0.3s ease; }
     #app-container.visible { opacity: 1; }
 
-    /* --- SIDEBAR --- */
-    aside { 
-      background: var(--bg-panel); 
-      border-right: 1px solid var(--border); 
-      display: flex; 
-      flex-direction: column; 
-      z-index: 20;
-      height: 100vh; 
-    }
-
-    .sb-header { 
-      padding: 20px; 
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .sb-header h3 { 
-      color: var(--primary); 
-      font-weight: 800; 
-      font-size: 20px; 
-      margin: 0; 
-      letter-spacing: -0.5px;
-    }
-
+    aside { background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 20; height: 100vh; }
+    .sb-header { padding: 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .sb-header h3 { color: var(--primary); font-weight: 800; font-size: 20px; margin: 0; }
+    
     .search-area { padding: 15px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; }
     .search-input-wrapper { position: relative; flex: 1; }
-    .search-input-wrapper input {
-      width: 100%; padding: 10px 10px 10px 34px; 
-      background: var(--bg-input); border: 1px solid transparent;
-      border-radius: 8px; color: var(--text-main); 
-      font-size: 15px; 
-      transition: 0.2s;
-    }
-    .search-input-wrapper input:focus { border-color: var(--primary); background: var(--bg-panel); }
+    .search-input-wrapper input { width: 100%; padding: 10px 10px 10px 34px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--text-main); font-size: 15px; }
     .search-icon { position: absolute; left: 10px; top: 11px; font-size: 15px; opacity: 0.5; }
 
     .tabs { display: flex; padding: 0 15px; gap: 15px; border-bottom: 1px solid var(--border); background: var(--bg-panel); flex-shrink: 0; }
-    .tab { 
-      padding: 12px 4px; cursor: pointer; font-weight: 600; 
-      color: var(--text-muted); border-bottom: 3px solid transparent; font-size: 14px; 
-      transition: 0.2s;
-    }
+    .tab { padding: 12px 4px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; font-size: 14px; }
     .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
     .list-container { flex: 1; overflow-y: auto; padding: 10px; min-height: 0; } 
-    
-    .patient-item { 
-      background: var(--bg-panel); 
-      padding: 15px; margin-bottom: 8px; border-radius: 8px; 
-      border: 1px solid var(--border); cursor: pointer; 
-      transition: all 0.2s; position: relative;
-    }
+    .patient-item { background: var(--bg-panel); padding: 15px; margin-bottom: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; position: relative; }
     .patient-item:hover { transform: translateY(-1px); border-color: var(--primary); }
     .patient-item.selected { background: var(--primary); border-color: var(--primary); color: white; }
     .patient-item.selected .sub-text, .patient-item.selected strong { color: white; }
-    .patient-item.alerting { border-left: 4px solid var(--danger); animation: flash-border 1.5s infinite; background: var(--bg-input); }
-    .patient-item.unread { border-left: 4px solid var(--primary); background: var(--bg-input); }
-    @keyframes flash-border { 0% { border-color: var(--primary); } 50% { border-color: var(--danger); } 100% { border-color: var(--primary); } }
-
-    .pi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .pi-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-    .pi-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+    .patient-item.selected .pi-meta, .patient-item.selected .pi-meta span { color: rgba(255,255,255,0.9) !important; }
     
-    .status-chip { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .pi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .pi-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+    .pi-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); align-items: center; }
+    .status-chip { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
     .chip-new { background: var(--chip-new-bg); color: var(--chip-new-text); }
-    .chip-rev { background: var(--chip-rev-bg); color: var(--chip-rev-text); }
-    .chip-phm { background: var(--chip-phm-bg); color: var(--chip-phm-text); }
-
-    .ext-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; font-weight: 700; margin-right: 5px; }
+    .ext-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; font-weight: 700; margin-right: 5px; display: inline-block; }
     .tag-mail { background: var(--tag-mail); }
     .tag-meds { background: var(--tag-meds); }
+    .blurred { filter: blur(4px); transition: 0.2s; }
+    .pi-time { font-size: 11px; opacity: 0.7; font-weight: 500; white-space: nowrap; }
+    .pi-urgent { color: var(--danger); font-size: 14px; margin-right: 4px; }
 
-    /* --- CHAT SECTION --- */
-    .chat-section { 
-      height: 280px; 
-      background: var(--bg-panel); border-top: 1px solid var(--border); 
-      display: flex; flex-direction: column; flex-shrink: 0;
-    }
-    .chat-header { 
-      padding: 10px 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); 
-      display: flex; justify-content: space-between; align-items: center; background: var(--bg-input);
-    }
-    .chat-mode-selector {
-      display: flex; gap: 8px; align-items: center;
-    }
-    .chat-mode-btn {
-      padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
-    }
-    .chat-mode-btn.active {
-      background: var(--primary); color: white;
-    }
-    .chat-mode-btn:not(.active) {
-      background: transparent; color: var(--text-muted); border-color: var(--border);
-    }
-    .chat-mode-btn:hover:not(.active) {
-      background: var(--bg-input); color: var(--text-main);
-    }
+    .chat-section { height: 280px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+    .chat-header { padding: 10px 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); }
     .chat-msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
     .msg { max-width: 90%; padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; }
     .msg.in { align-self: flex-start; background: var(--bg-input); color: var(--text-main); border-bottom-left-radius: 2px; }
     .msg.out { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
     .msg-sender { font-weight: 700; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
     .chat-input-box { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
-
-    /* --- USER FOOTER --- */
-    .user-footer {
-      padding: 12px 15px;
-      background: var(--bg-input);
-      border-top: 1px solid var(--border);
-      font-size: 12px;
-      color: var(--text-muted);
-      flex-shrink: 0;
-    }
+    .user-footer { padding: 12px 15px; background: var(--bg-input); border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
     .user-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
     .user-role { font-weight: 700; color: var(--primary); text-transform: uppercase; font-size: 11px; }
 
-    /* --- MAIN CONTENT --- */
     main { display: flex; flex-direction: column; background: var(--bg-app); height: 100vh; overflow: hidden; }
-    
-    header { 
-      height: 70px; 
-      background: var(--bg-panel); border-bottom: 1px solid var(--border); 
-      display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
-      flex-shrink: 0;
-    }
-    .view-badge { 
-      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; 
-      padding: 6px 14px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border);
-    }
+    header { height: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; flex-shrink: 0; }
+    .view-badge { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border); }
     .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 5px var(--success); animation: pulse-dot 2s infinite; }
     @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
     .content-area { flex: 1; padding: 25px; overflow: hidden; display: flex; flex-direction: column; }
-    .main-card { 
-      flex: 1; width: 100%; max-width: 1200px; margin: 0 auto;
-      background: var(--bg-panel); border: 1px solid var(--border); 
-      border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      display: flex; flex-direction: column; overflow: hidden;
-    }
+    
+    #dashboard-view { width: 100%; max-width: 1200px; margin: 0 auto; display:flex; flex-direction:column; gap:30px; padding-bottom: 50px; overflow-y: auto; }
+    
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .kpi-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 25px; position: relative; transition: all 0.2s; }
+    .kpi-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .kpi-value { font-size: 32px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+    .kpi-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight:600; }
+    .kpi-icon { position: absolute; top: 20px; right: 20px; font-size: 24px; opacity: 0.2; }
 
+    .dash-section-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; display:flex; align-items:center; gap:10px; }
+    .archive-box { border-top: 1px dashed var(--border); padding-top: 30px; }
+
+    /* MAIN CARD & FORMS */
+    .main-card { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; }
     .mc-header { padding: 25px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .mc-title h1 { font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
     .mc-subtitle { font-size: 15px; color: var(--text-muted); font-weight: 500; display: flex; gap: 12px; align-items: center; }
-    
     .card-tabs { display: flex; padding: 0 30px; border-bottom: 1px solid var(--border); background: var(--bg-panel); flex-shrink: 0; }
     .c-tab { padding: 15px 0; margin-right: 30px; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; }
     .c-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
     .flex-spacer { flex: 1; }
-
-    /* FIXED LAYOUT FOR FORM SCROLLING */
-    #patient-form { 
-      display: flex; 
-      flex-direction: column; 
-      flex: 1; 
-      min-height: 0; 
-      overflow: hidden; 
-    }
-
-    .form-scroll-area { 
-      flex: 1; 
-      overflow-y: auto; 
-      padding: 30px; 
-    }
-
+    #patient-form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+    .form-scroll-area { flex: 1; overflow-y: auto; padding: 30px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; }
     .full-width { grid-column: 1 / -1; }
     .three-col { grid-template-columns: 1fr 1fr 1fr; }
-
     .input-group { display: flex; flex-direction: column; gap: 8px; }
-    .input-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px; }
-    
-    .input-wrapper input, .input-wrapper select, .input-wrapper textarea {
-      width: 100%; padding: 12px 14px;
-      background: var(--bg-input); border: 1px solid transparent;
-      border-radius: 8px; color: var(--text-main); font-size: 16px; 
-      transition: all 0.2s ease;
-    }
-    .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus {
-      background: var(--bg-panel); border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-    }
+    .input-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 12px 14px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--text-main); font-size: 16px; transition: all 0.2s ease; }
+    .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { background: var(--bg-panel); border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
     .input-wrapper textarea { resize: vertical; min-height: 100px; font-family: 'Inter', sans-serif; }
-    .input-wrapper input:disabled, .input-wrapper select:disabled { opacity: 0.6; cursor: not-allowed; border: 1px dashed var(--border); background: transparent; }
-
-    .action-bar { padding: 25px 30px; border-top: 1px solid var(--border); background: var(--bg-panel); display: flex; gap: 15px; justify-content: flex-end; flex-shrink: 0; }
-    
-    .btn { 
-      padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; 
-      font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; 
-      transition: transform 0.1s, box-shadow 0.2s;
-    }
-    .btn:active { transform: translateY(1px); }
-    
-    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--bg-input); color: var(--text-main); }
-    
-    .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3); }
-    .btn-primary:hover { background: var(--primary-hover); }
-    
-    .btn-success { background: var(--success); color: white; }
-    .btn-purple { background: #7c3aed; color: white; }
-    .btn-block { flex: 1; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; height: 48px; }
-
-    .hidden { display: none !important; }
-    .blurred { filter: blur(4px); transition: 0.2s; }
-    .toggle-label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .urgent-toggle input { accent-color: var(--danger); width: 18px; height: 18px; }
-    .urgent-text { color: var(--danger); }
-
-    /* OVERLAYS */
-    .loader-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; }
-    .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .access-denied-box { background: var(--bg-panel); padding: 40px; border-radius: 16px; text-align: center; max-width: 400px; color: var(--text-main); }
-    
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-    .toast.success { background: var(--success); }
-    .toast.alert { background: var(--danger); animation: pulse-toast 1s infinite; }
-    @keyframes pulse-toast { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    
-    .modal-box { 
-      background: var(--bg-panel); width: 90%; max-width: 420px; 
-      border-radius: 16px; padding: 25px; 
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
-      transform: scale(0.95); transition: transform 0.2s; 
-      border: 1px solid var(--border); 
-    }
-    .modal-overlay.active .modal-box { transform: scale(1); }
-    
-    .modal-box h3 { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; }
-    .modal-content { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 25px; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
-
-    /* DASHBOARD */
-    #dashboard-view { width: 100%; max-width: 1200px; margin: 0 auto; }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 30px; }
-    .kpi-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 30px; position: relative; overflow: hidden; transition: all 0.3s ease; }
-    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15); border-color: var(--primary); }
-    .kpi-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), #60a5fa); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
-    .kpi-value { font-size: 36px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
-    .kpi-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    .activity-timeline { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 30px; }
-    .activity-timeline h3 { margin: 0 0 20px 0; color: var(--text-main); font-size: 18px; font-weight: 700; }
-    .timeline-item { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--border); }
-    .timeline-item:last-child { border-bottom: none; }
-    .timeline-marker { width: 40px; height: 40px; background: var(--bg-input); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-    .timeline-content { flex: 1; }
-    .timeline-title { font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
-    .timeline-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
-    .timeline-time { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-    
     .ro-container { padding: 0; }
     .ro-section { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; }
     .ro-section:last-child { border-bottom: none; }
@@ -328,58 +118,30 @@
     .ro-field { }
     .ro-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
     .ro-value { font-size: 16px; font-weight: 600; color: var(--text-main); }
-
-    /* NOTIFICATION CENTER */
-    .notification-center {
-      position: fixed; top: 80px; right: 30px; width: 380px; max-height: 500px;
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: 12px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      z-index: 1000; transform: translateX(450px); transition: transform 0.3s ease; 
-      overflow: hidden; display: flex; flex-direction: column;
-    }
-    .notification-center.active { transform: translateX(0); }
-    .notif-header {
-      padding: 15px 20px; background: linear-gradient(135deg, var(--primary), #60a5fa);
-      color: white; font-weight: 700; font-size: 14px;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-shrink: 0;
-    }
-    .notif-actions { display: flex; gap: 10px; }
-    .notif-action-btn {
-      background: rgba(255,255,255,0.2); color: white; border: none;
-      padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
-      font-weight: 600; transition: 0.2s;
-    }
-    .notif-action-btn:hover { background: rgba(255,255,255,0.3); }
-    .notif-list { flex: 1; overflow-y: auto; }
-    .notif-item {
-      padding: 15px 20px; border-bottom: 1px solid var(--border);
-      cursor: pointer; transition: background 0.2s; position: relative;
-    }
-    .notif-item:hover { background: var(--bg-input); }
-    .notif-item.unread::before {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--danger);
-    }
-    .notif-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: var(--text-main); }
-    .notif-message { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-    .notif-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+    .action-bar { padding: 25px 30px; border-top: 1px solid var(--border); background: var(--bg-panel); display: flex; gap: 15px; justify-content: flex-end; flex-shrink: 0; }
+    .btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.1s; }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-block { flex: 1; justify-content: center; height: 48px; }
+    .hidden { display: none !important; }
+    .toggle-label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .loader-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; }
+    .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-box { background: var(--bg-panel); width: 90%; max-width: 420px; border-radius: 16px; padding: 25px; transform: scale(0.95); transition: transform 0.2s; border: 1px solid var(--border); }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+    .toast.success { background: var(--success); }
+    .toast.alert { background: var(--danger); }
     
-    .notif-bell {
-      position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
-      border-radius: 50%; background: linear-gradient(135deg, var(--primary), #60a5fa);
-      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); z-index: 999; border: none;
-      color: white; font-size: 26px; cursor: pointer; transition: all 0.3s ease;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .notif-bell:hover { transform: scale(1.1) rotate(15deg); box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4); }
-    .notif-badge {
-      position: absolute; top: -5px; right: -5px; background: var(--danger);
-      color: white; min-width: 24px; height: 24px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; animation: bounce 2s infinite;
-      padding: 0 6px; border: 3px solid var(--bg-app);
-    }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .theme-btn { background:transparent; border:none; font-size:18px; cursor:pointer; padding:8px; border-radius:50%; transition:0.2s; }
+    .theme-btn:hover { background:var(--bg-input); }
+    
+    .record-meta-time { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
   </style>
 </head>
 <body class="dark-mode" onclick="unmuteAudio()">
@@ -389,281 +151,143 @@
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
       <h3 style="font-size:18px; font-weight:500; margin-top:20px;">Loading CWC Dashboard...</h3>
     </div>
-    <div id="access-denied" class="access-denied-box hidden"></div>
-    <div id="js-error-box" style="margin-top:20px; color:#ef4444; font-size:13px; display:none; max-width:90%; word-break:break-all;"></div>
+    <div id="access-denied" class="hidden" style="text-align:center;"></div>
   </div>
 
   <div id="custom-modal" class="modal-overlay">
     <div class="modal-box">
-      <h3 id="modal-title">Alert</h3>
-      <div id="modal-msg" class="modal-content"></div>
-      <div class="modal-actions">
+      <h3 id="modal-title" style="margin:0 0 15px 0; font-size:18px; font-weight:700; color:var(--danger);"></h3>
+      <div id="modal-msg" class="modal-content" style="font-size:15px; color:var(--text-main);"></div>
+      <div class="modal-actions" style="margin-top:20px;">
         <button id="btn-modal-cancel" class="btn btn-ghost hidden" onclick="closeModal()">Cancel</button>
         <button id="btn-modal-ok" class="btn btn-primary" onclick="confirmModal()">OK</button>
       </div>
     </div>
   </div>
 
-  <div id="notification-center" class="notification-center">
-    <div class="notif-header">
-      <span>🔔 Notifications</span>
-      <div class="notif-actions">
-        <button class="notif-action-btn" onclick="clearAllNotifications()">Clear All</button>
-        <button class="notif-action-btn" onclick="toggleNotificationCenter()">✕</button>
-      </div>
-    </div>
-    <div id="notif-list" class="notif-list">
-      <div style="padding: 20px; text-align: center; color: var(--text-muted);">No notifications</div>
-    </div>
-  </div>
-
-  <button id="notif-bell" class="notif-bell" onclick="toggleNotificationCenter()">
-    🔔
-    <span id="notif-badge" class="notif-badge hidden">0</span>
-  </button>
-
   <div id="app-container">
-    
     <aside>
-      <div class="sb-header">
-        <h3>CWC Outreach</h3>
-      </div>
-      
+      <div class="sb-header"><h3>CWC Outreach</h3></div>
       <div class="search-area">
-        <div class="search-input-wrapper">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search" placeholder="Name or PRN..." onkeyup="handleSearch()">
-        </div>
-        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleSort()" id="btn-sort" title="Sort Order">⬇</button>
+        <div class="search-input-wrapper"><span class="search-icon">🔍</span><input type="text" id="search" placeholder="Name or PRN..." onkeyup="renderList()"></div>
         <button class="btn btn-ghost" style="padding:8px;" onclick="toggleBlur()" title="Toggle PHI Blur">👁</button>
+        <button class="btn btn-ghost" style="padding:8px;" onclick="toggleSort()" id="btn-sort" title="Sort List">⬇</button>
       </div>
-
       <div class="tabs">
         <div id="tab-active" class="tab active" onclick="switchList('active')">Active</div>
         <div id="tab-secondary" class="tab" onclick="switchList('secondary')">Archive</div>
       </div>
-
       <div id="list-wrapper" class="list-container"></div>
-
       <div class="chat-section">
         <div class="chat-header">
-          <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">
-            Chat (Outreach Webhook)
-          </span>
+          <span id="chat-title">Team Chat</span>
           <span style="cursor:pointer;" onclick="refreshChat()" title="Refresh">↻</span>
         </div>
         <div id="chat-messages" class="chat-msgs"></div>
         <div class="chat-input-box">
-          <input type="text" id="chat-input" style="flex: 1; background:var(--bg-input); border:1px solid var(--border); border-radius:6px; padding:10px; color:var(--text-main);" placeholder="Type message..." onkeydown="checkChatSend(event)">
+          <input type="text" id="chat-input" style="flex: 1; background:var(--bg-input); border:1px solid var(--border); border-radius:6px; padding:10px; color:var(--text-main);" placeholder="Message team..." onkeydown="checkChatSend(event)">
           <button class="btn btn-primary" style="padding:8px 16px;" onclick="sendChat()">➤</button>
         </div>
       </div>
-      
       <div class="user-footer">
-        <div class="user-line">
-           <strong style="color:var(--text-main)">User:</strong> <span id="user-email" style="opacity:0.8; font-size: 11px;">Loading...</span>
-        </div>
-        <div class="user-line">
-           <strong style="color:var(--text-main)">Role:</strong> <span id="user-role-display" class="user-role">...</span>
-        </div>
+        <div class="user-line"><strong style="color:var(--text-main)">User:</strong> <span id="user-email">Loading...</span></div>
+        <div class="user-line"><strong style="color:var(--text-main)">Role:</strong> <span id="user-role-display" class="user-role">...</span></div>
       </div>
     </aside>
 
     <main>
       <header>
-        <div class="view-badge">
-          <div class="live-dot"></div>
-          <span id="view-indicator">CWC View</span>
-        </div>
+        <div class="view-badge"><div class="live-dot"></div><span id="view-indicator">CWC View</span></div>
         <div style="display:flex; gap:12px; align-items:center;">
-          <button class="btn btn-primary" style="background:var(--primary);" id="btn-add-record" onclick="addRecord(event)">+ New Record</button>
-          <button class="btn btn-ghost" onclick="exportPDF()" title="Export to PDF">📄 PDF</button>
+          <button class="btn btn-primary" id="btn-add-record" onclick="addRecord(event)">+ New Record</button>
+          <button class="btn btn-ghost" onclick="exportPDF()" title="Export PDF">📄 PDF</button>
           <button class="btn btn-ghost hidden" id="btn-switch-role" onclick="switchRole()" title="Switch Role View">⇄ Switch</button>
-          <button class="btn btn-ghost" onclick="init()" title="Refresh Data">↻</button>
-          <label class="toggle-label" style="margin-left:15px;">
-            <input type="checkbox" id="chk-theme" checked onchange="toggleTheme()"> 
-            <span>Dark</span>
-          </label>
+          <button class="btn btn-ghost" onclick="forceRefresh()" title="Refresh Data">↻</button>
+          <button class="theme-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
         </div>
       </header>
 
       <div class="content-area">
-        
         <div id="dashboard-view">
-          <div style="padding:50px; text-align:center; color:var(--text-muted); margin-bottom: 30px;">
-            <h3 style="font-size:20px;">Select a patient to view details</h3>
-            <p style="margin-top: 10px; font-size: 14px;">Or view analytics below</p>
-          </div>
-          
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-icon">📋</div>
-              <div class="kpi-value" id="kpi-total">0</div>
-              <div class="kpi-label">Total Active</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-icon">🚨</div>
-              <div class="kpi-value" id="kpi-urgent">0</div>
-              <div class="kpi-label">Urgent Cases</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-icon">💊</div>
-              <div class="kpi-value" id="kpi-pharmacy">0</div>
-              <div class="kpi-label">In Pharmacy</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-icon">✅</div>
-              <div class="kpi-value" id="kpi-completed">0</div>
-              <div class="kpi-label">Completed Today</div>
+          <div>
+            <div class="dash-section-title">📊 Current Status</div>
+            <div class="kpi-grid">
+              <div class="kpi-card"><div class="kpi-icon">📋</div><div class="kpi-value" id="kpi-total">0</div><div class="kpi-label">Total Active</div></div>
+              <div class="kpi-card"><div class="kpi-icon">🚨</div><div class="kpi-value" id="kpi-urgent">0</div><div class="kpi-label">Urgent Cases</div></div>
+              <div class="kpi-card"><div class="kpi-icon">💊</div><div class="kpi-value" id="kpi-pharmacy">0</div><div class="kpi-label">In Pharmacy</div></div>
+              <div class="kpi-card"><div class="kpi-icon">✅</div><div class="kpi-value" id="kpi-completed">0</div><div class="kpi-label">Completed Today</div></div>
             </div>
           </div>
-          
-          <div class="activity-timeline">
-            <h3>📊 Recent Activity</h3>
-            <div id="timeline-container">
-              <div style="text-align: center; color: var(--text-muted); padding: 25px;">Loading activities...</div>
+          <div>
+            <div class="dash-section-title">⏱️ Performance Metrics</div>
+            <div class="kpi-grid">
+              <div class="kpi-card"><div class="kpi-icon">🚀</div><div class="kpi-value" id="kpi-avg-submit">N/A</div><div class="kpi-label">Avg Submit Time</div></div>
+              <div class="kpi-card"><div class="kpi-icon">⚡</div><div class="kpi-value" id="kpi-avg-pharm">N/A</div><div class="kpi-label">Avg Pharmacy Time</div></div>
             </div>
           </div>
+          <div class="archive-box">
+            <div class="dash-section-title">🗄️ Archive / Historical Performance</div>
+            <div class="kpi-grid">
+              <div class="kpi-card"><div class="kpi-icon">📚</div><div class="kpi-value" id="kpi-arch-total">0</div><div class="kpi-label">Total Archived</div></div>
+              <div class="kpi-card"><div class="kpi-icon">⌛</div><div class="kpi-value" id="kpi-arch-submit">N/A</div><div class="kpi-label">Hist. Avg Submit Time</div></div>
+            </div>
+          </div>
+          <div style="text-align:center; color:var(--text-muted); margin-top:30px;"><h3>Select a patient from the sidebar to view details</h3></div>
         </div>
 
         <div id="detail-card" class="main-card hidden">
           <div class="mc-header">
-            <div class="mc-title">
-              <h1 id="d-name">Patient Name</h1>
-              <div class="mc-subtitle">
-                <span id="d-prn">PRN123</span>
-                <div id="d-ext-status" style="display:flex; gap:8px;"></div>
-              </div>
-            </div>
+            <div class="mc-title"><h1 id="d-name">Patient</h1><div class="mc-subtitle"><span id="d-prn">PRN</span><div id="d-ext-status" style="display:flex; gap:8px;"></div></div></div>
             <div style="text-align:right;">
               <span id="d-status" class="status-chip chip-new">New</span>
-              <div style="margin-top:8px;">
-                <button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeDetail()">Close ✕</button>
-              </div>
+              <!-- NEW: DATE/TIME DISPLAY ON RECORD -->
+              <div id="d-time" class="record-meta-time"></div>
+              <div style="margin-top:8px; text-align:right;"><button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeDetail()">Close ✕</button></div>
             </div>
           </div>
-
           <form id="patient-form">
             <div id="view-cwc-container" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
                 <div class="c-tab" onclick="showSection('meds', event)">Clinical & Meds</div>
                 <div class="flex-spacer"></div>
-                <div style="display:flex; align-items:center;">
-                   <label class="toggle-label urgent-toggle">
-                     <input type="checkbox" id="chk-priority"> 
-                     <span class="urgent-text">🔥 Urgent</span>
-                   </label>
-                </div>
+                <label class="toggle-label"><input type="checkbox" id="chk-priority"> <span style="color:var(--danger)">🔥 Urgent</span></label>
               </div>
-
               <div class="form-scroll-area">
-                <div class="form-container">
-                  <div id="sec-patient" class="form-grid">
-                     <div class="input-group">
-                       <label>👤 Patient Name</label>
-                       <div class="input-wrapper"><input type="text" name="patientName" required></div>
-                     </div>
-                     <div class="input-group">
-                       <label>🆔 PRN</label>
-                       <div class="input-wrapper"><input type="text" name="prn" required></div>
-                     </div>
-                     <div class="input-group">
-                       <label>🔒 SSN</label>
-                       <div class="input-wrapper" style="display:flex; gap:5px;">
-                         <input type="password" name="ssn" id="inp-ssn" placeholder="•••-••-••••" style="flex: 1;">
-                         <button type="button" class="btn btn-ghost" style="padding: 8px 12px;" onclick="toggleSSN()">👁</button>
-                       </div>
-                     </div>
-                     <div class="input-group">
-                       <label>📅 Date of Birth</label>
-                       <div class="input-wrapper"><input type="date" name="dob"></div>
-                     </div>
-                     <div class="input-group">
-                       <label>⚧ Sex</label>
-                       <div class="input-wrapper"><select name="sex" id="opt-sex"></select></div>
-                     </div>
-                     <div class="input-group">
-                       <label>📞 Phone Number</label>
-                       <div class="input-wrapper"><input type="text" name="phoneNumber"></div>
-                     </div>
-                     <div class="input-group">
-                       <label>📝 Reason</label>
-                       <div class="input-wrapper"><input type="text" name="reason"></div>
-                     </div>
-                     <div class="input-group">
-                       <label>🏠 Address</label>
-                       <div class="input-wrapper"><input type="text" name="address"></div>
-                     </div>
-                     <div class="input-group full-width">
-                       <label>📢 Outreach Note</label>
-                       <div class="input-wrapper"><textarea name="outreachNote"></textarea></div>
-                     </div>
-                  </div>
-
-                  <div id="sec-meds" class="form-grid hidden">
-                     <div class="input-group">
-                       <label>💊 Pharmacy</label>
-                       <div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div>
-                     </div>
-                     <div class="input-group">
-                       <label>🩺 Provider</label>
-                       <div class="input-wrapper"><select name="provider" id="opt-provider"></select></div>
-                     </div>
-                     <div class="input-group">
-                       <label>🧪 Medication</label>
-                       <div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div>
-                     </div>
-                     <div class="input-group">
-                       <label>📊 Prescription Status</label>
-                       <div class="input-wrapper"><select name="status" id="opt-status"></select></div>
-                     </div>
-                     <div class="input-group three-col" style="grid-column: 1 / -1; display:grid; gap:20px;">
-                        <div class="input-group">
-                          <label>🛡️ Insurance</label>
-                          <div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div>
-                        </div>
-                        <div class="input-group">
-                          <label>💳 Insurance ID</label>
-                          <div class="input-wrapper"><input type="text" name="insuranceId"></div>
-                        </div>
-                     </div>
-                     <div class="input-group full-width">
-                       <label>🗒️ Office Notes</label>
-                       <div class="input-wrapper"><textarea name="officeNote"></textarea></div>
-                     </div>
-                  </div>
+                <div id="sec-patient" class="form-grid">
+                   <div class="input-group"><label>Patient Name</label><div class="input-wrapper"><input type="text" name="patientName" required></div></div>
+                   <div class="input-group"><label>PRN</label><div class="input-wrapper"><input type="text" name="prn" required></div></div>
+                   <div class="input-group"><label>SSN</label><div class="input-wrapper" style="display:flex; gap:5px;"><input type="password" name="ssn" id="inp-ssn" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:8px;" onclick="toggleSSN()">👁</button></div></div>
+                   <div class="input-group"><label>DOB</label><div class="input-wrapper"><input type="date" name="dob"></div></div>
+                   <div class="input-group"><label>Sex</label><div class="input-wrapper"><select name="sex" id="opt-sex"></select></div></div>
+                   <div class="input-group"><label>Phone</label><div class="input-wrapper"><input type="text" name="phoneNumber"></div></div>
+                   <div class="input-group"><label>Address</label><div class="input-wrapper"><input type="text" name="address"></div></div>
+                   <div class="input-group"><label>Reason</label><div class="input-wrapper"><input type="text" name="reason"></div></div>
+                </div>
+                <div id="sec-meds" class="form-grid hidden">
+                   <div class="input-group"><label>Pharmacy</label><div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div></div>
+                   <div class="input-group"><label>Provider</label><div class="input-wrapper"><select name="provider" id="opt-provider"></select></div></div>
+                   <div class="input-group"><label>Medication</label><div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div></div>
+                   <div class="input-group"><label>Status</label><div class="input-wrapper"><select name="status" id="opt-status"></select></div></div>
+                   <div class="input-group"><label>Insurance</label><div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div></div>
+                   <div class="input-group"><label>Insurance ID</label><div class="input-wrapper"><input type="text" name="insuranceId"></div></div>
+                   <div class="input-group full-width"><label>Outreach Note</label><div class="input-wrapper"><textarea name="outreachNote"></textarea></div></div>
+                   <div class="input-group full-width"><label>Office Note</label><div class="input-wrapper"><textarea name="officeNote"></textarea></div></div>
                 </div>
               </div>
             </div>
-
-            <div id="view-pharm-container" class="hidden" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
-               <div class="form-scroll-area">
-                 <div class="form-container">
-                   <div id="pharm-info-card" class="ro-container"></div>
-                   <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:15px; margin-top:30px; font-size:15px; text-transform:uppercase;">Pharmacy Actions</h4>
-                   <div class="form-grid three-col">
-                      <div class="input-group">
-                        <label>📜 Need Script?</label>
-                        <div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div>
-                      </div>
-                      <div class="input-group">
-                        <label>🔄 Policy Number</label>
-                        <div class="input-wrapper"><input type="text" name="policyNumber"></div>
-                      </div>
-                      <div class="input-group">
-                        <label>🔄 Update Insurance</label>
-                        <div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div>
-                      </div>
-                   </div>
-                   <div class="input-group full-width">
-                     <label>📝 Pharmacy Notes</label>
-                     <div class="input-wrapper"><textarea name="gardenNotes"></textarea></div>
-                   </div>
-                 </div>
+            <div id="view-pharm-container" class="hidden form-scroll-area">
+               <!-- UPDATED PHARMACY READ ONLY VIEW WITH ALL FIELDS & SSN SECURITY -->
+               <div id="pharm-info-card" class="ro-container"></div>
+               
+               <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:12px; margin:30px 0 15px 0;">Pharmacy Actions</h4>
+               <div class="form-grid three-col">
+                  <div class="input-group"><label>Need Script?</label><div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div></div>
+                  <div class="input-group"><label>Policy #</label><div class="input-wrapper"><input type="text" name="policyNumber"></div></div>
+                  <div class="input-group"><label>Update Ins</label><div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div></div>
                </div>
+               <div class="input-group full-width"><label>Pharmacy Notes</label><div class="input-wrapper"><textarea name="gardenNotes"></textarea></div></div>
             </div>
-
             <div class="action-bar">
                <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">💾 Save Changes</button>
                <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">📤 Submit to Pharmacy</button>
@@ -679,106 +303,466 @@
   <div id="toast" class="toast">Notification</div>
 
   <script>
-    // --- GLOBAL ERROR HANDLER ---
-    window.onerror = function(msg, url, line, col, error) {
-      const box = document.getElementById('js-error-box');
-      if (box) {
-        box.style.display = 'block';
-        box.innerText = `JS Error: ${msg} (Line ${line})`;
-        document.getElementById('loader-msg').innerHTML = '<h3 style="color:var(--danger)">Client Error</h3>';
-      }
-      return false;
-    };
-
-    // --- GLOBAL HELPERS ---
-    function toggleLoader(show) { 
-      document.getElementById('security-overlay').classList.toggle('hidden', !show); 
-    }
+    let STATE = { records: [], archives: [], user: {}, currentList: 'active', chatHistory: [], lastRecordCount: 0, blur: true, externalStatus: {}, analytics: {}, sortOrder: 'dateDesc' };
+    let pollInterval;
     
     function toast(msg, type = 'default') { 
       const t = document.getElementById('toast');
-      t.className = 'toast show';
-      if (type === 'success') t.classList.add('success');
-      if (type === 'alert') t.classList.add('alert');
+      t.className = 'toast show ' + type;
       t.innerText = msg; 
       setTimeout(() => t.className = 'toast', 3000); 
     }
     
+    function formatFieldName(name) {
+      const map = {
+        'dob': 'Date of Birth', 'ssn': 'SSN', 'prn': 'PRN',
+        'insuranceId': 'Insurance ID', 'insuranceName': 'Insurance',
+        'medicationDetails': 'Medication', 'status': 'Status'
+      };
+      if (map[name]) return map[name];
+      return name.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); });
+    }
+
+    function showDialog(title, msg, isList = false) {
+       document.getElementById('modal-title').innerText = title;
+       if (isList) {
+         const items = msg.split(',').map(s => s.trim());
+         let html = '<p style="margin-bottom:10px;">Please fill in the following required fields:</p><ul style="padding-left:20px; line-height:1.6;">';
+         items.forEach(i => html += `<li>${formatFieldName(i)}</li>`);
+         html += '</ul>';
+         document.getElementById('modal-msg').innerHTML = html;
+       } else {
+         document.getElementById('modal-msg').innerHTML = msg;
+       }
+       document.getElementById('custom-modal').classList.add('active');
+       document.getElementById('btn-modal-cancel').classList.add('hidden');
+    }
+    function closeModal() { document.getElementById('custom-modal').classList.remove('active'); }
+    function confirmModal() { closeModal(); }
+    function toggleSSN() { const i = document.getElementById('inp-ssn'); i.type = i.type==='password'?'text':'password'; }
+    function toggleLoader(show) { document.getElementById('security-overlay').classList.toggle('hidden', !show); }
     function populateSelect(id, arr) { 
-      const s = document.getElementById(id); 
-      if (!s) return;
+      const s = document.getElementById(id); if(!s) return;
       s.innerHTML = '<option value="">-- Select --</option>'; 
-      if(!arr) return;
-      arr.forEach(v => { 
-        const op = document.createElement('option'); 
-        op.value = v; 
-        op.innerText = v; 
-        s.appendChild(op); 
-      }); 
-    }
-    
-    function showSection(section, e) {
-       document.getElementById('sec-patient').classList.toggle('hidden', section !== 'patient');
-       document.getElementById('sec-meds').classList.toggle('hidden', section !== 'meds');
-       document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
-       if(e && e.target) e.target.classList.add('active');
+      (arr||[]).forEach(v => { const o = document.createElement('option'); o.value=v; o.innerText=v; s.appendChild(o); }); 
     }
 
-    function formatTimeAgo(timestamp) {
-      if (!timestamp) return 'Unknown';
-      const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
-      if (seconds < 60) return 'Just now';
-      if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
-      if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
-      return Math.floor(seconds / 86400) + ' days ago';
+    window.onload = init;
+
+    function init() {
+      loadSettings();
+      google.script.run.withSuccessHandler(dataRaw => {
+        const data = JSON.parse(dataRaw);
+        if(data.error) { document.getElementById('access-denied').innerHTML = `<h3>${data.error}</h3>`; document.getElementById('access-denied').classList.remove('hidden'); return; }
+        
+        STATE = Object.assign(STATE, {
+          records: data.activeRecords || [],
+          archives: data.archivedRecords || [],
+          user: data.user || {},
+          chatHistory: data.chatHistory || [],
+          lastRecordCount: data.activeRecords ? data.activeRecords.length : 0,
+          externalStatus: data.externalStatus || {},
+          analytics: data.analytics || {}
+        });
+
+        document.getElementById('user-email').innerText = STATE.user.email;
+        document.getElementById('user-role-display').innerText = STATE.user.defaultRole;
+        
+        const dd = data.config.dropdowns || {};
+        ['pharmacy','medication','insurance','needsScript','provider','status','sex'].forEach(k => populateSelect('opt-'+k, dd[k]));
+        populateSelect('opt-insurance-update', dd.insurance);
+        
+        setupRoleView(); renderList(); renderChat(); updateKPIs();
+        document.getElementById('security-overlay').classList.add('hidden');
+        document.getElementById('app-container').classList.add('visible');
+        startPolling();
+      }).getInitialData();
     }
     
-    function showDialog(title, msg) { 
-      document.getElementById('modal-title').innerText = title; 
-      document.getElementById('modal-msg').innerHTML = msg; 
-      document.getElementById('custom-modal').classList.add('active'); 
-      document.getElementById('btn-modal-cancel').classList.add('hidden'); 
-    }
-    
-    function closeModal() { 
-      document.getElementById('custom-modal').classList.remove('active'); 
-    }
-    
-    function confirmModal() {
-      closeModal();
+    function loadSettings() {
+       const savedTheme = localStorage.getItem('cwc_dark_mode');
+       const btn = document.getElementById('btn-theme');
+       if(savedTheme === 'false') { 
+         document.body.classList.remove('dark-mode'); 
+         btn.innerText = '☀️';
+       } else {
+         document.body.classList.add('dark-mode');
+         btn.innerText = '🌙';
+       }
+       const savedBlur = localStorage.getItem('cwc_blur_enabled');
+       if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
     }
 
-    // --- STATE MANAGEMENT ---
-    let STATE = { 
-      records: [], 
-      archives: [], 
-      config: {}, 
-      user: {}, 
-      currentList: 'active', 
-      blur: true, 
-      selectedId: null, 
-      dataHash: "", 
-      unreadIds: new Set(), 
-      alertingIds: new Set(), 
-      sortOrder: 'asc', 
-      chatHistory: [], 
-      // chatMode removed
-      externalStatus: {}, 
-      recentActivities: [], 
-      analytics: {} ,
-      newEntrySound: null,
-      audioUnlocked: false, // New flag to track audio permission
-      lastRecordCount: 0 // New state variable for polling
-    };
-    
-    let pollInterval, notificationTimer;
-    let notifications = [], unreadNotifCount = 0;
-    // NOTE: alertSound is no longer used, we rely on STATE.newEntrySound
+    function forceRefresh() {
+      toggleLoader(true);
+      closeDetail();
+      init(); 
+      toast('Data Refreshed', 'success');
+    }
 
-    /**
-     * Attempts to unmute audio by playing a silent sound.
-     * Must be triggered by a user interaction (like the body onclick event).
-     */
+    function setupRoleView() {
+       const r = STATE.user.defaultRole || 'CWC';
+       document.getElementById('view-indicator').innerText = r + ' View';
+       document.getElementById('btn-add-record').classList.toggle('hidden', r === 'PHARMACY');
+       document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1);
+       
+       const isPharm = r === 'PHARMACY';
+       // UPDATED: Rename Archive Tab for Pharmacy
+       document.getElementById('tab-secondary').innerText = isPharm ? 'Completed' : 'Archive';
+       
+       document.getElementById('view-cwc-container').classList.toggle('hidden', isPharm);
+       document.getElementById('view-pharm-container').classList.toggle('hidden', !isPharm);
+       document.getElementById('btn-save').classList.toggle('hidden', isPharm);
+       document.getElementById('btn-submit').classList.toggle('hidden', isPharm);
+       document.getElementById('btn-outreach').classList.toggle('hidden', isPharm);
+       document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
+       
+       const chatTitle = isPharm ? "CWC Chat" : "Pharmacy Chat";
+       document.getElementById('chat-title').innerText = chatTitle;
+    }
+
+    function renderList() {
+      const el = document.getElementById('list-wrapper'); el.innerHTML = '';
+      const term = (document.getElementById('search').value || '').toLowerCase();
+      
+      let src;
+      // FILTERING LOGIC
+      if (STATE.currentList === 'secondary') {
+         // ARCHIVE/COMPLETED TAB
+         if (STATE.user.defaultRole === 'PHARMACY') {
+            // Pharmacy: Use records from ACTIVE sheet that are marked complete
+            src = STATE.records.filter(r => r.workflowStatus === 'Pharmacy Update Received');
+         } else {
+            // CWC: Use actual archived records
+            src = STATE.archives;
+         }
+      } else {
+         // ACTIVE TAB
+         src = STATE.records;
+         if (STATE.user.defaultRole === 'PHARMACY') {
+            // Pharmacy sees only what was submitted to them
+            src = src.filter(r => r.workflowStatus === 'Submitted to Pharmacy');
+         }
+      }
+      
+      // Sort
+      src.sort((a, b) => {
+        if (STATE.sortOrder === 'nameAsc') {
+           const nA = (a.patientName || '').toLowerCase(), nB = (b.patientName || '').toLowerCase();
+           return nA.localeCompare(nB);
+        } else { 
+           const tA = a.timestamp ? new Date(a.timestamp).getTime() : a.rowNum;
+           const tB = b.timestamp ? new Date(b.timestamp).getTime() : b.rowNum;
+           return tB - tA;
+        }
+      });
+
+      // Search
+      const filtered = src.filter(r => {
+         return Object.values(r).some(val => String(val).toLowerCase().includes(term));
+      });
+
+      filtered.forEach(r => {
+        const div = document.createElement('div');
+        const isSelected = STATE.selectedId === r.rowNum;
+        if(isSelected) div.classList.add('selected');
+        const shouldBlur = STATE.blur && !isSelected;
+        div.className = 'patient-item ' + (isSelected ? 'selected' : '');
+        div.onclick = () => loadDetail(r);
+        
+        let extBadges = '';
+        const k = r.prn ? r.prn.toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
+        if(k && STATE.externalStatus[k]) {
+           STATE.externalStatus[k].forEach(s => { extBadges += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
+        }
+
+        const isUrgent = (r.priority || '').toString().toLowerCase() === 'urgent';
+        const urgentIcon = isUrgent ? '<span class="pi-urgent" title="Urgent">🔥</span>' : '';
+        
+        let timeDisplay = '';
+        if(r.timestamp) {
+           let dStr = r.timestamp;
+           if (dStr.includes(":")) {
+              const d = new Date(dStr);
+              if (!isNaN(d)) {
+                 const now = new Date();
+                 if(d.toDateString() === now.toDateString()) {
+                    timeDisplay = d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
+                 } else {
+                    timeDisplay = d.toLocaleDateString([], {month:'short', day:'numeric'});
+                 }
+              }
+           }
+        }
+
+        div.innerHTML = `
+          <div class="pi-header">
+             <div style="display:flex; align-items:center; overflow:hidden;">
+               ${urgentIcon}
+               <div class="pi-name ${shouldBlur ? 'blurred' : ''}">${r.patientName||'Unnamed'}</div>
+             </div>
+             <span class="pi-time">${timeDisplay}</span>
+          </div>
+          <div class="pi-meta">
+             <div>${extBadges} <span>${r.prn||''}</span></div>
+             <span class="status-chip chip-new">${(r.workflowStatus||'New').substring(0,1)}</span>
+          </div>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    function loadDetail(r) {
+      document.getElementById('dashboard-view').style.display = 'none';
+      document.getElementById('detail-card').classList.remove('hidden');
+      document.getElementById('d-name').innerText = r.patientName;
+      document.getElementById('d-prn').innerText = r.prn;
+      document.getElementById('d-status').innerText = r.workflowStatus || 'New Entry';
+      
+      // NEW: RECORD HEADER TIME
+      let timeStr = '';
+      if(r.timestamp) {
+        const d = new Date(r.timestamp);
+        if(!isNaN(d)) timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
+      }
+      document.getElementById('d-time').innerText = timeStr;
+
+      const badgesDiv = document.getElementById('d-ext-status'); badgesDiv.innerHTML = '';
+      const k = r.prn ? r.prn.toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
+      if(k && STATE.externalStatus[k]) {
+         STATE.externalStatus[k].forEach(s => { badgesDiv.innerHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
+      }
+
+      STATE.selectedId = r.rowNum;
+      renderList();
+      
+      const form = document.getElementById('patient-form');
+      // --- ARCHIVE READ ONLY CHECK ---
+      const isArchive = STATE.currentList === 'secondary';
+      
+      Array.from(form.elements).forEach(el => {
+         // Disable inputs if in archive view
+         el.disabled = isArchive;
+         
+         if(el.name && r[el.name]!==undefined) {
+            if (el.type === 'date' && r[el.name]) {
+               const date = new Date(r[el.name]);
+               if (!isNaN(date)) {
+                 const year = date.getFullYear();
+                 const month = String(date.getMonth() + 1).padStart(2, '0');
+                 const day = String(date.getDate()).padStart(2, '0');
+                 el.value = `${year}-${month}-${day}`;
+               }
+            } else {
+               el.value = r[el.name];
+            }
+         }
+      });
+      if(document.getElementById('chk-priority')) {
+         const cb = document.getElementById('chk-priority');
+         cb.checked = (r.priority === 'Urgent');
+         cb.disabled = isArchive;
+      }
+
+      // Hide action bar if archive
+      document.querySelector('.action-bar').classList.toggle('hidden', isArchive);
+
+
+      if(STATE.user.defaultRole === 'PHARMACY') {
+        const dob = r.dob ? new Date(r.dob).toLocaleDateString() : 'N/A';
+        const ssnVal = r.ssn || '';
+        
+        document.getElementById('pharm-info-card').innerHTML = `
+          <div class="ro-section"><div class="ro-header">Patient Info</div><div class="ro-grid">
+            <div class="ro-field"><div class="ro-label">Name</div><div class="ro-value">${r.patientName||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">PRN</div><div class="ro-value">${r.prn||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Phone</div><div class="ro-value">${r.phoneNumber||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">DOB</div><div class="ro-value">${dob}</div></div>
+            
+            <div class="ro-field"><div class="ro-label">Sex</div><div class="ro-value">${r.sex||'N/A'}</div></div>
+            
+            <div class="ro-field">
+              <div class="ro-label">SSN</div>
+              <div class="ro-value" style="display:flex; align-items:center; gap:8px;">
+                <input type="password" value="${ssnVal}" readonly style="border:none; background:transparent; width:100px; color:var(--text-main); font-weight:600;" id="pharm-ssn-view">
+                <span style="cursor:pointer; opacity:0.6;" onclick="const el=document.getElementById('pharm-ssn-view'); el.type=el.type==='password'?'text':'password';">👁</span>
+              </div>
+            </div>
+            
+            <div class="ro-field"><div class="ro-label">Address</div><div class="ro-value">${r.address||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Reason</div><div class="ro-value">${r.reason||'N/A'}</div></div>
+          </div></div>
+
+          <div class="ro-section"><div class="ro-header">Clinical Details</div><div class="ro-grid">
+            <div class="ro-field"><div class="ro-label">Medication</div><div class="ro-value">${r.medicationDetails||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Provider</div><div class="ro-value">${r.provider||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Pharmacy</div><div class="ro-value">${r.pharmacy||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Status</div><div class="ro-value">${r.status||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Insurance</div><div class="ro-value">${r.insuranceName||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Ins ID</div><div class="ro-value">${r.insuranceId||'N/A'}</div></div>
+          </div></div>
+
+          <div class="ro-section"><div class="ro-header">Notes</div>
+            <div style="margin-bottom:10px;">
+              <div class="ro-label">Outreach Note</div>
+              <div class="ro-value" style="background:var(--bg-input); padding:10px; border-radius:6px;">${r.outreachNote || 'None'}</div>
+            </div>
+            <div>
+              <div class="ro-label">Office Note</div>
+              <div class="ro-value" style="background:var(--bg-input); padding:10px; border-radius:6px;">${r.officeNote || 'None'}</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function closeDetail() {
+      document.getElementById('dashboard-view').style.display = 'flex';
+      document.getElementById('detail-card').classList.add('hidden');
+      STATE.selectedId = null;
+      renderList(); 
+    }
+
+    function saveData(action) {
+       if(!STATE.selectedId) return;
+       const f = document.getElementById('patient-form');
+       const d = {};
+       Array.from(f.elements).forEach(e => { if(e.name) d[e.name] = e.value; });
+       if(document.getElementById('chk-priority')) d['priority'] = document.getElementById('chk-priority').checked ? 'Urgent' : 'Standard';
+
+       if (action === 'Submit to Pharmacy') {
+         const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
+         const missing = req.filter(k => !d[k] || d[k] === '' || d[k] === '-- Select --');
+         if (missing.length > 0) { 
+           showDialog("Missing Information", missing.join(','), true); 
+           return; 
+         }
+       }
+
+       toggleLoader(true);
+       let fn = 'saveRecordChanges';
+       if(action === 'Submit to Pharmacy') fn = 'submitToPharmacy';
+       else if(action === 'Outreach Update') fn = 'sendOutreachUpdate';
+       else if(action === 'Pharmacy Update') fn = 'submitPharmacyUpdate';
+
+       google.script.run.withSuccessHandler(res => {
+         toggleLoader(false);
+         if(res.error) toast(res.error, 'alert');
+         else {
+           STATE.records = res.allRecords; STATE.chatHistory = res.chatHistory; STATE.analytics = res.analytics || STATE.analytics;
+           renderList(); renderChat(); updateKPIs(); toast('Saved', 'success');
+           if(STATE.selectedId) { const r = STATE.records.find(x=>x.rowNum===STATE.selectedId); if(r) loadDetail(r); }
+         }
+       })[fn](STATE.selectedId, d);
+    }
+
+    function addRecord(e) {
+      e.stopPropagation(); toggleLoader(true);
+      google.script.run.withSuccessHandler(res => {
+         toggleLoader(false);
+         if(res.error) toast(res.error, 'alert');
+         else { STATE.records = res.allRecords; renderList(); toast('Created', 'success'); }
+      }).addOutreachRecord();
+    }
+    
+    function exportPDF() {
+      toggleLoader(true);
+      google.script.run.withSuccessHandler(res => {
+        toggleLoader(false);
+        if(res.error) toast(res.error, 'alert');
+        else {
+           const link = document.createElement('a');
+           link.href = res.url; link.target = '_blank'; link.click();
+           toast('Opening PDF...', 'success');
+        }
+      }).getPDFDownloadUrl();
+    }
+
+    function checkChatSend(e) { if(e.key === 'Enter') sendChat(); }
+    function sendChat() {
+      const txt = document.getElementById('chat-input').value;
+      if(!txt) return;
+      document.getElementById('chat-input').value = '';
+      STATE.chatHistory.push({sender: STATE.user.email, text: txt, time: '...'});
+      renderChat();
+      google.script.run.withSuccessHandler(h => { STATE.chatHistory = h; renderChat(); }).postOutreachMessage(txt);
+    }
+    
+    function renderChat() {
+      const c = document.getElementById('chat-messages'); c.innerHTML = '';
+      STATE.chatHistory.forEach(m => {
+        const div = document.createElement('div');
+        const isMe = m.sender === STATE.user.email;
+        div.className = `msg ${isMe ? 'out' : 'in'}`;
+        
+        const timeStr = m.time && m.time !== '...' ? m.time.split(' ')[1] : '';
+        div.innerHTML = `
+          <div class="msg-sender">${m.sender.split('@')[0]} <span style="float:right; font-weight:400; opacity:0.7;">${timeStr}</span></div>
+          ${m.text}
+        `;
+        c.appendChild(div);
+      });
+      c.scrollTop = c.scrollHeight;
+    }
+    
+    function refreshChat() { google.script.run.withSuccessHandler(h => { STATE.chatHistory = h; renderChat(); }).pollChat(); }
+
+    function startPolling() {
+      pollInterval = setInterval(() => {
+         google.script.run.withSuccessHandler(res => {
+            if(res.hasNew) {
+               STATE.records.push(...res.newRecords);
+               STATE.lastRecordCount = res.currentRecordCount;
+               renderList(); updateKPIs(); toast('New Record!', 'alert');
+            }
+         }).checkForNewRecords(STATE.lastRecordCount);
+         refreshChat();
+      }, 10000);
+    }
+
+    function updateKPIs() {
+       document.getElementById('kpi-total').innerText = STATE.records.length;
+       document.getElementById('kpi-urgent').innerText = STATE.records.filter(r=>r.priority==='Urgent').length;
+       document.getElementById('kpi-pharmacy').innerText = STATE.records.filter(r=>r.workflowStatus==='Submitted to Pharmacy').length;
+       
+       if(STATE.analytics) {
+         if(STATE.analytics.completedToday !== undefined) document.getElementById('kpi-completed').innerText = STATE.analytics.completedToday;
+         if(STATE.analytics.avgSubmitTime) document.getElementById('kpi-avg-submit').innerText = STATE.analytics.avgSubmitTime;
+         if(STATE.analytics.avgPharmacyTime) document.getElementById('kpi-avg-pharm').innerText = STATE.analytics.avgPharmacyTime;
+         if(STATE.analytics.archiveTotal !== undefined) document.getElementById('kpi-arch-total').innerText = STATE.analytics.archiveTotal;
+         if(STATE.analytics.archiveAvgSubmit) document.getElementById('kpi-arch-submit').innerText = STATE.analytics.archiveAvgSubmit;
+       }
+    }
+    
+    function showSection(s, e) {
+      document.getElementById('sec-patient').classList.toggle('hidden', s!=='patient');
+      document.getElementById('sec-meds').classList.toggle('hidden', s!=='meds');
+      document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('active'));
+      if(e) e.target.classList.add('active');
+    }
+    
+    function switchList(l) {
+      STATE.currentList = l;
+      document.getElementById('tab-active').classList.toggle('active', l==='active');
+      document.getElementById('tab-secondary').classList.toggle('active', l==='secondary');
+      renderList();
+    }
+    
+    function toggleSort() { 
+      STATE.sortOrder = STATE.sortOrder === 'dateDesc' ? 'nameAsc' : 'dateDesc';
+      document.getElementById('btn-sort').innerText = STATE.sortOrder === 'dateDesc' ? '⬇' : 'Aa';
+      renderList();
+    }
+
+    function toggleTheme() { 
+      document.body.classList.toggle('dark-mode'); 
+      const isDark = document.body.classList.contains('dark-mode');
+      document.getElementById('btn-theme').innerText = isDark ? '🌙' : '☀️';
+      localStorage.setItem('cwc_dark_mode', isDark);
+    }
+
+    function toggleBlur() { STATE.blur = !STATE.blur; localStorage.setItem('cwc_blur_enabled', STATE.blur); renderList(); toast(STATE.blur?'PHI Blur On':'PHI Blur Off'); }
+    function switchRole() { STATE.user.defaultRole = STATE.user.defaultRole==='CWC'?'PHARMACY':'CWC'; setupRoleView(); closeDetail(); renderList(); toast('Switched View'); }
     function unmuteAudio() {
         if (STATE.audioUnlocked || !STATE.newEntrySound) return;
         
@@ -799,36 +783,6 @@
         }
     }
 
-
-    // --- INITIALIZATION ---
-    window.onload = init;
-
-    function init() {
-      console.log('Initializing CWC Dashboard...');
-      loadSettings();
-      
-      google.script.run
-        .withSuccessHandler(dataRaw => {
-           try {
-             const data = JSON.parse(dataRaw);
-             console.log('Received data:', data);
-             
-             if(!data) throw new Error("Server returned empty data.");
-             if(data.error) { showError("Server Error", data.error); return; }
-             if (!data.user || !data.user.email) { showError("Access Denied", "User identity not found."); return; }
-             
-             // Update STATE with initial data
-             STATE = Object.assign(STATE, {
-               records: data.activeRecords || [], 
-               archives: data.archivedRecords || [], 
-               config: data.config || {},
-               user: data.user || {}, 
-               chatHistory: data.chatHistory || [], 
-               externalStatus: data.externalStatus || {},
-               recentActivities: data.recentActivities || [], 
-               analytics: data.analytics || {},
-               lastRecordCount: data.activeRecords ? data.activeRecords.length : 0 // Set initial count
-             });
 
              // Initialize the new entry sound
              if (STATE.config.soundAlertData) {
@@ -859,735 +813,6 @@
              
              document.getElementById('security-overlay').classList.add('hidden');
              document.getElementById('app-container').classList.add('visible');
-             
-             // Start polling for new records and chat refresh
-             startPolling(); 
-             
-             // Request desktop notification permission
-             if ('Notification' in window && Notification.permission === 'default') {
-               Notification.requestPermission();
-             }
-             
-             toast('Dashboard loaded successfully', 'success');
-           } catch(e) { 
-             console.error('Rendering error:', e); 
-             showError("Rendering Error", e.message); 
-           }
-        })
-        .withFailureHandler(e => {
-          console.error('Connection error:', e);
-          showError("Connection Error", e.message);
-        })
-        .getInitialData();
-    }
-
-    function showError(title, msg) {
-      document.getElementById('loader-msg').classList.add('hidden');
-      const deniedBox = document.getElementById('access-denied');
-      deniedBox.classList.remove('hidden');
-      deniedBox.innerHTML = `<h2 style="color:var(--danger); margin-bottom:10px;">${title}</h2><p>${msg}</p>`;
-    }
-    
-    function loadSettings() {
-       const savedTheme = localStorage.getItem('cwc_dark_mode');
-       if(savedTheme === 'false') { 
-         document.body.classList.remove('dark-mode'); 
-         document.getElementById('chk-theme').checked = false; 
-       }
-       const savedBlur = localStorage.getItem('cwc_blur_enabled');
-       if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
-    }
-
-    function setupRoleView() {
-       const r = STATE.user.defaultRole || 'CWC';
-       document.getElementById('view-indicator').innerText = r + ' View';
-       document.getElementById('btn-add-record').classList.toggle('hidden', r === 'PHARMACY');
-       document.getElementById('btn-switch-role').classList.toggle('hidden', 
-         STATE.user.roles.length <= 1 && !STATE.user.email.includes('pierre'));
-       document.getElementById('tab-secondary').innerText = r === 'PHARMACY' ? 'Completed' : 'Archive';
-    }
-
-    // --- REAL-TIME POLLING ---
-    function startPolling() {
-      // Clear any existing poll
-      if (pollInterval) clearInterval(pollInterval);
-      
-      // Poll every 10 seconds (10000ms)
-      pollInterval = setInterval(() => {
-        pollForNewRecords();
-        refreshChat();
-      }, 10000); 
-
-      // Run immediately
-      pollForNewRecords();
-    }
-
-    function pollForNewRecords() {
-        // Only poll if the current list view is 'active' (or if we are on a pharmacy view filtered by 'Submitted to Pharmacy' status)
-        if (STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC') return;
-
-        google.script.run
-            .withSuccessHandler(res => {
-                if (res.hasNew) {
-                    console.log('New records detected:', res.newRecords);
-                    handleNewRecordAlert(res.newRecords);
-                    // Update state and refresh UI
-                    STATE.records.push(...res.newRecords);
-                    STATE.lastRecordCount = res.currentRecordCount;
-                    renderList();
-                    updateKPICards();
-                } else if (res.currentRecordCount !== STATE.lastRecordCount) {
-                    // This handles manual deletion/archiving from the sheet
-                    console.log('Record count mismatch, forcing full refresh.');
-                    init(); // Re-initialize to get a fresh list
-                }
-            })
-            .withFailureHandler(e => {
-                console.error('Polling error:', e);
-            })
-            .checkForNewRecords(STATE.lastRecordCount);
-    }
-
-    function handleNewRecordAlert(newRecords) {
-        if (!newRecords || newRecords.length === 0) return;
-
-        newRecords.forEach(r => {
-            // 1. Audible Alert - Only play if audio is unlocked by user interaction
-            if (STATE.newEntrySound && STATE.audioUnlocked) {
-                STATE.newEntrySound.play().catch(e => console.error("Sound play failed:", e));
-            } else if (!STATE.audioUnlocked) {
-                console.warn("Sound alert blocked. Click anywhere on the page to enable audio.");
-            }
-
-            // 2. Visible Toast
-            toast(`🔔 NEW ENTRY: ${r.patientName || 'Unnamed Patient'} added!`, 'alert');
-
-            // 3. Notification Center Update
-            const priority = r.priority === 'Urgent' ? 'URGENT' : 'STANDARD';
-            addNotification(`New Patient Entry (${priority})`, `Record for ${r.patientName || 'Unnamed'} (PRN: ${r.prn || 'N/A'}) received.`);
-            
-            // 4. Highlight in list (if visible)
-            STATE.alertingIds.add(r.rowNum);
-            
-            // 5. Desktop Notification (if permitted)
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(`CWC ALERT: New Patient Record`, {
-                    body: `${r.patientName || 'Unnamed Patient'} has been added to the active list. Status: ${r.workflowStatus || 'New Entry'}`,
-                    icon: '🚨'
-                });
-            }
-        });
-    }
-
-    // --- LIST RENDERING ---
-    function renderList() {
-      const listEl = document.getElementById('list-wrapper'); 
-      if(!listEl) return;
-      listEl.innerHTML = '';
-      
-      let src = STATE.records;
-      if (STATE.currentList === 'secondary') {
-         src = STATE.user.defaultRole === 'PHARMACY' 
-           ? STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.PHARMACY_UPDATE) 
-           : STATE.archives;
-      } else {
-         if (STATE.user.defaultRole === 'PHARMACY') {
-           src = STATE.records.filter(r => r.workflowStatus === STATE.config.flags?.SUBMITTED_TO_PHARMACY);
-         }
-      }
-
-      // Apply sorting based on state (optional: you may want to sort new entries to the top)
-      const sorted = [...src].sort((a, b) => {
-          const aAlert = STATE.alertingIds.has(a.rowNum) ? 1 : 0;
-          const bAlert = STATE.alertingIds.has(b.rowNum) ? 1 : 0;
-          if (aAlert !== bAlert) return bAlert - aAlert; // New records always float to top
-
-          // Secondary sort: by name/PRN (default behavior)
-          const nameA = a.patientName || '';
-          const nameB = b.patientName || '';
-          if (STATE.sortOrder === 'asc') return nameA.localeCompare(nameB);
-          return nameB.localeCompare(nameA);
-      });
-
-
-      const term = (document.getElementById('search')?.value || '').toLowerCase();
-      const filtered = sorted.filter(r => 
-        (r.patientName||'').toLowerCase().includes(term) || 
-        (r.prn||'').toLowerCase().includes(term)
-      );
-
-      if (filtered.length === 0) {
-        listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No records found</div>';
-        return;
-      }
-
-      filtered.forEach(r => {
-        const div = document.createElement('div');
-        const alerting = STATE.alertingIds.has(r.rowNum);
-        const isSelected = STATE.selectedId === r.rowNum;
-        
-        // Remove 'alerting' class if selected
-        div.className = `patient-item ${isSelected ? 'selected' : ''} ${alerting && !isSelected ? 'alerting' : ''}`;
-        div.onclick = () => selectRecord(r);
-        
-        let extBadgesHTML = '';
-        const k = r.prn ? r.prn.toUpperCase().replace(/\s+/g, '') : "";
-        if (k && STATE.externalStatus[k]) {
-           STATE.externalStatus[k].forEach(s => { 
-             extBadgesHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; 
-           });
-        }
-        
-        const statusText = r.workflowStatus ? r.workflowStatus.substring(0, 1) : 'N';
-        const shouldBlur = STATE.blur && !isSelected;
-        
-        div.innerHTML = `
-          <div class="pi-header">
-            <div class="pi-name ${shouldBlur ? 'blurred' : ''}">${r.patientName || 'Unnamed'}</div>
-            <span class="status-chip chip-new">${statusText}</span>
-          </div>
-          <div class="pi-meta">
-            <div>${extBadgesHTML} <span style="font-weight: 600;">${r.prn || 'No PRN'}</span></div>
-          </div>
-        `;
-        listEl.appendChild(div);
-      });
-    }
-
-    function selectRecord(r) {
-       console.log('Selecting record:', r);
-       
-       // Clear alert state for the selected record
-       if (STATE.alertingIds.has(r.rowNum)) { 
-         STATE.alertingIds.delete(r.rowNum); 
-         renderList(); // Re-render to remove the flash animation
-       }
-       
-       // Handle archived records
-       if(STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC' && !r.isFullRecord) {
-          toggleLoader(true);
-          google.script.run
-            .withSuccessHandler(res => {
-               toggleLoader(false);
-               if(res.error) { 
-                 toast("Error: " + res.error, 'alert'); 
-               } else if(res.record) {
-                  res.record.isFullRecord = true;
-                  const idx = STATE.archives.findIndex(a => a.rowNum === res.record.rowNum);
-                  if(idx !== -1) STATE.archives[idx] = res.record;
-                  selectRecord(res.record);
-               }
-            })
-            .withFailureHandler(e => {
-              toggleLoader(false);
-              toast('Error loading record: ' + e.message, 'alert');
-            })
-            .getFullArchivedRecord(r.rowNum);
-          return; 
-       }
-
-       STATE.selectedId = r.rowNum; 
-       renderList();
-       
-       // Hide dashboard, show detail card
-       document.getElementById('dashboard-view').style.display = 'none';
-       document.getElementById('detail-card').classList.remove('hidden');
-       
-       // Update header
-       document.getElementById('d-name').innerText = r.patientName || 'Unnamed Patient';
-       document.getElementById('d-prn').innerText = r.prn || 'No PRN';
-       document.getElementById('d-status').innerText = r.workflowStatus || 'New';
-       
-       // External status tags
-       document.getElementById('d-ext-status').innerHTML = '';
-       const k = r.prn ? r.prn.toUpperCase().replace(/\s+/g, '') : "";
-       if (k && STATE.externalStatus[k]) {
-         STATE.externalStatus[k].forEach(s => { 
-           document.getElementById('d-ext-status').innerHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; 
-         });
-       }
-
-       // Configure view based on role
-       const form = document.getElementById('patient-form');
-       const isPharm = STATE.user.defaultRole === 'PHARMACY';
-       
-       document.getElementById('view-cwc-container').classList.toggle('hidden', isPharm);
-       document.getElementById('view-pharm-container').classList.toggle('hidden', !isPharm);
-       
-       // Populate form fields
-       Array.from(form.elements).forEach(el => {
-          if(el.name && r[el.name] !== undefined) {
-             if(el.type === 'date' && r[el.name]) { 
-               try { 
-                 el.value = new Date(r[el.name]).toISOString().split('T')[0]; 
-               } catch(e) { 
-                 el.value = r[el.name]; 
-               } 
-             } else {
-               el.value = r[el.name];
-             }
-          }
-       });
-       
-       // Priority checkbox
-       if (document.getElementById('chk-priority')) {
-         document.getElementById('chk-priority').checked = (r.priority === 'Urgent');
-       }
-       
-       // Action buttons visibility
-       document.getElementById('btn-save').classList.toggle('hidden', isPharm);
-       document.getElementById('btn-submit').classList.toggle('hidden', isPharm);
-       document.getElementById('btn-outreach').classList.toggle('hidden', isPharm);
-       document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
-       
-       // Pharmacy read-only view
-       if(isPharm) {
-          document.getElementById('pharm-info-card').innerHTML = `
-            <div class="ro-section">
-              <div class="ro-header">Patient Information</div>
-              <div class="ro-grid">
-                <div class="ro-field">
-                  <div class="ro-label">Name</div>
-                  <div class="ro-value">${r.patientName || 'N/A'}</div>
-                </div>
-                <div class="ro-field">
-                  <div class="ro-label">PRN</div>
-                  <div class="ro-value">${r.prn || 'N/A'}</div>
-                </div>
-                <div class="ro-field">
-                  <div class="ro-label">Phone</div>
-                  <div class="ro-value">${r.phoneNumber || 'N/A'}</div>
-                </div>
-                <div class="ro-field">
-                  <div class="ro-label">DOB</div>
-                  <div class="ro-value">${r.dob || 'N/A'}</div>
-                </div>
-              </div>
-            </div>
-            <div class="ro-section">
-              <div class="ro-header">Clinical Details</div>
-              <div class="ro-grid">
-                <div class="ro-field">
-                  <div class="ro-label">Medication</div>
-                  <div class="ro-value">${r.medicationDetails || 'N/A'}</div>
-                </div>
-                <div class="ro-field">
-                  <div class="ro-label">Provider</div>
-                  <div class="ro-value">${r.provider || 'N/A'}</div>
-                </div>
-                <div class="ro-field">
-                  <div class="ro-label">Pharmacy</div>
-                  <div class="ro-value">${r.pharmacy || 'N/A'}</div>
-                </div>
-                <div class="ro-field">
-                  <div class="ro-label">Insurance</div>
-                  <div class="ro-value">${r.insuranceName || 'N/A'}</div>
-                </div>
-              </div>
-            </div>
-            <div class="ro-section">
-              <div class="ro-header">Notes</div>
-              <div class="ro-value" style="background:var(--bg-input); padding:15px; border-radius:8px; line-height: 1.6;">
-                ${r.outreachNote || r.officeNote || 'No notes available'}
-              </div>
-            </div>
-          `;
-       }
-    }
-
-    // --- SAVE OPERATIONS ---
-    function saveData(action) { 
-       if (!STATE.selectedId) {
-         toast('No record selected', 'alert');
-         return;
-       }
-       
-       const f = document.getElementById('patient-form'); 
-       const d = {}; 
-       
-       Array.from(f.elements).forEach(e => { 
-         if(e.name) d[e.name] = e.value; 
-       });
-       
-       if (document.getElementById('chk-priority')) {
-         d['priority'] = document.getElementById('chk-priority').checked ? 'Urgent' : 'Standard';
-       }
-       
-       // VALIDATION FOR PHARMACY SUBMISSION
-       if (action === 'Submit to Pharmacy') {
-         const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
-         const missing = req.filter(k => !d[k] || d[k] === '' || d[k] === '-- Select --');
-         
-         if (missing.length > 0) { 
-           toggleLoader(false); 
-           showDialog("Missing Information", `Please fill in the following required fields:<br><br>${missing.join(', ')}`); 
-           return; 
-         }
-       }
-
-       toggleLoader(true);
-       
-       let fn = 'saveRecordChanges';
-       if(action === 'Submit to Pharmacy') fn = 'submitToPharmacy';
-       else if(action === 'Outreach Update') fn = 'sendOutreachUpdate';
-       else if(action === 'Pharmacy Update') fn = 'submitPharmacyUpdate';
-       
-       console.log(`Saving with action: ${action}, function: ${fn}`);
-       
-       google.script.run
-         .withSuccessHandler(res => { 
-          toggleLoader(false); 
-          
-          if(res.error) {
-            toast('Error: ' + res.error, 'alert'); 
-          } else { 
-            STATE.records = res.allRecords || STATE.records;
-            STATE.chatHistory = res.chatHistory || STATE.chatHistory;
-            STATE.lastRecordCount = STATE.records.length; // Update for next poll
-            
-            const updatedRecord = STATE.records.find(r => r.rowNum === STATE.selectedId);
-            if (updatedRecord) {
-              selectRecord(updatedRecord);
-            }
-            
-            renderList();
-            renderChat();
-            updateKPICards();
-            
-            toast(`✅ ${action} completed successfully`, 'success');
-            
-            // Add to notifications
-            addNotification(`${action} Completed`, `Successfully processed for ${d.patientName || 'patient'}`);
-          } 
-       })
-       .withFailureHandler(e => { 
-         toggleLoader(false); 
-         toast('Error: ' + e.message, 'alert'); 
-       })[fn](STATE.selectedId, d);
-    }
-
-    // --- CHAT FUNCTIONS ---
-    // Removed setChatMode
-
-    function checkChatSend(e) { 
-      if(e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendChat(); 
-      }
-    }
-    
-    function sendChat() { 
-      const input = document.getElementById('chat-input'); 
-      const text = input.value.trim(); 
-      
-      if(!text) return;
-      
-      // Add to UI immediately for responsiveness
-      STATE.chatHistory.push({
-        sender: STATE.user.email, 
-        text: text, 
-        time: 'Sending...'
-      }); 
-      renderChat(); 
-      input.value = '';
-      
-      // Send to Outreach webhook and log internally (postOutreachMessage handles both)
-      google.script.run
-        .withSuccessHandler(h => { 
-          STATE.chatHistory = h || STATE.chatHistory; 
-          renderChat(); 
-          toast('Message sent to outreach chat', 'success');
-        })
-        .withFailureHandler(e => {
-          toast('Chat error: ' + e.message, 'alert');
-        })
-        .postOutreachMessage(text);
-    }
-    
-    function renderChat() { 
-      const container = document.getElementById('chat-messages'); 
-      container.innerHTML = ''; 
-      
-      if (STATE.chatHistory.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">No messages yet. Start a conversation!</div>';
-        return;
-      }
-      
-      STATE.chatHistory.forEach(m => { 
-        const div = document.createElement('div'); 
-        const isOwn = m.sender === STATE.user.email || m.sender.includes(STATE.user.email.split('@')[0]);
-        
-        div.className = `msg ${isOwn ? 'out' : 'in'}`; 
-        
-        const senderName = m.sender.split('@')[0];
-        const displayTime = m.time || 'Now';
-        
-        div.innerHTML = `
-          <div class="msg-sender">${senderName}</div>
-          <div>${m.text}</div>
-          <div style="font-size: 9px; opacity: 0.5; margin-top: 4px;">${displayTime}</div>
-        `; 
-        
-        container.appendChild(div); 
-      }); 
-      
-      container.scrollTop = container.scrollHeight; 
-    }
-    
-    function refreshChat() { 
-      google.script.run
-        .withSuccessHandler(h => { 
-          if(h && h.length > 0) { 
-            STATE.chatHistory = h; 
-            renderChat(); 
-          } 
-        })
-        .withFailureHandler(e => {
-          console.error('Chat refresh error:', e);
-        })
-        .pollChat(); 
-    }
-
-    // --- NOTIFICATION CENTER ---
-    function initNotificationCenter() {
-      const stored = localStorage.getItem('cwc_notifications');
-      if (stored) { 
-        try { 
-          notifications = JSON.parse(stored); 
-          updateNotificationBadge(); 
-        } catch(e) { 
-          notifications = []; 
-        } 
-      }
-    }
-
-    function toggleNotificationCenter() {
-      const center = document.getElementById('notification-center');
-      const isActive = center.classList.contains('active');
-      
-      center.classList.toggle('active');
-      
-      if (!isActive) { 
-        renderNotifications(); 
-        markAllNotificationsRead(); 
-      }
-    }
-
-    function renderNotifications() {
-      const list = document.getElementById('notif-list');
-      
-      if (notifications.length === 0) { 
-        list.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No notifications yet</div>'; 
-        return; 
-      }
-      
-      list.innerHTML = notifications.map((n, idx) => `
-        <div class="notif-item ${n.read ? '' : 'unread'}">
-          <div class="notif-title">${n.title}</div>
-          <div class="notif-message">${n.message}</div>
-          <div class="notif-time">${formatTimeAgo(n.timestamp)}</div>
-        </div>
-      `).join('');
-    }
-
-    function updateNotificationBadge() {
-      unreadNotifCount = notifications.filter(n => !n.read).length;
-      const badge = document.getElementById('notif-badge');
-      
-      if (unreadNotifCount > 0) { 
-        badge.classList.remove('hidden'); 
-        badge.textContent = unreadNotifCount > 9 ? '9+' : unreadNotifCount; 
-      } else { 
-        badge.classList.add('hidden'); 
-      }
-    }
-
-    function markAllNotificationsRead() {
-      notifications = notifications.map(n => ({ ...n, read: true }));
-      localStorage.setItem('cwc_notifications', JSON.stringify(notifications));
-      updateNotificationBadge();
-    }
-
-    function clearAllNotifications() {
-      notifications = []; 
-      localStorage.removeItem('cwc_notifications'); 
-      renderNotifications(); 
-      updateNotificationBadge();
-      toast('All notifications cleared', 'success');
-    }
-
-    function addNotification(title, message) {
-      const notif = {
-        title: title,
-        message: message,
-        timestamp: new Date().toISOString(),
-        read: false
-      };
-      
-      notifications.unshift(notif);
-      
-      // Keep only last 50 notifications
-      if (notifications.length > 50) {
-        notifications = notifications.slice(0, 50);
-      }
-      
-      localStorage.setItem('cwc_notifications', JSON.stringify(notifications));
-      updateNotificationBadge();
-      
-      // Desktop notification if permitted
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(title, {
-          body: message,
-          icon: '🔔'
-        });
-      }
-    }
-
-    // --- ANALYTICS & DASHBOARD ---
-    function updateKPICards() {
-      const an = STATE.analytics || {};
-      const recs = STATE.records || [];
-      
-      const total = typeof an.totalActive === 'number' ? an.totalActive : recs.length;
-      const urgent = typeof an.urgentCases === 'number' ? an.urgentCases : recs.filter(r => r.priority === 'Urgent').length;
-      const phmFlag = (STATE.config && STATE.config.flags && STATE.config.flags.SUBMITTED_TO_PHARMACY) ? STATE.config.flags.SUBMITTED_TO_PHARMACY : 'Submitted to Pharmacy';
-      const inPharm = typeof an.inPharmacy === 'number' ? an.inPharmacy : recs.filter(r => r.workflowStatus === phmFlag).length;
-      const completed = an.completedToday || 0;
-      
-      if(document.getElementById('kpi-total')) document.getElementById('kpi-total').innerText = total;
-      if(document.getElementById('kpi-urgent')) document.getElementById('kpi-urgent').innerText = urgent;
-      if(document.getElementById('kpi-pharmacy')) document.getElementById('kpi-pharmacy').innerText = inPharm;
-      if(document.getElementById('kpi-completed')) document.getElementById('kpi-completed').innerText = completed;
-    }
-
-    function renderTimeline() {
-      const container = document.getElementById('timeline-container');
-      if(!container) return;
-      
-      if (!STATE.recentActivities || STATE.recentActivities.length === 0) { 
-        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 30px;">No recent activity</div>'; 
-        return; 
-      }
-      
-      container.innerHTML = STATE.recentActivities.map(a => `
-        <div class="timeline-item">
-          <div class="timeline-marker">${a.icon || '📌'}</div>
-          <div class="timeline-content">
-            <div class="timeline-title">${a.title || 'Activity'}</div>
-            <div class="timeline-desc">${a.description || 'No description'}</div>
-            <div class="timeline-time">${a.time || 'Unknown time'}</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // --- UI HELPERS ---
-    function showDashboard() { 
-      document.getElementById('dashboard-view').style.display = 'block'; 
-      document.getElementById('detail-card').classList.add('hidden'); 
-      STATE.selectedId = null;
-      renderList();
-    }
-    
-    function closeDetail() { 
-      showDashboard(); 
-    }
-    
-    function toggleSSN() { 
-      const i = document.getElementById('inp-ssn'); 
-      i.type = i.type === 'password' ? 'text' : 'password'; 
-    }
-    
-    function handleSearch() { 
-      renderList(); 
-    }
-    
-    function toggleSort() { 
-      STATE.sortOrder = STATE.sortOrder === 'asc' ? 'desc' : 'asc';
-      document.getElementById('btn-sort').innerText = STATE.sortOrder === 'asc' ? '⬇' : '⬆';
-      renderList(); 
-    }
-    
-    function switchList(type) { 
-      STATE.currentList = type; 
-      document.getElementById('tab-active').classList.toggle('active', type === 'active'); 
-      document.getElementById('tab-secondary').classList.toggle('active', type === 'secondary'); 
-      closeDetail();
-      renderList();
-    }
-    
-    function switchRole() { 
-      STATE.user.defaultRole = STATE.user.defaultRole === 'CWC' ? 'PHARMACY' : 'CWC'; 
-      setupRoleView(); 
-      closeDetail(); 
-      renderList();
-      toast('Switched to ' + STATE.user.defaultRole + ' view', 'success'); 
-    }
-    
-    function toggleTheme() { 
-      document.body.classList.toggle('dark-mode'); 
-      localStorage.setItem('cwc_dark_mode', document.body.classList.contains('dark-mode')); 
-    }
-    
-    function toggleBlur() { 
-      STATE.blur = !STATE.blur; 
-      localStorage.setItem('cwc_blur_enabled', STATE.blur); 
-      renderList(); 
-      toast(STATE.blur ? 'PHI blur enabled' : 'PHI blur disabled', 'default');
-    }
-    
-    function addRecord(e) { 
-      e.stopPropagation(); 
-      toggleLoader(true); 
-      
-      google.script.run
-        .withSuccessHandler(res => { 
-          toggleLoader(false); 
-          
-          if(!res.error) { 
-            // Add new record to list and update count
-            STATE.records = res.allRecords; 
-            STATE.lastRecordCount = STATE.records.length;
-            
-            // Trigger client alert for the newly created record
-            if (res.updatedRecord) {
-              handleNewRecordAlert([res.updatedRecord]);
-            }
-
-            renderList(); 
-            selectRecord(res.updatedRecord); 
-            toast('New record created successfully', 'success'); 
-          } else {
-            toast('Error: ' + res.error, 'alert'); 
-          }
-        })
-        .withFailureHandler(e => {
-          toggleLoader(false);
-          toast('Error: ' + e.message, 'alert');
-        })
-        .addOutreachRecord(); 
-    }
-    
-    function exportPDF() { 
-      toggleLoader(true); 
-      
-      google.script.run
-        .withSuccessHandler(res => { 
-          toggleLoader(false); 
-          
-          if(res.error) {
-            toast('Error: ' + res.error, 'alert'); 
-          } else {
-            window.open(res.url, '_blank'); 
-            toast('Opening PDF export...', 'success');
-          }
-        })
-        .withFailureHandler(e => {
-          toggleLoader(false);
-          toast('Error: ' + e.message, 'alert');
-        })
-        .getPDFDownloadUrl(); 
-    }
   </script>
 </body>
 </html>
