@@ -1,6 +1,6 @@
 /**
  * CORE CHAT SERVICE (SHEET-BASED)
- * Handles reading/writing to the Chat Log sheet.
+ * FIXED: Added global function aliases, proper logging
  */
 
 const ChatService = {
@@ -51,6 +51,7 @@ const ChatService = {
   },
 
   logSystemMessage: function(text) {
+    if (!text) return;
     ChatService.logToChatSheet('System', text);
   },
 
@@ -81,3 +82,11 @@ const ChatService = {
     }
   }
 };
+
+// GLOBAL FUNCTION ALIASES - CRITICAL FIX
+// These allow calls like getChatHistory() instead of ChatService.getChatHistory()
+function postOutreachMessage(text) { return ChatService.postOutreachMessage(text); }
+function pollChat() { return ChatService.pollChat(); }
+function logToChatSheet(sender, message) { return ChatService.logToChatSheet(sender, message); }
+function logSystemMessage(text) { return ChatService.logSystemMessage(text); }
+function getChatHistory() { return ChatService.getChatHistory(); }
