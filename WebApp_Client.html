@@ -47,6 +47,20 @@
     .patient-item.selected .sub-text, .patient-item.selected strong { color: white; }
     .patient-item.selected .pi-meta, .patient-item.selected .pi-meta span { color: rgba(255,255,255,0.9) !important; }
     
+    .patient-item.unread {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 4px solid #f59e0b;
+      animation: pulse-new 2s ease-in-out infinite;
+    }
+    body.dark-mode .patient-item.unread {
+      background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+      border-left-color: #fbbf24;
+    }
+    @keyframes pulse-new {
+      0%, 100% { opacity: 1; transform: translateX(0); }
+      50% { opacity: 0.9; transform: translateX(2px); }
+    }
+    
     .pi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
     .pi-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
     .pi-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); align-items: center; }
@@ -60,11 +74,24 @@
     .pi-urgent { color: var(--danger); font-size: 14px; margin-right: 4px; }
 
     .chat-section { height: 280px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-    .chat-header { padding: 10px 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); }
+    .chat-header { 
+      padding: 12px 15px; 
+      font-size: 12px; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+    .chat-header span { color: white; opacity: 0.95; }
     .chat-msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
     .msg { max-width: 90%; padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; }
     .msg.in { align-self: flex-start; background: var(--bg-input); color: var(--text-main); border-bottom-left-radius: 2px; }
     .msg.out { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+    .msg.system { align-self: center; background: #f59e0b; color: white; font-weight: 600; font-size: 12px; max-width: 95%; text-align: center; }
     .msg-sender { font-weight: 700; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
     .chat-input-box { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
     .user-footer { padding: 12px 15px; background: var(--bg-input); border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
@@ -91,7 +118,6 @@
     .dash-section-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; display:flex; align-items:center; gap:10px; }
     .archive-box { border-top: 1px dashed var(--border); padding-top: 30px; }
 
-    /* MAIN CARD & FORMS */
     .main-card { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; }
     .mc-header { padding: 25px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .mc-title h1 { font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
@@ -129,10 +155,14 @@
     .loader-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; }
     .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-box { background: var(--bg-panel); width: 90%; max-width: 420px; border-radius: 16px; padding: 25px; transform: scale(0.95); transition: transform 0.2s; border: 1px solid var(--border); }
+    .modal-box { background: var(--bg-panel); width: 90%; max-width: 480px; border-radius: 16px; padding: 30px; transform: scale(0.95); transition: transform 0.2s; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
     .modal-overlay.active .modal-box { transform: scale(1); }
+    .modal-box h3 { text-align: center; margin-bottom: 10px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
     .toast.success { background: var(--success); }
@@ -144,12 +174,13 @@
     .record-meta-time { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
   </style>
 </head>
-<body class="dark-mode" onclick="unmuteAudio()">
+<body class="dark-mode">
 
   <div id="security-overlay" class="loader-overlay">
     <div id="loader-msg" style="text-align:center;">
       <div class="spinner" style="margin: 0 auto 20px auto;"></div>
       <h3 style="font-size:18px; font-weight:500; margin-top:20px;">Loading CWC Dashboard...</h3>
+      <p id="load-status" style="font-size:14px; opacity:0.7; margin-top:10px;">Initializing...</p>
     </div>
     <div id="access-denied" class="hidden" style="text-align:center;"></div>
   </div>
@@ -180,7 +211,7 @@
       <div id="list-wrapper" class="list-container"></div>
       <div class="chat-section">
         <div class="chat-header">
-          <span id="chat-title">Team Chat</span>
+          <span id="chat-title">💬 Team Chat</span>
           <span style="cursor:pointer;" onclick="refreshChat()" title="Refresh">↻</span>
         </div>
         <div id="chat-messages" class="chat-msgs"></div>
@@ -240,7 +271,6 @@
             <div class="mc-title"><h1 id="d-name">Patient</h1><div class="mc-subtitle"><span id="d-prn">PRN</span><div id="d-ext-status" style="display:flex; gap:8px;"></div></div></div>
             <div style="text-align:right;">
               <span id="d-status" class="status-chip chip-new">New</span>
-              <!-- NEW: DATE/TIME DISPLAY ON RECORD -->
               <div id="d-time" class="record-meta-time"></div>
               <div style="margin-top:8px; text-align:right;"><button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeDetail()">Close ✕</button></div>
             </div>
@@ -277,7 +307,6 @@
               </div>
             </div>
             <div id="view-pharm-container" class="hidden form-scroll-area">
-               <!-- UPDATED PHARMACY READ ONLY VIEW WITH ALL FIELDS & SSN SECURITY -->
                <div id="pharm-info-card" class="ro-container"></div>
                
                <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:12px; margin:30px 0 15px 0;">Pharmacy Actions</h4>
@@ -303,8 +332,32 @@
   <div id="toast" class="toast">Notification</div>
 
   <script>
-    let STATE = { records: [], archives: [], user: {}, currentList: 'active', chatHistory: [], lastRecordCount: 0, blur: true, externalStatus: {}, analytics: {}, sortOrder: 'dateDesc' };
+    // ROBUST STATE with safe defaults
+    let STATE = { 
+      records: [], 
+      archives: [], 
+      user: { email: '', defaultRole: 'CWC', roles: ['CWC'] }, 
+      currentList: 'active', 
+      chatHistory: [], 
+      lastRecordCount: 0, 
+      blur: true, 
+      externalStatus: {}, 
+      analytics: {}, 
+      sortOrder: 'dateDesc',
+      selectedId: null,
+      dataHash: '',
+      unreadIds: new Set(),
+      audioUnlocked: false,
+      newEntrySound: null
+    };
+    
     let pollInterval;
+    
+    function updateLoadStatus(msg) {
+      const el = document.getElementById('load-status');
+      if (el) el.innerText = msg;
+      console.log('LOAD:', msg);
+    }
     
     function toast(msg, type = 'default') { 
       const t = document.getElementById('toast');
@@ -317,26 +370,44 @@
       const map = {
         'dob': 'Date of Birth', 'ssn': 'SSN', 'prn': 'PRN',
         'insuranceId': 'Insurance ID', 'insuranceName': 'Insurance',
-        'medicationDetails': 'Medication', 'status': 'Status'
+        'medicationDetails': 'Medication', 'status': 'Prescription Status',
+        'sex': 'Sex', 'phoneNumber': 'Phone Number', 'address': 'Address',
+        'pharmacy': 'Pharmacy', 'provider': 'Provider'
       };
       if (map[name]) return map[name];
       return name.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); });
     }
 
     function showDialog(title, msg, isList = false) {
-       document.getElementById('modal-title').innerText = title;
+       const titleEl = document.getElementById('modal-title');
+       const msgEl = document.getElementById('modal-msg');
+       
        if (isList) {
+         titleEl.innerHTML = `<span style="font-size:48px; display:block; margin-bottom:10px;">⚠️</span>${title}`;
          const items = msg.split(',').map(s => s.trim());
-         let html = '<p style="margin-bottom:10px;">Please fill in the following required fields:</p><ul style="padding-left:20px; line-height:1.6;">';
-         items.forEach(i => html += `<li>${formatFieldName(i)}</li>`);
-         html += '</ul>';
-         document.getElementById('modal-msg').innerHTML = html;
+         
+         let html = `
+           <div style="background:#fef2f2; border:2px solid #dc2626; border-radius:12px; padding:20px; margin-bottom:15px;">
+             <p style="margin:0 0 15px 0; font-weight:600; color:#991b1b; font-size:15px;">
+               ⛔ Cannot submit - Please complete the following required fields:
+             </p>
+             <ul style="margin:0; padding-left:25px; line-height:2.2; color:#7f1d1d;">
+         `;
+         items.forEach(i => {
+           html += `<li style="font-weight:600; font-size:14px;"><strong>${formatFieldName(i)}</strong></li>`;
+         });
+         html += '</ul></div>';
+         html += '<p style="font-size:13px; color:var(--text-muted); text-align:center;">All fields must be completed before submitting to Pharmacy.</p>';
+         msgEl.innerHTML = html;
        } else {
-         document.getElementById('modal-msg').innerHTML = msg;
+         titleEl.innerText = title;
+         msgEl.innerHTML = msg;
        }
+       
        document.getElementById('custom-modal').classList.add('active');
        document.getElementById('btn-modal-cancel').classList.add('hidden');
     }
+    
     function closeModal() { document.getElementById('custom-modal').classList.remove('active'); }
     function confirmModal() { closeModal(); }
     function toggleSSN() { const i = document.getElementById('inp-ssn'); i.type = i.type==='password'?'text':'password'; }
@@ -347,36 +418,131 @@
       (arr||[]).forEach(v => { const o = document.createElement('option'); o.value=v; o.innerText=v; s.appendChild(o); }); 
     }
 
+    function unlockAudio() {
+      if (STATE.audioUnlocked || !STATE.newEntrySound) return;
+      
+      STATE.newEntrySound.volume = 0;
+      const playPromise = STATE.newEntrySound.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          STATE.newEntrySound.pause();
+          STATE.newEntrySound.currentTime = 0;
+          STATE.newEntrySound.volume = 1;
+          STATE.audioUnlocked = true;
+          console.log("✅ Audio unlocked");
+          document.body.removeEventListener('click', unlockAudio);
+        }).catch(err => {
+          console.warn("Audio unlock failed:", err);
+        });
+      }
+    }
+
     window.onload = init;
 
     function init() {
-      loadSettings();
-      google.script.run.withSuccessHandler(dataRaw => {
-        const data = JSON.parse(dataRaw);
-        if(data.error) { document.getElementById('access-denied').innerHTML = `<h3>${data.error}</h3>`; document.getElementById('access-denied').classList.remove('hidden'); return; }
+      try {
+        updateLoadStatus('Loading settings...');
+        loadSettings();
         
-        STATE = Object.assign(STATE, {
-          records: data.activeRecords || [],
-          archives: data.archivedRecords || [],
-          user: data.user || {},
-          chatHistory: data.chatHistory || [],
-          lastRecordCount: data.activeRecords ? data.activeRecords.length : 0,
-          externalStatus: data.externalStatus || {},
-          analytics: data.analytics || {}
-        });
+        updateLoadStatus('Setting up audio...');
+        document.body.addEventListener('click', unlockAudio, { once: true });
+        
+        updateLoadStatus('Requesting data from server...');
+        
+        google.script.run
+          .withSuccessHandler(dataRaw => {
+            try {
+              updateLoadStatus('Parsing server response...');
+              const data = JSON.parse(dataRaw);
+              
+              if(data.error) { 
+                updateLoadStatus('Access denied');
+                document.getElementById('loader-msg').classList.add('hidden');
+                document.getElementById('access-denied').innerHTML = `<h3>${data.error}</h3>`; 
+                document.getElementById('access-denied').classList.remove('hidden'); 
+                return; 
+              }
+              
+              updateLoadStatus('Loading state...');
+              STATE = Object.assign(STATE, {
+                records: data.activeRecords || [],
+                archives: data.archivedRecords || [],
+                user: data.user || STATE.user,
+                chatHistory: data.chatHistory || [],
+                lastRecordCount: data.activeRecords ? data.activeRecords.length : 0,
+                externalStatus: data.externalStatus || {},
+                analytics: data.analytics || {},
+                dataHash: data.dataHash || ''
+              });
 
-        document.getElementById('user-email').innerText = STATE.user.email;
-        document.getElementById('user-role-display').innerText = STATE.user.defaultRole;
-        
-        const dd = data.config.dropdowns || {};
-        ['pharmacy','medication','insurance','needsScript','provider','status','sex'].forEach(k => populateSelect('opt-'+k, dd[k]));
-        populateSelect('opt-insurance-update', dd.insurance);
-        
-        setupRoleView(); renderList(); renderChat(); updateKPIs();
-        document.getElementById('security-overlay').classList.add('hidden');
-        document.getElementById('app-container').classList.add('visible');
-        startPolling();
-      }).getInitialData();
+              updateLoadStatus('Initializing sound...');
+              if(data.config && data.config.soundAlertData) {
+                try {
+                  STATE.newEntrySound = new Audio(data.config.soundAlertData);
+                  STATE.newEntrySound.load();
+                  console.log("🔊 Sound initialized");
+                } catch(e) {
+                  console.error("Sound init failed:", e);
+                }
+              }
+
+              updateLoadStatus('Setting user info...');
+              document.getElementById('user-email').innerText = STATE.user.email;
+              document.getElementById('user-role-display').innerText = STATE.user.defaultRole;
+              
+              updateLoadStatus('Loading dropdowns...');
+              const dd = (data.config && data.config.dropdowns) || {};
+              ['pharmacy','medication','insurance','needsScript','provider','status','sex'].forEach(k => {
+                populateSelect('opt-'+k, dd[k]);
+              });
+              populateSelect('opt-insurance-update', dd.insurance);
+              
+              updateLoadStatus('Setting up views...');
+              setupRoleView(); 
+              
+              updateLoadStatus('Rendering list...');
+              renderList(); 
+              
+              updateLoadStatus('Loading chat...');
+              renderChat(); 
+              
+              updateLoadStatus('Updating KPIs...');
+              updateKPIs();
+              
+              updateLoadStatus('Starting polling...');
+              startPolling();
+              
+              updateLoadStatus('Complete!');
+              document.getElementById('security-overlay').classList.add('hidden');
+              document.getElementById('app-container').classList.add('visible');
+              
+              console.log('✅ Init complete!', STATE);
+            } catch(parseError) {
+              console.error('Parse error:', parseError);
+              updateLoadStatus('Error parsing data: ' + parseError.message);
+              setTimeout(() => {
+                document.getElementById('access-denied').innerHTML = `<h3>Error loading data</h3><p>${parseError.message}</p>`;
+                document.getElementById('loader-msg').classList.add('hidden');
+                document.getElementById('access-denied').classList.remove('hidden');
+              }, 1000);
+            }
+          })
+          .withFailureHandler(error => {
+            console.error('Server error:', error);
+            updateLoadStatus('Server error: ' + error.message);
+            setTimeout(() => {
+              document.getElementById('access-denied').innerHTML = `<h3>Server Error</h3><p>${error.message}</p>`;
+              document.getElementById('loader-msg').classList.add('hidden');
+              document.getElementById('access-denied').classList.remove('hidden');
+            }, 1000);
+          })
+          .getInitialData();
+          
+      } catch (initError) {
+        console.error('Init error:', initError);
+        updateLoadStatus('Initialization error: ' + initError.message);
+      }
     }
     
     function loadSettings() {
@@ -396,8 +562,7 @@
     function forceRefresh() {
       toggleLoader(true);
       closeDetail();
-      init(); 
-      toast('Data Refreshed', 'success');
+      location.reload();
     }
 
     function setupRoleView() {
@@ -407,7 +572,6 @@
        document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1);
        
        const isPharm = r === 'PHARMACY';
-       // UPDATED: Rename Archive Tab for Pharmacy
        document.getElementById('tab-secondary').innerText = isPharm ? 'Completed' : 'Archive';
        
        document.getElementById('view-cwc-container').classList.toggle('hidden', isPharm);
@@ -417,35 +581,29 @@
        document.getElementById('btn-outreach').classList.toggle('hidden', isPharm);
        document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
        
-       const chatTitle = isPharm ? "CWC Chat" : "Pharmacy Chat";
-       document.getElementById('chat-title').innerText = chatTitle;
+       const chatTitle = isPharm ? "💬 CWC Chat" : "💬 Pharmacy Chat";
+       document.getElementById('chat-title').innerHTML = chatTitle;
     }
 
     function renderList() {
-      const el = document.getElementById('list-wrapper'); el.innerHTML = '';
+      const el = document.getElementById('list-wrapper'); 
+      el.innerHTML = '';
       const term = (document.getElementById('search').value || '').toLowerCase();
       
       let src;
-      // FILTERING LOGIC
       if (STATE.currentList === 'secondary') {
-         // ARCHIVE/COMPLETED TAB
          if (STATE.user.defaultRole === 'PHARMACY') {
-            // Pharmacy: Use records from ACTIVE sheet that are marked complete
             src = STATE.records.filter(r => r.workflowStatus === 'Pharmacy Update Received');
          } else {
-            // CWC: Use actual archived records
             src = STATE.archives;
          }
       } else {
-         // ACTIVE TAB
          src = STATE.records;
          if (STATE.user.defaultRole === 'PHARMACY') {
-            // Pharmacy sees only what was submitted to them
             src = src.filter(r => r.workflowStatus === 'Submitted to Pharmacy');
          }
       }
       
-      // Sort
       src.sort((a, b) => {
         if (STATE.sortOrder === 'nameAsc') {
            const nA = (a.patientName || '').toLowerCase(), nB = (b.patientName || '').toLowerCase();
@@ -457,7 +615,6 @@
         }
       });
 
-      // Search
       const filtered = src.filter(r => {
          return Object.values(r).some(val => String(val).toLowerCase().includes(term));
       });
@@ -465,13 +622,16 @@
       filtered.forEach(r => {
         const div = document.createElement('div');
         const isSelected = STATE.selectedId === r.rowNum;
-        if(isSelected) div.classList.add('selected');
+        const isUnread = STATE.unreadIds.has(r.rowNum);
         const shouldBlur = STATE.blur && !isSelected;
-        div.className = 'patient-item ' + (isSelected ? 'selected' : '');
+        
+        div.className = 'patient-item ' + 
+                        (isSelected ? 'selected' : '') + 
+                        (isUnread && !isSelected ? ' unread' : '');
         div.onclick = () => loadDetail(r);
         
         let extBadges = '';
-        const k = r.prn ? r.prn.toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
+        const k = r.prn ? String(r.prn).toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
         if(k && STATE.externalStatus[k]) {
            STATE.externalStatus[k].forEach(s => { extBadges += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
         }
@@ -513,13 +673,14 @@
     }
 
     function loadDetail(r) {
+      STATE.unreadIds.delete(r.rowNum);
+      
       document.getElementById('dashboard-view').style.display = 'none';
       document.getElementById('detail-card').classList.remove('hidden');
       document.getElementById('d-name').innerText = r.patientName;
       document.getElementById('d-prn').innerText = r.prn;
       document.getElementById('d-status').innerText = r.workflowStatus || 'New Entry';
       
-      // NEW: RECORD HEADER TIME
       let timeStr = '';
       if(r.timestamp) {
         const d = new Date(r.timestamp);
@@ -527,8 +688,9 @@
       }
       document.getElementById('d-time').innerText = timeStr;
 
-      const badgesDiv = document.getElementById('d-ext-status'); badgesDiv.innerHTML = '';
-      const k = r.prn ? r.prn.toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
+      const badgesDiv = document.getElementById('d-ext-status'); 
+      badgesDiv.innerHTML = '';
+      const k = r.prn ? String(r.prn).toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
       if(k && STATE.externalStatus[k]) {
          STATE.externalStatus[k].forEach(s => { badgesDiv.innerHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
       }
@@ -537,11 +699,9 @@
       renderList();
       
       const form = document.getElementById('patient-form');
-      // --- ARCHIVE READ ONLY CHECK ---
       const isArchive = STATE.currentList === 'secondary';
       
       Array.from(form.elements).forEach(el => {
-         // Disable inputs if in archive view
          el.disabled = isArchive;
          
          if(el.name && r[el.name]!==undefined) {
@@ -558,15 +718,14 @@
             }
          }
       });
+      
       if(document.getElementById('chk-priority')) {
          const cb = document.getElementById('chk-priority');
          cb.checked = (r.priority === 'Urgent');
          cb.disabled = isArchive;
       }
 
-      // Hide action bar if archive
       document.querySelector('.action-bar').classList.toggle('hidden', isArchive);
-
 
       if(STATE.user.defaultRole === 'PHARMACY') {
         const dob = r.dob ? new Date(r.dob).toLocaleDateString() : 'N/A';
@@ -578,9 +737,7 @@
             <div class="ro-field"><div class="ro-label">PRN</div><div class="ro-value">${r.prn||'N/A'}</div></div>
             <div class="ro-field"><div class="ro-label">Phone</div><div class="ro-value">${r.phoneNumber||'N/A'}</div></div>
             <div class="ro-field"><div class="ro-label">DOB</div><div class="ro-value">${dob}</div></div>
-            
             <div class="ro-field"><div class="ro-label">Sex</div><div class="ro-value">${r.sex||'N/A'}</div></div>
-            
             <div class="ro-field">
               <div class="ro-label">SSN</div>
               <div class="ro-value" style="display:flex; align-items:center; gap:8px;">
@@ -588,7 +745,6 @@
                 <span style="cursor:pointer; opacity:0.6;" onclick="const el=document.getElementById('pharm-ssn-view'); el.type=el.type==='password'?'text':'password';">👁</span>
               </div>
             </div>
-            
             <div class="ro-field"><div class="ro-label">Address</div><div class="ro-value">${r.address||'N/A'}</div></div>
             <div class="ro-field"><div class="ro-label">Reason</div><div class="ro-value">${r.reason||'N/A'}</div></div>
           </div></div>
@@ -634,7 +790,7 @@
          const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
          const missing = req.filter(k => !d[k] || d[k] === '' || d[k] === '-- Select --');
          if (missing.length > 0) { 
-           showDialog("Missing Information", missing.join(','), true); 
+           showDialog("Missing Required Information", missing.join(','), true); 
            return; 
          }
        }
@@ -649,19 +805,35 @@
          toggleLoader(false);
          if(res.error) toast(res.error, 'alert');
          else {
-           STATE.records = res.allRecords; STATE.chatHistory = res.chatHistory; STATE.analytics = res.analytics || STATE.analytics;
-           renderList(); renderChat(); updateKPIs(); toast('Saved', 'success');
-           if(STATE.selectedId) { const r = STATE.records.find(x=>x.rowNum===STATE.selectedId); if(r) loadDetail(r); }
+           STATE.records = res.allRecords; 
+           STATE.chatHistory = res.chatHistory || STATE.chatHistory; 
+           STATE.analytics = res.analytics || STATE.analytics;
+           STATE.dataHash = res.dataHash || STATE.dataHash;
+           
+           renderList(); 
+           renderChat(); 
+           updateKPIs(); 
+           toast('✅ ' + action + ' successful!', 'success');
+           
+           if(STATE.selectedId) { 
+             const r = STATE.records.find(x=>x.rowNum===STATE.selectedId); 
+             if(r) loadDetail(r); 
+           }
          }
        })[fn](STATE.selectedId, d);
     }
 
     function addRecord(e) {
-      e.stopPropagation(); toggleLoader(true);
+      e.stopPropagation(); 
+      toggleLoader(true);
       google.script.run.withSuccessHandler(res => {
          toggleLoader(false);
          if(res.error) toast(res.error, 'alert');
-         else { STATE.records = res.allRecords; renderList(); toast('Created', 'success'); }
+         else { 
+           STATE.records = res.allRecords; 
+           renderList(); 
+           toast('✅ New record created!', 'success'); 
+         }
       }).addOutreachRecord();
     }
     
@@ -672,8 +844,10 @@
         if(res.error) toast(res.error, 'alert');
         else {
            const link = document.createElement('a');
-           link.href = res.url; link.target = '_blank'; link.click();
-           toast('Opening PDF...', 'success');
+           link.href = res.url; 
+           link.target = '_blank'; 
+           link.click();
+           toast('📄 Opening PDF...', 'success');
         }
       }).getPDFDownloadUrl();
     }
@@ -689,35 +863,101 @@
     }
     
     function renderChat() {
-      const c = document.getElementById('chat-messages'); c.innerHTML = '';
+      const c = document.getElementById('chat-messages'); 
+      c.innerHTML = '';
       STATE.chatHistory.forEach(m => {
         const div = document.createElement('div');
         const isMe = m.sender === STATE.user.email;
-        div.className = `msg ${isMe ? 'out' : 'in'}`;
+        const isSystem = m.sender === 'System';
+        
+        div.className = `msg ${isSystem ? 'system' : (isMe ? 'out' : 'in')}`;
         
         const timeStr = m.time && m.time !== '...' ? m.time.split(' ')[1] : '';
-        div.innerHTML = `
-          <div class="msg-sender">${m.sender.split('@')[0]} <span style="float:right; font-weight:400; opacity:0.7;">${timeStr}</span></div>
-          ${m.text}
-        `;
+        
+        if(isSystem) {
+          div.innerHTML = `🤖 ${m.text}`;
+        } else {
+          div.innerHTML = `
+            <div class="msg-sender">${m.sender.split('@')[0]} <span style="float:right; font-weight:400; opacity:0.7;">${timeStr}</span></div>
+            ${m.text}
+          `;
+        }
         c.appendChild(div);
       });
       c.scrollTop = c.scrollHeight;
     }
     
-    function refreshChat() { google.script.run.withSuccessHandler(h => { STATE.chatHistory = h; renderChat(); }).pollChat(); }
+    function refreshChat() { 
+      google.script.run.withSuccessHandler(h => { 
+        STATE.chatHistory = h; 
+        renderChat(); 
+      }).pollChat(); 
+    }
 
     function startPolling() {
+      const pollDelay = STATE.user.defaultRole === 'PHARMACY' ? 5000 : 10000;
+      
+      console.log(`🔄 Starting polling every ${pollDelay/1000}s`);
+      
       pollInterval = setInterval(() => {
-         google.script.run.withSuccessHandler(res => {
-            if(res.hasNew) {
-               STATE.records.push(...res.newRecords);
-               STATE.lastRecordCount = res.currentRecordCount;
-               renderList(); updateKPIs(); toast('New Record!', 'alert');
-            }
-         }).checkForNewRecords(STATE.lastRecordCount);
+         console.log(`📡 Polling... Client count: ${STATE.lastRecordCount}, Hash: ${STATE.dataHash ? STATE.dataHash.substring(0,8) : 'none'}`);
+         
+         google.script.run
+           .withSuccessHandler(res => {
+              console.log('📥 Poll response:', res);
+              
+              if(res.hasNew && res.newRecords && res.newRecords.length > 0) {
+                 console.log(`✅ NEW RECORDS: ${res.newRecords.length} records`);
+                 
+                 res.newRecords.forEach(r => {
+                   console.log(`  - Adding record ${r.rowNum}: ${r.patientName}`);
+                   STATE.unreadIds.add(r.rowNum);
+                   STATE.records.push(r);
+                 });
+                 
+                 STATE.lastRecordCount = res.currentRecordCount;
+                 STATE.dataHash = res.dataHash || STATE.dataHash;
+                 
+                 console.log('🔊 Playing sound alert...');
+                 if(STATE.newEntrySound && STATE.audioUnlocked) {
+                   STATE.newEntrySound.currentTime = 0;
+                   STATE.newEntrySound.play().catch(e => console.log("Audio blocked:", e));
+                 } else {
+                   console.log('⚠️ Sound not ready:', {sound: !!STATE.newEntrySound, unlocked: STATE.audioUnlocked});
+                 }
+                 
+                 console.log('🎨 Rendering list...');
+                 renderList(); 
+                 updateKPIs(); 
+                 toast('🚨 New Patient Submission!', 'alert');
+              } else if (res.hasNew) {
+                 console.log('⚠️ hasNew is true but no newRecords array');
+              }
+              
+              if(res.hasUpdates && res.allRecords) {
+                 console.log(`✅ UPDATES: ${res.allRecords.length} records`);
+                 STATE.records = res.allRecords;
+                 STATE.dataHash = res.dataHash || STATE.dataHash;
+                 
+                 renderList();
+                 updateKPIs();
+                 
+                 if(STATE.user.defaultRole === 'PHARMACY') {
+                   toast('📝 Record updated', 'success');
+                 }
+              }
+              
+              if(!res.hasNew && !res.hasUpdates) {
+                 console.log('ℹ️ No changes detected');
+              }
+           })
+           .withFailureHandler(err => {
+              console.error('❌ Poll failed:', err);
+           })
+           .checkForNewRecords(STATE.lastRecordCount, STATE.dataHash);
+         
          refreshChat();
-      }, 10000);
+      }, pollDelay);
     }
 
     function updateKPIs() {
@@ -761,58 +1001,29 @@
       localStorage.setItem('cwc_dark_mode', isDark);
     }
 
-    function toggleBlur() { STATE.blur = !STATE.blur; localStorage.setItem('cwc_blur_enabled', STATE.blur); renderList(); toast(STATE.blur?'PHI Blur On':'PHI Blur Off'); }
-    function switchRole() { STATE.user.defaultRole = STATE.user.defaultRole==='CWC'?'PHARMACY':'CWC'; setupRoleView(); closeDetail(); renderList(); toast('Switched View'); }
-    function unmuteAudio() {
-        if (STATE.audioUnlocked || !STATE.newEntrySound) return;
-        
-        // Play and pause immediately to establish user interaction context
-        STATE.newEntrySound.volume = 0;
-        const playPromise = STATE.newEntrySound.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                STATE.newEntrySound.pause();
-                STATE.newEntrySound.volume = 1;
-                STATE.audioUnlocked = true;
-                console.log("Audio Unlocked successfully.");
-                document.body.onclick = null; // Remove the listener after success
-            }).catch(error => {
-                console.warn("Audio unlock failed, sound alerts may be disabled by browser policy.", error);
-            });
-        }
+    function toggleBlur() { 
+      STATE.blur = !STATE.blur; 
+      localStorage.setItem('cwc_blur_enabled', STATE.blur); 
+      renderList(); 
+      toast(STATE.blur?'👁 PHI Blur Enabled':'👁 PHI Blur Disabled'); 
     }
-
-
-             // Initialize the new entry sound
-             if (STATE.config.soundAlertData) {
-                 STATE.newEntrySound = new Audio(STATE.config.soundAlertData);
-                 // Preload the sound file
-                 STATE.newEntrySound.load(); 
-             }
-             
-             console.log('User:', STATE.user);
-             console.log('Records:', STATE.records.length);
-             
-             document.getElementById('user-email').innerText = STATE.user.email;
-             document.getElementById('user-role-display').innerText = STATE.user.defaultRole;
-             
-             const dd = data.config.dropdowns || {};
-             ['sex','pharmacy','provider','medication','status','insurance','needsScript'].forEach(k => {
-               populateSelect('opt-'+k, dd[k]||[]);
-             });
-             populateSelect('opt-insurance-update', dd.insurance||[]);
-             
-             setupRoleView(); 
-             renderList(); 
-             renderChat(); 
-             showDashboard(); 
-             updateKPICards(); 
-             renderTimeline(); 
-             initNotificationCenter();
-             
-             document.getElementById('security-overlay').classList.add('hidden');
-             document.getElementById('app-container').classList.add('visible');
+    
+    function switchRole() { 
+      const wasOpen = STATE.selectedId;
+      STATE.user.defaultRole = STATE.user.defaultRole==='CWC'?'PHARMACY':'CWC'; 
+      setupRoleView(); 
+      closeDetail(); 
+      renderList(); 
+      
+      if(wasOpen) {
+        const record = STATE.records.find(r => r.rowNum === wasOpen);
+        if(record) {
+          setTimeout(() => loadDetail(record), 100);
+        }
+      }
+      
+      toast('⇄ Switched to ' + STATE.user.defaultRole + ' View', 'success'); 
+    }
   </script>
 </body>
 </html>
