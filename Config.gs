@@ -1,6 +1,6 @@
 /**
  * CONFIGURATION
- * Updated: Restored Google Chat Webhook for Notifications
+ * FIXED: Added ID column, proper sound profile for new entries
  */
 const CONFIG = {
   ADMIN_EMAIL: "pierremontalvo@continentalwellnesscenter.com",
@@ -36,6 +36,7 @@ const CONFIG = {
   },
 
   COLUMNS_BY_NAME: {
+    id: 'ID',  // ADDED: Unique record identifier
     timestamp: 'Timestamp',
     creatorEmail: 'CWC Staff', 
     priority: 'Priority', 
@@ -84,12 +85,15 @@ const CONFIG = {
   ACTIVITY_LIMIT: 20,
   KPI_ANIMATION_DURATION: 1000,
   
-  // Sound Alert Data (A simple, high-pitched ding sound)
+  // Sound Alert Data URI - A clear notification chime
+  SOUND_ALERT_DATA: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkJOOhHdwa3B5hpGZmpiPgnZua3J/jJifoZyRhXlxcHiEkZujpaKZjYF2cXN8iZOdpKaglo2DeHV1fIWSmp+hnpiPh394eH2FjpWYmZeUjoeCfnx+g4qQlJaVko2IhIF/f4KGi46RkY+NioeDgYGChoeKjI2MioiGhIOCgoOFh4mKioqIhoWEg4ODhIWGh4iIh4aFhIODg4OEhYaGhoaFhISDg4ODg4SFhYWFhYSEg4ODg4ODhISEhISEhIODg4ODg4ODg4SDg4ODg4ODg4ODg4ODg4ODg4OD",
+  
+  // Sound profiles for different alert types
   SOUND_PROFILES: {
     urgent: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     alert: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     notice: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     chime: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
-    newEntryAlert: "data:audio/wav;base64,UklGRmRzQ19XQVZFZm10IBAAAAABAAEARKwAAABKAAABAAIAZGF0YUIAAAAAAABhAAAIb21aYmV3fFwAAAAAASJvG4gR6h3kGf4zUvUAAAAAACEkH1Yf83/H/1xP9G1Gg6h3kGf4zUvUAAAAAA" // A distinct, short "pop" sound
+    newEntry: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkJOOhHdwa3B5hpGZmpiPgnZua3J/jJifoZyRhXlxcHiEkZujpaKZjYF2cXN8iZOdpKaglo2DeHV1fIWSmp+hnpiPh394eH2FjpWYmZeUjoeCfnx+g4qQlJaVko2IhIF/f4KGi46RkY+NioeDgYGChoeKjI2MioiGhIOCgoOFh4mKioqIhoWEg4ODhIWGh4iIh4aFhIODg4OEhYaGhoaFhISDg4ODg4SFhYWFhYSEg4ODg4ODhISEhISEhIODg4ODg4ODg4SDg4ODg4ODg4ODg4ODg4ODg4OD"
   }
 };
