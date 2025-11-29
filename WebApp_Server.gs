@@ -1,6 +1,6 @@
 /**
  * Server-side backend for Web App interactions.
- * Updated: Robust Data Fetching for Active & Archive
+ * FIXED: Enhanced checkForNewRecords with data hash, proper system message logging
  */
 function doGet() {
   const check = checkUserAccess();
@@ -71,7 +71,23 @@ function checkUserAccess() {
 }
 
 function getInitialData() {
-  let response = { error: null, user: null, activeRecords: [], archivedRecords: [], chatHistory: [], config: { flags: CONFIG.FLAGS, dropdowns: {} }, externalStatus: {}, recentActivities: [], analytics: {} };
+  let response = { 
+    error: null, 
+    user: null, 
+    activeRecords: [], 
+    archivedRecords: [], 
+    chatHistory: [], 
+    config: { 
+      flags: CONFIG.FLAGS, 
+      dropdowns: {},
+      soundAlertData: CONFIG.SOUND_ALERT_DATA  
+    }, 
+    externalStatus: {}, 
+    recentActivities: [], 
+    analytics: {},
+    dataHash: ''
+  };
+  
   try {
     const access = checkUserAccess();
     if (!access.allowed) { response.error = access.reason; return JSON.stringify(response); }
@@ -83,12 +99,16 @@ function getInitialData() {
       const settingsSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SETTINGS);
       if (settingsSheet) {
         response.config.dropdowns = {
-          pharmacy: getColData(settingsSheet, 'C'), provider: getColData(settingsSheet, 'D'),
-          medication: getColData(settingsSheet, 'E'), status: getColData(settingsSheet, 'F'),
-          insurance: getColData(settingsSheet, 'G'), needsScript: getColData(settingsSheet, 'H'), sex: getColData(settingsSheet, 'I')
+          pharmacy: getColData(settingsSheet, 'C'), 
+          provider: getColData(settingsSheet, 'D'),
+          medication: getColData(settingsSheet, 'E'), 
+          status: getColData(settingsSheet, 'F'),
+          insurance: getColData(settingsSheet, 'G'), 
+          needsScript: getColData(settingsSheet, 'H'), 
+          sex: getColData(settingsSheet, 'I')
         };
       }
-    } catch(e) {}
+    } catch(e) { console.error("Settings Error: " + e.message); }
 
     try {
       const activeSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
@@ -97,22 +117,22 @@ function getInitialData() {
         const headerMap = createHeaderMap(data[0]);
         response.activeRecords = getUnifiedPatientData(data, headerMap, false, 2);
       }
-    } catch(e) {}
+    } catch(e) { console.error("Active Records Error: " + e.message); }
 
     try {
       const archiveSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ARCHIVED);
       if (archiveSheet && archiveSheet.getLastRow() > 1) {
         const data = archiveSheet.getDataRange().getValues();
         const headerMap = createHeaderMap(data[0]);
-        // IMPORTANT: Load FULL data for archives
         response.archivedRecords = getUnifiedPatientData(data, headerMap, false, 2);
       }
-    } catch(e) {}
+    } catch(e) { console.error("Archive Records Error: " + e.message); }
 
-    try { response.chatHistory = getChatHistory(); } catch(e) {}
-    try { response.externalStatus = fetchExternalStatus(); } catch(e) { console.error("Ext Status Error", e); }
-    try { response.recentActivities = getRecentActivities(); } catch(e) {}
-    try { response.analytics = getAnalytics(); } catch(e) { console.error("Analytics Error", e); }
+    try { response.chatHistory = ChatService.getChatHistory(); } catch(e) { console.error("Chat Error: " + e.message); }
+    try { response.externalStatus = fetchExternalStatus(); } catch(e) { console.error("Ext Status Error: " + e.message); }
+    try { response.recentActivities = getRecentActivities(); } catch(e) { console.error("Activities Error: " + e.message); }
+    try { response.analytics = getAnalytics(); } catch(e) { console.error("Analytics Error: " + e.message); }
+    try { response.dataHash = getDataHash(); } catch(e) { console.error("Hash Error: " + e.message); }
 
   } catch (error) { response.error = error.message; }
   return JSON.stringify(response);
@@ -311,6 +331,7 @@ function processUpdate(rowNum, updatedFields, action) {
     const newVals = sheet.getRange(rowNum, 1, 1, headers.length).getValues()[0];
     const updatedRecord = getUnifiedPatientData([headers, newVals], map, false, rowNum)[0];
 
+    // Only log and notify for meaningful actions
     if (changes.length > 0 || action === 'Submit to Pharmacy' || action === 'Pharmacy Update' || action === 'Outreach Update') {
       if(original.workflowStatus !== updatedRecord.workflowStatus) {
         changes.push({row:rowNum, action:action, field:'Status', oldValue:original.workflowStatus, newValue: updatedRecord.workflowStatus});
@@ -325,9 +346,17 @@ function processUpdate(rowNum, updatedFields, action) {
         sendNotificationEmail(targetEmails, updatedRecord, action, changes);
         
         const priority = NotificationEngine.calculatePriority(updatedRecord, action);
-        let logMsg = `ACTION: ${action} | Patient: ${updatedRecord.patientName}`;
-        if (priority === 'CRITICAL' || priority === 'HIGH') logMsg = `🔥 ${logMsg}`;
-        try { logSystemMessage(logMsg); } catch(e) {}
+        
+        // FIXED: Only log system messages for Submit/Update actions, not Save
+        if (action !== 'Save') {
+          let logMsg = `${action} | Patient: ${updatedRecord.patientName} (PRN: ${updatedRecord.prn})`;
+          if (priority === 'CRITICAL' || priority === 'HIGH') logMsg = `🔥 ${logMsg}`;
+          try { 
+            ChatService.logSystemMessage(logMsg); 
+          } catch(e) { 
+            console.error("System msg failed: " + e.message); 
+          }
+        }
 
         const isUrgent = priority === 'CRITICAL' || priority === 'HIGH';
         let actionTitle = '';
@@ -378,22 +407,20 @@ function processUpdate(rowNum, updatedFields, action) {
     
     const allData = sheet.getDataRange().getValues();
     const allRecords = getUnifiedPatientData(allData, map, false, 2);
-    const newDataHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(allRecords)));
+    const newDataHash = getDataHash();
 
     return {
       message: 'Update successful',
       updatedRecord: updatedRecord,
       dataHash: newDataHash,
       allRecords: allRecords,
-      chatHistory: getChatHistory(),
+      chatHistory: ChatService.getChatHistory(),
       recentActivities: getRecentActivities(),
       analytics: getAnalytics()
     };
   } catch (e) { return { error: e.message }; } 
   finally { lock.releaseLock(); }
 }
-
-function addOutreachRecord() { return { message: "Refer to Code.gs for addOutreachRecord implementation" }; }
 
 function getPDFDownloadUrl() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -412,24 +439,142 @@ function getFullArchivedRecord(rowNum) {
   } catch (e) { return { error: e.message }; }
 }
 
-function checkForNewRecords(clientCount) {
+// ADD THIS TO YOUR WebApp_Server.gs - Replace the existing checkForNewRecords function
+
+/**
+ * ENHANCED checkForNewRecords - Detects both NEW records and UPDATES
+ * CRITICAL: This function must be updated for polling to work!
+ */
+function checkForNewRecords(clientCount, clientDataHash) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ACTIVE);
-    if (!sheet) return { hasNew: false, currentRecordCount: 0 };
+    
+    if (!sheet) {
+      Logger.log("❌ Active sheet not found");
+      return { 
+        hasNew: false, 
+        hasUpdates: false, 
+        currentRecordCount: 0, 
+        dataHash: '',
+        debug: 'Sheet not found'
+      };
+    }
+    
     const lastRow = sheet.getLastRow();
     const currentCount = Math.max(0, lastRow - 1);
+    
+    // Calculate current hash
+    let currentHash = '';
+    try {
+      currentHash = getDataHash();
+    } catch(e) {
+      Logger.log("⚠️ getDataHash failed: " + e.message);
+      currentHash = '';
+    }
+    
+    let result = { 
+      hasNew: false, 
+      hasUpdates: false,
+      newRecords: [], 
+      allRecords: [],
+      currentRecordCount: currentCount,
+      dataHash: currentHash,
+      debug: {
+        clientCount: clientCount,
+        serverCount: currentCount,
+        clientHash: clientDataHash ? clientDataHash.substring(0, 8) : 'none',
+        serverHash: currentHash ? currentHash.substring(0, 8) : 'none'
+      }
+    };
+    
+    // Check for NEW records (count increased)
     if (currentCount > clientCount) {
+      Logger.log(`✅ NEW RECORDS DETECTED: Client has ${clientCount}, Server has ${currentCount}`);
+      
       const startRow = 2 + clientCount;
       const numNewRows = currentCount - clientCount;
-      const data = sheet.getDataRange().getDisplayValues();
+      
+      const data = sheet.getDataRange().getValues();
       const headers = data[0];
       const headerMap = createHeaderMap(headers);
+      
       const newData = data.slice(startRow - 1, startRow - 1 + numNewRows);
       const dataWithHeaders = [headers, ...newData];
-      const newRecords = getUnifiedPatientData(dataWithHeaders, headerMap, false, startRow);
-      return { hasNew: true, newRecords: newRecords, currentRecordCount: currentCount };
+      
+      result.newRecords = getUnifiedPatientData(dataWithHeaders, headerMap, false, startRow);
+      result.hasNew = true;
+      
+      Logger.log(`📊 Returning ${result.newRecords.length} new records`);
     }
-    return { hasNew: false, currentRecordCount: currentCount };
-  } catch (e) { return { hasNew: false, currentRecordCount: clientCount }; }
+    
+    // Check for UPDATES (data changed but count same)
+    if (clientDataHash && currentHash && currentHash !== clientDataHash && !result.hasNew) {
+      Logger.log(`✅ UPDATES DETECTED: Hash changed from ${clientDataHash.substring(0,8)} to ${currentHash.substring(0,8)}`);
+      
+      result.hasUpdates = true;
+      
+      // Return ALL records for client to refresh
+      const data = sheet.getDataRange().getValues();
+      const headerMap = createHeaderMap(data[0]);
+      result.allRecords = getUnifiedPatientData(data, headerMap, false, 2);
+      
+      Logger.log(`📊 Returning ${result.allRecords.length} updated records`);
+    }
+    
+    if (!result.hasNew && !result.hasUpdates) {
+      Logger.log(`ℹ️ No changes detected. Count: ${currentCount}, Hash: ${currentHash.substring(0,8)}`);
+    }
+    
+    return result;
+    
+  } catch (e) { 
+    Logger.log(`❌ checkForNewRecords Error: ${e.message}`);
+    Logger.log(`Stack: ${e.stack}`);
+    return { 
+      hasNew: false, 
+      hasUpdates: false, 
+      currentRecordCount: clientCount,
+      dataHash: clientDataHash,
+      error: e.message
+    }; 
+  }
+}   
+
+// Log changes to audit sheet
+function logToAudit(changes, user) {
+  if (!changes || changes.length === 0) return;
+  
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let auditSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.AUDIT_LOG);
+    
+    if (!auditSheet) {
+      auditSheet = ss.insertSheet(CONFIG.SHEET_NAMES.AUDIT_LOG);
+      auditSheet.appendRow(CONFIG.AUDIT_LOG_HEADERS);
+      auditSheet.setFrozenRows(1);
+      
+      // Format header
+      const headerRange = auditSheet.getRange(1, 1, 1, CONFIG.AUDIT_LOG_HEADERS.length);
+      headerRange.setFontWeight('bold');
+      headerRange.setBackground('#4a5568');
+      headerRange.setFontColor('#ffffff');
+    }
+    
+    changes.forEach(change => {
+      const rowData = [
+        new Date(),
+        user,
+        change.row,
+        change.action,
+        change.field,
+        change.oldValue || '',
+        change.newValue || ''
+      ];
+      auditSheet.appendRow(rowData);
+    });
+    
+  } catch(e) {
+    console.error("Audit logging failed: " + e.message);
+  }
 }
