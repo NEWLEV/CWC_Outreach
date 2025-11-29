@@ -1,6 +1,6 @@
 /**
  * CONFIGURATION
- * FIXED: Added ID column, proper sound profile for new entries
+ * FIXED: Added ID column, proper sound profile for new entries, added 'In Office' field.
  */
 const CONFIG = {
   ADMIN_EMAIL: "pierremontalvo@continentalwellnesscenter.com",
@@ -22,7 +22,8 @@ const CONFIG = {
     CHAT_LOG: "Chat Log"
   },
 
-  ROLES: {
+  ROLES: 
+  {
     CWC: 'CWC',
     PHARMACY: 'PHARMACY'
   },
@@ -61,7 +62,8 @@ const CONFIG = {
     insuranceDetail: 'Updated Insurance',
     policyNumber: 'Updated Policy Number',
     workflowStatus: 'Workflow Status',
-    sentTimestamp: 'Notification Sent Timestamp' 
+    sentTimestamp: 'Notification Sent Timestamp',
+    inOffice: 'In Office' // ADDED: New field for In Office checkbox
   },
 
   AUDIT_LOG_HEADERS: ['Timestamp', 'User', 'Row', 'Action', 'Field', 'Old Value', 'New Value'],
@@ -94,6 +96,6 @@ const CONFIG = {
     alert: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     notice: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
     chime: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
-    newEntry: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkJOOhHdwa3B5hpGZmpiPgnZua3J/jJifoZyRhXlxcHiEkZujpaKZjYF2cXN8iZOdpKaglo2DeHV1fIWSmp+hnpiPh394eH2FjpWYmZeUjoeCfnx+g4qQlJaVko2IhIF/f4KGi46RkY+NioeDgYGChoeKjI2MioiGhIOCgoOFh4mKioqIhoWEg4ODhIWGh4iIh4aFhIODg4OEhYaGhoaFhISDg4ODg4SFhYWFhYSEg4ODg4ODhISEhISEhIODg4ODg4ODg4SDg4ODg4ODg4ODg4ODg4ODg4OD"
+    newEntry: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkJOOhHdwa3B5hpGZmpiPgnZua3J/jJifoZyRhXlxcHiEkZujpaKZjYF2cXN8iZOdpKaglo2DeHV1fIWSmp+hnpiPh394eH2FjpWYmZeUjoeCfnx+g4qQlJaVko2IhIF/f4GChoeKjI2MioiGhIOCgoOFh4mKioqIhoWEg4ODhIWGh4iIh4aFhIODg4OEhYaGhoaFhISDg4ODg4SFhYWFhYSEg4ODg4ODhISEhISEhIODg4ODg4ODg4SDg4ODg4ODg4ODg4ODg4ODg4OD"
   }
 };
