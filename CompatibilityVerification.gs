@@ -173,7 +173,7 @@ function verifyCompatibilityBeforeIntegration() {
   console.log('─────────────────────────────────────────────');
   
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = getSafeSpreadsheet();
     
     if (CONFIG && CONFIG.SHEET_NAMES) {
       const requiredSheets = ['ACTIVE', 'SETTINGS', 'CHAT_LOG'];
@@ -224,7 +224,7 @@ function verifyCompatibilityBeforeIntegration() {
     console.log('✅ External URL access (UrlFetchApp) working');
     
     // Test spreadsheet access
-    SpreadsheetApp.getActiveSpreadsheet();
+    getSafeSpreadsheet();
     console.log('✅ Spreadsheet access working');
     
     // Test user info
