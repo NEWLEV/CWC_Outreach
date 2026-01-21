@@ -1,0 +1,624 @@
+<div id="security-overlay" class="loader-overlay">
+  <div id="loader-msg" style="text-align:center;">
+    <div class="spinner" style="margin: 0 auto 20px auto;"></div>
+    <h3 style="font-size:16px; font-weight:600; margin-top:15px;">Initializing...</h3>
+    <p id="load-status" style="font-size:12px; opacity:0.6; margin-top:5px;">Connecting to secure server</p>
+  </div>
+  <div id="access-denied" class="hidden" style="text-align:center;"></div>
+</div>
+
+<div id="custom-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h3 id="modal-title" style="margin:0 0 15px 0; font-size:18px; font-weight:700; color:var(--danger);"></h3>
+    <div id="modal-msg" class="modal-content" style="font-size:14px; color:var(--text-main); line-height:1.5;"></div>
+    <div class="modal-actions">
+      <button id="btn-modal-cancel" class="btn btn-ghost hidden" onclick="closeModal()">Cancel</button>
+      <button id="btn-modal-ok" class="btn btn-primary" onclick="confirmModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF PREVIEW MODAL -->
+<div id="pdf-preview-modal" class="modal-overlay" style="z-index:10000;">
+  <div style="width:100%; height:100%; background:white; display:flex; flex-direction:column;">
+    <div
+      style="padding:15px 30px; background:var(--primary); color:white; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;"
+      class="no-print">
+      <h2 style="margin:0; font-size:18px;">📄 Daily Report Preview</h2>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <!-- DATE RANGE SELECTOR -->
+        <div
+          style="display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.1); padding:8px 12px; border-radius:6px;">
+          <label style="font-size:13px; font-weight:600;">📅 Period:</label>
+          <select id="date-range-preset" onchange="handleDateRangeChange()"
+            style="padding:6px 10px; border-radius:4px; border:none; font-size:13px; font-weight:600; color:var(--primary); cursor:pointer;">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="custom">Custom Range</option>
+          </select>
+          <div id="custom-date-inputs" style="display:none; gap:8px; align-items:center;">
+            <input type="date" id="start-date"
+              style="padding:6px; border-radius:4px; border:none; font-size:12px; color:var(--primary);">
+            <span style="font-weight:600;">to</span>
+            <input type="date" id="end-date"
+              style="padding:6px; border-radius:4px; border:none; font-size:12px; color:var(--primary);">
+            <button onclick="applyCustomDateRange()"
+              style="padding:6px 12px; background:white; color:var(--primary); border:none; border-radius:4px; font-weight:600; cursor:pointer; font-size:12px;">Apply</button>
+          </div>
+        </div>
+        <button class="btn" style="background:white; color:var(--primary);" onclick="window.print()">🖨️ Print / Save
+          PDF</button>
+        <button class="btn btn-ghost" style="color:white; border-color:white;" onclick="closePDFPreview()">✕
+          Close</button>
+      </div>
+    </div>
+    <div id="pdf-preview-content" style="flex:1; overflow-y:auto; padding:40px; background:#f8f9fa;">
+      <!-- Content will be injected here -->
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PERMISSION BANNER -->
+<div id="notification-banner" class="notification-banner hidden">
+  <div class="notification-banner-content">
+    <span class="notification-banner-icon">🔔</span>
+    <div class="notification-banner-text">
+      <strong>Stay Updated!</strong>
+      <span>Enable notifications to receive alerts for new patient records.</span>
+    </div>
+    <button class="btn btn-primary" onclick="enableNotifications()">Enable</button>
+    <button class="btn btn-ghost" onclick="dismissNotificationBanner()" style="padding:6px 10px;">✕</button>
+  </div>
+</div>
+
+<div id="app-container">
+  <aside>
+    <div class="sb-header">
+      <h3><span style="font-size:18px;">⚕️</span> CWC Outreach</h3>
+    </div>
+    <div class="search-area">
+      <div class="search-input-wrapper"><span class="search-icon">🔍</span><input type="text" id="search"
+          placeholder="Search Name or PRN..." onkeyup="renderList()"></div>
+      <button class="btn btn-ghost" style="padding:6px 8px;" onclick="toggleBlur()"
+        title="Toggle Privacy Blur">👁</button>
+      <button class="btn btn-ghost" style="padding:6px 8px;" onclick="toggleSort()" id="btn-sort"
+        title="Sort List">⬇</button>
+    </div>
+    <div class="tabs">
+      <div id="tab-active" class="tab active" onclick="switchList('active')">Active</div>
+      <div id="tab-secondary" class="tab" onclick="switchList('secondary')">Archive</div>
+    </div>
+
+    <!-- CWC FILTERS -->
+    <div id="cwc-filters" class="hidden"
+      style="padding:8px 12px; background:var(--bg-panel); border-bottom:1px solid var(--border); display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="filter-btn" data-filter="all" onclick="setFilter('all')">All</button>
+      <button class="filter-btn active" data-filter="new" onclick="setFilter('new')">New</button>
+      <button class="filter-btn" data-filter="pharmacy" onclick="setFilter('pharmacy')">Pharmacy</button>
+      <button class="filter-btn" data-filter="outreach" onclick="setFilter('outreach')">Outreach</button>
+    </div>
+
+    <div id="list-wrapper" class="list-container"></div>
+
+    <div class="chat-section">
+      <div class="chat-header" id="chat-header">
+        <span id="chat-title" onclick="clearChatNotification()">💬 Team Chat</span>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span style="cursor:pointer; opacity:0.8; font-size:14px;" id="btn-toggle-system"
+            onclick="toggleSystemMessages()" title="Toggle System Messages">🤖</span>
+          <span style="cursor:pointer; opacity:0.8;" onclick="refreshChat()" title="Refresh Chat">↻</span>
+        </div>
+      </div>
+      <div id="chat-messages" class="chat-msgs"></div>
+      <div class="chat-input-box">
+        <input type="text" id="chat-input"
+          style="flex: 1; background:var(--bg-input); border:1px solid var(--border); border-radius:6px; padding:8px; color:var(--text-main);"
+          placeholder="Message team..." onkeydown="checkChatSend(event)">
+        <button class="btn btn-primary" style="padding:8px 12px;" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+    <div class="user-footer">
+      <div class="user-line"><strong style="color:var(--text-main)">User:</strong> <span
+          id="user-email">Loading...</span></div>
+      <div class="user-line"><strong style="color:var(--text-main)">Role:</strong> <span id="user-role-display"
+          class="user-role">...</span></div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div class="view-badge">
+        <div class="live-dot"></div><span id="view-indicator">Loading View...</span>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn btn-primary" id="btn-add-record" onclick="addRecord(event)">+ New Record</button>
+        <button class="btn btn-ghost" onclick="exportPDF()" title="Export PDF">📄 PDF</button>
+        <label id="lbl-test-mode" class="hidden"
+          style="display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; cursor:pointer; margin-right:10px; color:var(--text-muted);">
+          <input type="checkbox" id="chk-test-mode"> Test Mode
+        </label>
+        <button class="btn btn-ghost hidden" id="btn-switch-role" onclick="switchRole()" title="Switch View">⇄
+          Switch</button>
+        <button class="btn btn-ghost" onclick="forceRefresh()" title="Reload Data">↻</button>
+        <button class="theme-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
+        <button class="btn btn-ghost" onclick="toggleSettings()" title="Audio Settings">⚙️</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div id="dashboard-view"
+        style="display:flex; flex-direction:column; gap:25px; padding-bottom: 40px; overflow-y: auto;">
+        <div>
+          <div
+            style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+            📊 Current Overview</div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon">📋</div>
+              <div class="kpi-value" id="kpi-total">0</div>
+              <div class="kpi-label">Total Active</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">🚨</div>
+              <div class="kpi-value" id="kpi-urgent" style="color:var(--danger);">0</div>
+              <div class="kpi-label">Urgent Cases</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">💊</div>
+              <div class="kpi-value" id="kpi-pharmacy" style="color:var(--success);">0</div>
+              <div class="kpi-label">In Pharmacy</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">✅</div>
+              <div class="kpi-value" id="kpi-completed">0</div>
+              <div class="kpi-label">Completed Today</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div
+            style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px; margin-top:10px;">
+            ⏱️ Performance</div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+            <div class="kpi-card" style="padding: 12px;">
+              <div class="kpi-icon">🚀</div>
+              <div class="kpi-value" id="kpi-avg-submit" style="font-size:22px;">--</div>
+              <div class="kpi-label">Avg Submit</div>
+            </div>
+            <div class="kpi-card" style="padding: 12px;">
+              <div class="kpi-icon">⚡</div>
+              <div class="kpi-value" id="kpi-avg-pharm" style="font-size:22px;">--</div>
+              <div class="kpi-label">Avg Pharmacy</div>
+            </div>
+            <div class="kpi-card" style="padding: 12px;">
+              <div class="kpi-icon">🗄️</div>
+              <div class="kpi-value" id="kpi-arch-total" style="font-size:22px;">0</div>
+              <div class="kpi-label">Archived</div>
+            </div>
+            <div class="kpi-card" style="padding: 12px;">
+              <div class="kpi-icon">📊</div>
+              <div class="kpi-value" id="kpi-arch-submit" style="font-size:22px;">--</div>
+              <div class="kpi-label">Hist. Submit</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compact Analytics Row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.5fr; gap: 12px;">
+          <!-- Top Medications -->
+          <div class="kpi-card" style="padding: 10px;">
+            <div style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:6px;">💊 Top Meds</div>
+            <div id="kpi-top-meds" style="font-size:11px; line-height:1.6;"></div>
+          </div>
+          <!-- Top Providers -->
+          <div class="kpi-card" style="padding: 10px;">
+            <div style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:6px;">👨‍⚕️ Providers</div>
+            <div id="kpi-top-providers" style="font-size:11px; line-height:1.6;"></div>
+          </div>
+          <!-- Top Pharmacies -->
+          <div class="kpi-card" style="padding: 10px;">
+            <div style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:6px;">🏥 Pharmacies</div>
+            <div id="kpi-top-pharmacies" style="font-size:11px; line-height:1.6;"></div>
+          </div>
+          <!-- Insurance -->
+          <div class="kpi-card" style="padding: 10px;">
+            <div style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:6px;">🛡️ Insurance</div>
+            <div id="kpi-insurance" style="font-size:11px; line-height:1.6;"></div>
+          </div>
+          <!-- Activity Graph -->
+          <div class="kpi-card" style="padding: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size:11px; font-weight:700; color:var(--accent);">📊 Today's Activity</span>
+              <div style="display: flex; gap: 8px; font-size: 9px;">
+                <span><span
+                    style="display:inline-block; width:8px; height:8px; background:var(--accent); border-radius:2px;"></span>
+                  Active</span>
+                <span><span
+                    style="display:inline-block; width:8px; height:8px; background:var(--success); border-radius:2px;"></span>
+                  Archived</span>
+              </div>
+            </div>
+            <div id="activity-graph" style="display: flex; align-items: flex-end; gap: 1px; height: 60px;">
+            </div>
+            <div
+              style="display: flex; justify-content: space-between; font-size:8px; color:var(--text-muted); margin-top:3px;">
+              <span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center; color:var(--text-muted); margin-top:20px; font-size:13px;">
+          Select a patient from the sidebar to view details
+        </div>
+        <div style="text-align:center; margin-top:15px; display:flex; justify-content:center; gap:10px;">
+          <button class="btn" onclick="showHowToModal()"
+            style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; font-size: 13px;">
+            ❓ How-To Use
+          </button>
+          <button id="btn-stats-toggle" class="btn" onclick="toggleStats()"
+            style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; font-size: 13px;">
+            📅 Stats: Today
+          </button>
+        </div>
+      </div>
+
+      <div id="detail-card" class="main-card hidden">
+        <div class="mc-header">
+          <div class="mc-title">
+            <h1 id="d-name">Patient Name</h1>
+            <div class="mc-subtitle"><span id="d-prn">PRN</span>
+              <div id="d-ext-status" style="display:flex; gap:5px;"></div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span id="d-status" class="status-chip chip-new">Status</span>
+            <div id="d-time" style="font-size:11px; color:var(--text-muted); margin-top:4px;"></div>
+            <div style="margin-top:8px;"><button class="btn btn-ghost" style="padding:4px 8px; font-size:11px;"
+                onclick="closeDetail()">Close ✕</button></div>
+          </div>
+        </div>
+        <form id="patient-form" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+          <div id="view-cwc-container"
+            style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
+            <div class="card-tabs">
+              <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
+              <div class="c-tab" onclick="showSection('meds', event)">Clinical & Meds</div>
+              <div style="flex:1"></div>
+              <label
+                style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                <input type="checkbox" id="chk-priority"> <span style="color:var(--danger)">🔥 URGENT</span>
+              </label>
+              <label
+                style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-left: 20px;">
+                <input type="checkbox" name="inOffice" id="chk-in-office"> <span style="color:var(--primary)">🏠 IN
+                  OFFICE</span>
+              </label>
+            </div>
+            <div class="form-scroll-area">
+              <div id="sec-patient" class="form-grid">
+                <div class="input-group"><label>Patient Name</label>
+                  <div class="input-wrapper"><input type="text" name="patientName" id="inp-patientName" required>
+                  </div>
+                </div>
+                <div class="input-group"><label>PRN</label>
+                  <div class="input-wrapper"><input type="text" name="prn" required></div>
+                </div>
+                <div class="input-group"><label>SSN</label>
+                  <div class="input-wrapper" style="display:flex; gap:5px;"><input type="password" name="ssn"
+                      id="inp-ssn" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:8px;"
+                      onclick="toggleSSN()">👁</button></div>
+                </div>
+                <div class="input-group"><label>DOB</label>
+                  <div class="input-wrapper"><input type="date" name="dob"></div>
+                </div>
+                <div class="input-group"><label>Sex</label>
+                  <div class="input-wrapper"><select name="sex" id="opt-sex"></select></div>
+                </div>
+                <div class="input-group"><label>Phone</label>
+                  <div class="input-wrapper"><input type="text" name="phoneNumber"></div>
+                </div>
+                <div class="input-group"><label>Address</label>
+                  <div class="input-wrapper"><input type="text" name="address"></div>
+                </div>
+                <div class="input-group"><label>Reason</label>
+                  <div class="input-wrapper"><input type="text" name="reason"></div>
+                </div>
+              </div>
+              <div id="sec-meds" class="form-grid hidden">
+                <div class="input-group"><label>Pharmacy</label>
+                  <div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div>
+                </div>
+                <div class="input-group"><label>Provider</label>
+                  <div class="input-wrapper"><select name="provider" id="opt-provider"></select></div>
+                </div>
+                <div class="input-group"><label>Medication</label>
+                  <div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div>
+                </div>
+                <div class="input-group"><label>Status</label>
+                  <div class="input-wrapper"><select name="status" id="opt-status"></select></div>
+                </div>
+                <div class="input-group"><label>Insurance</label>
+                  <div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div>
+                </div>
+                <div class="input-group"><label>Insurance ID</label>
+                  <div class="input-wrapper"><input type="text" name="insuranceId"></div>
+                </div>
+                <div class="input-group full-width"><label>Outreach Note</label>
+                  <div class="input-wrapper"><textarea name="outreachNote"></textarea></div>
+                </div>
+                <div class="input-group full-width"><label>Office Note</label>
+                  <div class="input-wrapper"><textarea name="officeNote"></textarea></div>
+                </div>
+
+                <!-- PHARMACY UPDATE INFORMATION DISPLAY (CWC View) -->
+                <div id="pharmacy-update-section" class="full-width" style="display:none; margin-top:25px;">
+                  <h4
+                    style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:15px; font-size:13px; text-transform:uppercase;">
+                    💊 Pharmacy Processing Information
+                  </h4>
+                  <div class="ro-section">
+                    <div class="ro-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                      <div class="ro-field">
+                        <div class="ro-label">Need Script?</div>
+                        <div class="ro-value" id="pharm-needs-script">-</div>
+                      </div>
+                      <div class="ro-field">
+                        <div class="ro-label">Updated Insurance</div>
+                        <div class="ro-value" id="pharm-insurance-detail">-</div>
+                      </div>
+                      <div class="ro-field">
+                        <div class="ro-label">Updated Policy #</div>
+                        <div class="ro-value" id="pharm-policy-number">-</div>
+                      </div>
+                      <div class="ro-field">
+                        <div class="ro-label">Prescription Status</div>
+                        <div class="ro-value" id="pharm-status">-</div>
+                      </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                      <div class="ro-label">Pharmacy Notes</div>
+                      <div class="ro-value" id="pharm-notes"
+                        style="background:var(--bg-input); padding:12px; border-radius:6px; min-height:60px; white-space:pre-wrap;">
+                        -</div>
+                      <div id="pharm-update-timestamp"
+                        style="margin-top:8px; font-size:11px; color:var(--text-muted); display:none;">
+                        📅 Last Updated: <span id="pharm-timestamp-value"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="view-pharm-container" class="hidden form-scroll-area">
+            <div id="pharm-info-card"></div>
+            <h4
+              style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin:25px 0 15px 0; font-size:13px; text-transform:uppercase;">
+              Pharmacy Processing</h4>
+            <div class="form-grid three-col">
+              <div class="input-group"><label>Need Script?</label>
+                <div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div>
+              </div>
+              <div class="input-group"><label>Policy #</label>
+                <div class="input-wrapper"><input type="text" name="policyNumber"></div>
+              </div>
+              <div class="input-group"><label>Update Ins</label>
+                <div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div>
+              </div>
+            </div>
+            <div class="input-group full-width"><label>Pharmacy Notes</label>
+              <div class="input-wrapper"><textarea name="gardenNotes"></textarea></div>
+            </div>
+          </div>
+
+          <div class="action-bar">
+            <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">💾 Save
+              Changes</button>
+            <button type="button" class="btn btn-success btn-block" id="btn-submit"
+              onclick="saveData('Submit to Pharmacy')">📤 Submit to Pharmacy</button>
+            <button type="button" class="btn btn-slate btn-block" id="btn-outreach"
+              onclick="saveData('Outreach Update')">📢 Outreach Update</button>
+            <button type="button" class="btn btn-success btn-block hidden" id="btn-pharm-update"
+              onclick="saveData('Pharmacy Update')">✅ Complete & Notify</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast" class="toast">Notification</div>
+
+<!-- AUDIO SETTINGS MODAL -->
+<div id="settings-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3 id="settings-title" style="margin-top:0; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">⚙️ Audio
+      Settings</h3>
+
+    <!-- AUDIO STATUS INDICATOR -->
+    <div id="audio-status-section"
+      style="margin-bottom:15px; padding:10px; border-radius:8px; background:#fef3c7; border:1px solid #f59e0b;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:20px;">⚠️</span>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:13px; color:#92400e;">Audio Not Enabled</div>
+          <div style="font-size:11px; color:#a16207;">Click below to enable sounds and notifications</div>
+        </div>
+        <button class="btn btn-primary" onclick="enableAudioFromSettings()"
+          style="font-size:12px; padding:6px 12px;">Enable Audio</button>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <label style="display:block; font-weight:600; font-size:13px; margin-bottom:8px; color:var(--text-main);">Volume
+        Control</label>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span id="vol-icon">🔊</span>
+        <input type="range" id="rng-volume" min="0" max="100" value="100" style="flex:1; cursor:pointer;"
+          oninput="updateVolume(this.value)">
+        <span id="vol-display" style="font-size:12px; font-weight:700; width:40px; text-align:right;">100%</span>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <label style="display:block; font-weight:600; font-size:13px; margin-bottom:8px; color:var(--text-main);">Alert
+        Sound</label>
+      <div style="display:flex; gap:10px;">
+        <select id="sel-sound" class="inp-field" style="flex:1;" onchange="previewSound(this.value)">
+          <!-- Options populated dynamically -->
+        </select>
+        <button class="btn btn-secondary" onclick="playTestSound()" title="Test Sound">▶️</button>
+      </div>
+    </div>
+
+    <!-- NEW: Quick Mute Toggle -->
+    <div style="margin-top:20px;">
+      <label style="display:block; font-weight:600; font-size:13px; margin-bottom:8px; color:var(--text-main);">Quick
+        Actions</label>
+      <button class="btn btn-block" onclick="AudioManager.toggleMute()" style="font-size:14px;">
+        <span id="mute-btn-text">🔇 Mute Audio</span>
+      </button>
+    </div>
+
+    <div style="margin-top:25px; display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn btn-primary" onclick="closeSettings()">Done</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- FLOATING QUICK LINKS -->
+<div id="quick-links-container" class="quick-links-container">
+  <div id="quick-links-menu" class="quick-links-menu">
+    <!-- Quick links will be dynamically populated here -->
+  </div>
+  <button class="quick-links-toggle" onclick="toggleQuickLinks()" title="Quick Links">
+    🔗
+  </button>
+</div>
+
+<!-- HOW-TO MODAL -->
+<div id="howto-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; padding: 0;">
+    <!-- Modal Header -->
+    <div
+      style="padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-input);">
+      <h2 style="margin: 0; font-size: 16px; color: var(--accent); display: flex; align-items: center; gap: 8px;">
+        ❓ How-To Use This App
+      </h2>
+      <button class="btn btn-ghost" onclick="closeHowToModal()"
+        style="font-size: 18px; padding: 4px 8px; line-height: 1;">✕</button>
+    </div>
+
+    <!-- Modal CSS for this specific view -->
+    <style>
+      .ht-section {
+        margin-bottom: 20px;
+      }
+
+      .ht-header {
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .ht-list {
+        padding-left: 20px;
+        margin: 0;
+        font-size: 13px;
+        color: var(--text-main);
+        line-height: 1.6;
+      }
+
+      .ht-list li {
+        margin-bottom: 6px;
+      }
+
+      .ht-bold {
+        font-weight: 700;
+        color: var(--text-main);
+        background: var(--bg-input);
+        padding: 0 4px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+      }
+
+      .ht-sub {
+        padding-left: 15px;
+        margin-top: 4px;
+        color: var(--text-muted);
+        font-size: 12px;
+        list-style-type: circle;
+      }
+    </style>
+
+    <!-- Modal Body -->
+    <div style="padding: 20px; overflow-y: auto;">
+
+      <div class="ht-section">
+        <div class="ht-header">👤 1. Creating a New Record</div>
+        <ol class="ht-list">
+          <li>Click <span class="ht-bold">+ New Record</span> in the top header.</li>
+          <li>Enter <span class="ht-bold">PRN</span> (System will validate format).</li>
+          <li>Fill in <span class="ht-bold">Patient Name</span>, <span class="ht-bold">DOB</span>, and other
+            demographics.</li>
+          <li>Select <span class="ht-bold">Priority</span> checkbox if urgent.</li>
+          <li>Click <span class="ht-bold">Add Record</span> to save to the Active List.</li>
+        </ol>
+      </div>
+
+      <div class="ht-section">
+        <div class="ht-header">💊 2. Pharmacy Submission</div>
+        <ol class="ht-list">
+          <li>Select a patient from the list.</li>
+          <li>Ensure all required Pharmacy fields are filled:
+            <ul class="ht-sub">
+              <li><span class="ht-bold">SSN</span>, <span class="ht-bold">Address</span>, <span
+                  class="ht-bold">Medication</span>, <span class="ht-bold">Provider</span>, <span
+                  class="ht-bold">Pharmacy</span></li>
+            </ul>
+          </li>
+          <li>Click <span class="ht-bold">Submit to Pharmacy</span>.</li>
+          <li>Status will update to <span style="color:var(--success); font-weight:700;">Submitted to Pharmacy</span>.
+          </li>
+        </ol>
+      </div>
+
+      <div class="ht-section">
+        <div class="ht-header">📊 3. Dashboard & Views</div>
+        <ul class="ht-list">
+          <li><span class="ht-bold">Active List</span>: Shows all current ongoing cases.</li>
+          <li><span class="ht-bold">Archive</span>: Shows completed historical cases.</li>
+          <li><span class="ht-bold">Filters</span>: Use buttons to filter by <span class="ht-bold">Pharmacy</span> or
+            <span class="ht-bold">Outreach</span> status.
+          </li>
+          <li><span class="ht-bold">Search</span>: Instantly filter by Name or PRN.</li>
+        </ul>
+      </div>
+
+      <div class="ht-section">
+        <div class="ht-header">🔔 4. Alerts & Settings</div>
+        <ul class="ht-list">
+          <li><span class="ht-bold">Audio Alerts</span>: Plays a sound when a new record arrives. (Requires enabling).
+          </li>
+          <li><span class="ht-bold">Visual Alerts</span>: Browser tab blinks for new urgent alerts.</li>
+          <li>Click <span class="ht-bold">⚙️</span> to adjust Volume or Mute sounds.</li>
+          <li>Click <span class="ht-bold">🌙</span> to toggle Dark Mode.</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</div>
