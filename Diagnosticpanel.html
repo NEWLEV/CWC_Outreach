@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CWC Diagnostic Panel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Segoe UI', system-ui, sans-serif; 
+      background: #0f172a; 
+      color: #e2e8f0; 
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 { color: #38bdf8; margin-bottom: 20px; font-size: 24px; }
+    h2 { color: #94a3b8; font-size: 14px; text-transform: uppercase; margin: 20px 0 10px; }
+    
+    .card {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #334155;
+    }
+    
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #334155;
+    }
+    .status-row:last-child { border-bottom: none; }
+    
+    .label { color: #94a3b8; font-size: 13px; }
+    .value { font-weight: 600; font-family: monospace; }
+    .value.good { color: #10b981; }
+    .value.bad { color: #ef4444; }
+    .value.warn { color: #f59e0b; }
+    
+    .btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    .btn:hover { background: #2563eb; }
+    .btn.success { background: #10b981; }
+    .btn.danger { background: #ef4444; }
+    
+    .log {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .log-entry { margin-bottom: 5px; }
+    .log-entry.error { color: #ef4444; }
+    .log-entry.success { color: #10b981; }
+    .log-entry.warn { color: #f59e0b; }
+    .log-entry.info { color: #38bdf8; }
+    
+    .live-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #334155;
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <h1>🔧 CWC Notification Diagnostic Panel</h1>
+  
+  <div class="grid">
+    <div class="card">
+      <h2>📊 Current State</h2>
+      <div class="status-row">
+        <span class="label">Connection</span>
+        <span class="value" id="conn-status">Checking...</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Server Row Count</span>
+        <span class="value" id="server-count">--</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Client Row Count</span>
+        <span class="value" id="client-count">--</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Data Hash</span>
+        <span class="value" id="data-hash">--</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Last Poll</span>
+        <span class="value" id="last-poll">Never</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Poll Status</span>
+        <span class="value" id="poll-status">--</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>🔔 Notification System</h2>
+      <div class="status-row">
+        <span class="label">Audio Unlocked</span>
+        <span class="value" id="audio-status">--</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Unread Count</span>
+        <span class="value" id="unread-count">--</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Notification Loop</span>
+        <span class="value" id="notif-loop">--</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Form Submit Trigger</span>
+        <span class="value" id="trigger-status">Checking...</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Webhook Status</span>
+        <span class="value" id="webhook-status">--</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>🛠️ Diagnostic Actions</h2>
+    <button class="btn" onclick="runServerDiagnostic()">Run Full Server Diagnostic</button>
+    <button class="btn" onclick="testPolling()">Test Polling</button>
+    <button class="btn" onclick="testWebhook()">Test Webhook</button>
+    <button class="btn success" onclick="simulateNewRecord()">Simulate New Record</button>
+    <button class="btn" onclick="checkTriggers()">Check Triggers</button>
+    <button class="btn danger" onclick="setupTriggers()">Setup Triggers</button>
+    <button class="btn" onclick="clearLog()">Clear Log</button>
+  </div>
+  
+  <div class="card">
+    <h2><span class="live-indicator"></span>Live Polling Monitor</h2>
+    <div style="margin-bottom:10px;">
+      <button class="btn" onclick="startLiveMonitor()">Start Monitor</button>
+      <button class="btn danger" onclick="stopLiveMonitor()">Stop Monitor</button>
+      <span id="monitor-status" style="margin-left:10px;color:#94a3b8;">Stopped</span>
+    </div>
+    <div class="log" id="live-log"></div>
+  </div>
+  
+  <div class="card">
+    <h2>📋 Diagnostic Log</h2>
+    <div class="log" id="diagnostic-log"></div>
+  </div>
+
+  <script>
+    let monitorInterval = null;
+    let clientState = {
+      rowCount: 0,
+      dataHash: '',
+      pollCount: 0
+    };
+    
+    // Initialize
+    window.onload = function() {
+      log('info', 'Diagnostic panel loaded');
+      checkConnection();
+      checkTriggers();
+    };
+    
+    function log(type, message) {
+      const logEl = document.getElementById('diagnostic-log');
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + type;
+      entry.textContent = `[${time}] ${message}`;
+      logEl.insertBefore(entry, logEl.firstChild);
+    }
+    
+    function liveLog(type, message) {
+      const logEl = document.getElementById('live-log');
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + type;
+      entry.textContent = `[${time}] ${message}`;
+      logEl.insertBefore(entry, logEl.firstChild);
+      
+      // Keep only last 100 entries
+      while (logEl.children.length > 100) {
+        logEl.removeChild(logEl.lastChild);
+      }
+    }
+    
+    function clearLog() {
+      document.getElementById('diagnostic-log').innerHTML = '';
+      log('info', 'Log cleared');
+    }
+    
+    function updateStatus(id, value, status) {
+      const el = document.getElementById(id);
+      el.textContent = value;
+      el.className = 'value ' + status;
+    }
+    
+    function checkConnection() {
+      log('info', 'Checking server connection...');
+      google.script.run
+        .withSuccessHandler(result => {
+          updateStatus('conn-status', 'Connected', 'good');
+          log('success', 'Server connection OK');
+          
+          // Parse initial data
+          try {
+            const data = JSON.parse(result);
+            clientState.rowCount = data.actualRowCount || data.activeRecords?.length || 0;
+            clientState.dataHash = data.dataHash || '';
+            
+            updateStatus('server-count', clientState.rowCount, 'good');
+            updateStatus('client-count', clientState.rowCount, 'good');
+            updateStatus('data-hash', clientState.dataHash.substring(0, 12) + '...', 'good');
+            
+            log('success', `Loaded ${clientState.rowCount} records`);
+          } catch(e) {
+            log('error', 'Failed to parse initial data: ' + e.message);
+          }
+        })
+        .withFailureHandler(err => {
+          updateStatus('conn-status', 'Failed', 'bad');
+          log('error', 'Connection failed: ' + err.message);
+        })
+        .getInitialData();
+    }
+    
+    function checkTriggers() {
+      log('info', 'Checking triggers...');
+      google.script.run
+        .withSuccessHandler(triggers => {
+          const hasFormSubmit = triggers.some(t => t.function === 'onFormSubmit');
+          updateStatus('trigger-status', hasFormSubmit ? 'Active' : 'MISSING', hasFormSubmit ? 'good' : 'bad');
+          log(hasFormSubmit ? 'success' : 'error', 
+              hasFormSubmit ? 'Form submit trigger found' : 'Form submit trigger MISSING - click Setup Triggers');
+        })
+        .withFailureHandler(err => {
+          updateStatus('trigger-status', 'Error', 'bad');
+          log('error', 'Trigger check failed: ' + err.message);
+        })
+        .viewTriggers();
+    }
+    
+    function setupTriggers() {
+      log('info', 'Setting up triggers...');
+      google.script.run
+        .withSuccessHandler(result => {
+          log('success', 'Triggers setup complete');
+          checkTriggers();
+        })
+        .withFailureHandler(err => {
+          log('error', 'Trigger setup failed: ' + err.message);
+        })
+        .setupAllTriggers();
+    }
+    
+    function runServerDiagnostic() {
+      log('info', 'Running full server diagnostic...');
+      google.script.run
+        .withSuccessHandler(report => {
+          log('success', `Diagnostic complete: ${report.summary.passed} passed, ${report.summary.failed} failed`);
+          
+          report.tests.forEach(test => {
+            const type = test.status === 'PASS' ? 'success' : (test.status === 'FAIL' ? 'error' : 'warn');
+            log(type, `${test.name}: ${test.status} - ${test.message}`);
+          });
+        })
+        .withFailureHandler(err => {
+          log('error', 'Diagnostic failed: ' + err.message);
+        })
+        .runFullDiagnostic();
+    }
+    
+    function testPolling() {
+      log('info', `Testing polling with count=${clientState.rowCount}, hash=${clientState.dataHash.substring(0,8)}...`);
+      
+      google.script.run
+        .withSuccessHandler(result => {
+          clientState.pollCount++;
+          updateStatus('last-poll', new Date().toLocaleTimeString(), 'good');
+          
+          const status = result.hasNew ? 'NEW RECORDS' : (result.hasUpdates ? 'UPDATES' : 'No changes');
+          updateStatus('poll-status', status, result.hasNew || result.hasUpdates ? 'warn' : 'good');
+          
+          log('info', `Poll result: hasNew=${result.hasNew}, hasUpdates=${result.hasUpdates}, serverCount=${result.currentRecordCount}`);
+          
+          if (result.hasNew) {
+            log('success', `Detected ${result.newRecords?.length || 0} new records!`);
+          }
+          
+          if (result.debug) {
+            log('info', `Debug: client=${result.debug.clientCount}, server=${result.debug.serverCount}`);
+          }
+          
+          // Update client state
+          clientState.rowCount = result.currentRecordCount;
+          clientState.dataHash = result.dataHash;
+          updateStatus('client-count', clientState.rowCount, 'good');
+        })
+        .withFailureHandler(err => {
+          log('error', 'Polling test failed: ' + err.message);
+        })
+        .checkForNewRecords(clientState.rowCount, clientState.dataHash);
+    }
+    
+    function testWebhook() {
+      log('info', 'Testing webhook...');
+      google.script.run
+        .withSuccessHandler(report => {
+          const webhookTest = report.tests.find(t => t.name === 'Webhook Test');
+          if (webhookTest) {
+            updateStatus('webhook-status', webhookTest.status, webhookTest.status === 'PASS' ? 'good' : 'bad');
+            log(webhookTest.status === 'PASS' ? 'success' : 'error', `Webhook: ${webhookTest.message}`);
+          }
+        })
+        .withFailureHandler(err => {
+          log('error', 'Webhook test failed: ' + err.message);
+        })
+        .runFullDiagnostic();
+    }
+    
+    function simulateNewRecord() {
+      log('info', 'Simulating new record creation...');
+      google.script.run
+        .withSuccessHandler(result => {
+          log(result.success ? 'success' : 'error', 
+              result.success ? 'New record detected by polling!' : 'Polling did NOT detect new record');
+          log('info', `Initial: ${result.initialCount}, After: ${result.afterCreateCount}`);
+          log('info', `Poll hasNew: ${result.pollResult?.hasNew}, newRecords: ${result.pollResult?.newRecords?.length || 0}`);
+        })
+        .withFailureHandler(err => {
+          log('error', 'Simulation failed: ' + err.message);
+        })
+        .simulateNewRecord();
+    }
+    
+    function startLiveMonitor() {
+      if (monitorInterval) {
+        stopLiveMonitor();
+      }
+      
+      document.getElementById('monitor-status').textContent = 'Running...';
+      document.getElementById('monitor-status').style.color = '#10b981';
+      liveLog('info', 'Live monitor started - polling every 3 seconds');
+      
+      monitorInterval = setInterval(() => {
+        const beforeCount = clientState.rowCount;
+        const beforeHash = clientState.dataHash;
+        
+        google.script.run
+          .withSuccessHandler(result => {
+            const time = new Date().toLocaleTimeString();
+            
+            if (result.hasNew) {
+              liveLog('success', `🆕 NEW RECORD DETECTED! Count: ${beforeCount} → ${result.currentRecordCount}`);
+            } else if (result.hasUpdates) {
+              liveLog('warn', `📝 Updates detected (hash changed)`);
+            } else {
+              liveLog('info', `✓ No changes (count=${result.currentRecordCount})`);
+            }
+            
+            // Update state
+            clientState.rowCount = result.currentRecordCount;
+            clientState.dataHash = result.dataHash;
+            updateStatus('client-count', clientState.rowCount, 'good');
+            updateStatus('server-count', result.currentRecordCount, 'good');
+            updateStatus('last-poll', time, 'good');
+          })
+          .withFailureHandler(err => {
+            liveLog('error', `Poll error: ${err.message}`);
+          })
+          .checkForNewRecords(clientState.rowCount, clientState.dataHash);
+          
+      }, 3000);
+    }
+    
+    function stopLiveMonitor() {
+      if (monitorInterval) {
+        clearInterval(monitorInterval);
+        monitorInterval = null;
+      }
+      document.getElementById('monitor-status').textContent = 'Stopped';
+      document.getElementById('monitor-status').style.color = '#94a3b8';
+      liveLog('info', 'Live monitor stopped');
+    }
+  </script>
+</body>
+</html>
