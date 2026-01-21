@@ -1756,14 +1756,12 @@
               }
             </style>
             <div class="pdf-content">
-            <!-- HEADER -->
             <div style="text-align:center; margin-bottom:30px; border-bottom:3px solid #1e40af; padding-bottom:15px;">
               <h1 style="margin:0; font-size:28px; color:#1e40af; font-weight:800;">CWC Outreach Report</h1>
               <p style="margin:8px 0 0 0; font-size:14px; color:#64748b;">${periodTitle}</p>
               <p style="margin:5px 0 0 0; font-size:12px; color:#94a3b8; font-style:italic;">${filteredRecords.length} records in this period (Active + Archived)</p>
             </div>
             
-            <!-- PRIMARY KPI GRID -->
             <div class="no-break analytics-section">
               <h2 style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:15px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;">📊 Primary Metrics</h2>
               <div class="grid-container" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; margin-bottom:30px;">
@@ -1794,7 +1792,6 @@
               </div>
             </div>
             
-            <!-- MEDICATION ANALYTICS -->
             <div class="no-break" style="margin-bottom:40px;">
               <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">💊 Medication Analytics</h2>
               <div class="two-col" style="display:grid; grid-template-columns:1fr 2fr; gap:20px;">
@@ -1816,7 +1813,6 @@
               </div>
             </div>
             
-            <!-- PHARMACY & INSURANCE GRID -->
             <div class="two-col" style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px;">
               <div class="no-break">
                 <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">🏥 Pharmacy Distribution</h2>
@@ -1846,7 +1842,6 @@
               </div>
             </div>
             
-            <!-- WORKFLOW STATUS DISTRIBUTION -->
             <div class="no-break" style="margin-bottom:40px;">
               <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">📈 Workflow Status Distribution</h2>
               <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
@@ -1871,7 +1866,6 @@
               </div>
             </div>
             
-            <!-- PATIENT RECORDS -->
             <div class="patient-list-section" style="margin-top:30px;">
               <h2 style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">📋 Patient Records Detail (${totalRecords})</h2>
               <div style="display:flex; flex-direction:column; gap:20px;">
@@ -1909,7 +1903,6 @@
         html += `
           <div class="no-break" style="border:1px solid #e2e8f0; border-radius:8px; background:white; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
             
-            <!-- HEADER -->
             <div style="background:${s.bg}; border-bottom:1px solid ${s.border}; padding:12px 15px; display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -1925,10 +1918,8 @@
               </div>
             </div>
 
-            <!-- CORE INFO GRID -->
             <div style="padding:15px; display:grid; grid-template-columns:1.2fr 1.2fr 1fr; gap:20px; border-bottom:1px solid #f1f5f9;">
               
-              <!-- COL 1: PATIENT -->
               <div>
                 <div style="font-size:11px; font-weight:800; color:#1e293b; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">👤 Patient Information</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -1940,7 +1931,6 @@
                 ${field('Address', r.address)}
               </div>
 
-              <!-- COL 2: CLINICAL -->
               <div>
                  <div style="font-size:11px; font-weight:800; color:#1e293b; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">🩺 Clinical Details</div>
                  ${field('Medication', r.medicationDetails)}
@@ -1955,7 +1945,6 @@
                  ${field('Reason', r.reason)}
               </div>
 
-              <!-- COL 3: INSURANCE -->
               <div>
                  <div style="font-size:11px; font-weight:800; color:#1e293b; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">🛡️ Insurance</div>
                  ${field('Primary Ins.', r.insuranceName)}
@@ -1965,7 +1954,6 @@
               </div>
             </div>
 
-            <!-- NOTES SECTION -->
             <div style="padding:15px; background:#f8fafc;">
                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px;">
                   ${noteBox('📝 Outreach Notes', r.outreachNote, '#f1f5f9')}
@@ -1974,7 +1962,6 @@
                </div>
             </div>
 
-            <!-- FOOTER -->
             <div style="padding:8px 15px; background:#f1f5f9; border-top:1px solid #e2e8f0; font-size:9px; color:#64748b; display:flex; justify-content:space-between;">
               <span>Created: <strong>${timestamp}</strong> by ${r.creatorEmail || 'Unknown'}</span>
               <span>Last Update: ${r.lastUpdate ? new Date(r.lastUpdate).toLocaleString() : 'N/A'}</span>
@@ -1990,7 +1977,6 @@
               </div>
             </div>
             
-            <!-- FOOTER -->
             <div class="no-break" style="margin-top:40px; padding-top:20px; border-top:2px solid #e2e8f0; text-align:center; color:#64748b; font-size:11px;">
               <p>Generated by CWC Outreach System | ${new Date().toLocaleString()}</p>
               <p style="margin-top:5px; font-style:italic;">This report contains ${totalRecords} records (${STATE.records.length} active + ${STATE.archives?.length || 0} archived), ${totalProviders} providers, ${totalUniqueMeds} unique medications, and ${totalInsurances} insurance providers.</p>
@@ -2021,7 +2007,12 @@
     const activeRole = STATE.user.defaultRole; // CWC or PHARMACY
     STATE.chatHistory.push({ sender: STATE.user.email, text: txt, time: new Date().toISOString(), role: activeRole });
     renderChat();
-    google.script.run.withSuccessHandler(h => { STATE.chatHistory = h; renderChat(); }).postOutreachMessage(txt, activeRole);
+    google.script.run.withSuccessHandler(h => { 
+      if (h) { // Only update if server returned valid history
+        STATE.chatHistory = h; 
+        renderChat(); 
+      }
+    }).postOutreachMessage(txt, activeRole);
   }
 
   function renderChat() {
@@ -2099,6 +2090,9 @@
 
   function refreshChat() {
     google.script.run.withSuccessHandler(history => {
+      // CRITICAL FIX: If history is null (server error), DO NOT clear chat
+      if (!history && !Array.isArray(history)) return;
+
       if (history && history.length > STATE.chatHistory.length) {
         // DETECT NEW MESSAGES
         const newOnes = history.slice(STATE.chatHistory.length);
