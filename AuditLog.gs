@@ -5,7 +5,7 @@
 function logToAudit(changes, userEmail) {
   if (!changes || changes.length === 0) return;
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = getSafeSpreadsheet();
     let sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.AUDIT_LOG);
     if (!sheet) {
       sheet = ss.insertSheet(CONFIG.SHEET_NAMES.AUDIT_LOG);
