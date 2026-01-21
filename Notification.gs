@@ -3,7 +3,7 @@
  * Features: Emojis, Clean Layout, Internal Chat Logging
  */
 
-const NotificationEngine = {
+var NotificationEngine = {
   PRIORITY_LEVELS: {
     CRITICAL: { icon: '🚨', color: '#dc2626', soundProfile: 'urgent' },
     HIGH: { icon: '🔴', color: '#ef4444', soundProfile: 'alert' },
