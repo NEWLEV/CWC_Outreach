@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,184 +9,1105 @@
   <style>
     /* --- CSS REFRESH: Professional Clinical Theme (No Purple) --- */
     :root {
-      --bg-app: #f1f5f9; --bg-panel: #ffffff; --bg-input: #f8fafc; --border: #e2e8f0;
-      --text-main: #0f172a; --text-muted: #64748b;
-      --primary: #0f766e; --primary-hover: #0d9488; /* Teal-700/600 */
-      --accent: #0284c7; /* Sky-600 */
-      --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-      --chip-new-bg: #e0f2fe; --chip-new-text: #0369a1;
-      /* UPDATED TAG COLORS FOR STANDOUT */
-      --tag-mail: #ef4444; /* Red-500 (Mail/External Warning) */
-      --tag-meds: #10b981; /* Emerald-500 (Meds/External Success) */
-      --header-grad: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      --bg-app: #f1f5f9;
+      --bg-panel: #ffffff;
+      --bg-input: #f8fafc;
+      --border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      /* UPDATED: System Blue */
+      --primary: #1e40af;
+      /* Blue-800 */
+      --primary-hover: #1e3a8a;
+      /* Blue-900 */
+      --accent: #3b82f6;
+      /* Blue-500 */
+
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --chip-new-bg: #e0f2fe;
+      --chip-new-text: #0369a1;
+
+      --tag-mail: #ef4444;
+      --tag-meds: #10b981;
+      /* UPDATED: Blue Gradient */
+      --header-grad: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
     }
+
     body.dark-mode {
-      --bg-app: #0f172a; --bg-panel: #1e293b; --bg-input: #334155; --border: #334155;
-      --text-main: #f8fafc; --text-muted: #94a3b8;
-      --primary: #2dd4bf; --primary-hover: #14b8a6; /* Teal-400 */
-      --accent: #38bdf8; /* Sky-400 */
-      --chip-new-bg: #0c4a6e; --chip-new-text: #e0f2fe;
+      --bg-app: #0f172a;
+      --bg-panel: #1e293b;
+      --bg-input: #334155;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #60a5fa;
+      /* Blue-400 */
+      --primary-hover: #3b82f6;
+      --accent: #38bdf8;
+      --chip-new-bg: #0c4a6e;
+      --chip-new-text: #e0f2fe;
       --header-grad: linear-gradient(135deg, #020617 0%, #1e293b 100%);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 14px; line-height: 1.5; }
-    
-    #app-container { display: grid; grid-template-columns: 320px 1fr; height: 100%; opacity: 0; transition: opacity 0.3s ease; }
-    #app-container.visible { opacity: 1; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      outline: none;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-app);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #app-container {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #app-container.visible {
+      opacity: 1;
+    }
 
     /* SIDEBAR */
-    aside { background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 20; height: 100vh; box-shadow: 4px 0 24px rgba(0,0,0,0.02); }
-    .sb-header { padding: 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--bg-panel); }
-    .sb-header h3 { color: var(--primary); font-weight: 800; font-size: 18px; margin: 0; display:flex; align-items:center; gap:8px; }
-    
-    .search-area { padding: 12px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; background: var(--bg-panel); }
-    .search-input-wrapper { position: relative; flex: 1; }
-    .search-input-wrapper input { width: 100%; padding: 8px 10px 8px 32px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text-main); font-size: 13px; transition:0.2s; }
-    .search-input-wrapper input:focus { border-color: var(--accent); background: var(--bg-panel); box-shadow: 0 0 0 2px rgba(2,132,199,0.1); }
-    .search-icon { position: absolute; left: 10px; top: 9px; font-size: 13px; opacity: 0.5; }
+    aside {
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+      height: 100vh;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+    }
 
-    .tabs { display: flex; padding: 0 12px; gap: 15px; border-bottom: 1px solid var(--border); background: var(--bg-panel); flex-shrink: 0; }
-    .tab { padding: 12px 4px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; font-size: 13px; transition:0.2s; }
-    .tab:hover { color: var(--text-main); }
-    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .sb-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--bg-panel);
+    }
+
+    .sb-header h3 {
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 18px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-area {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+      background: var(--bg-panel);
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input-wrapper input {
+      width: 100%;
+      padding: 8px 10px 8px 32px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .search-input-wrapper input:focus {
+      border-color: var(--accent);
+      background: var(--bg-panel);
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 9px;
+      font-size: 13px;
+      opacity: 0.5;
+    }
+
+    .tabs {
+      display: flex;
+      padding: 0 12px;
+      gap: 15px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-panel);
+      flex-shrink: 0;
+    }
+
+    .tab {
+      padding: 12px 4px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text-main);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* FILTER BUTTONS */
+    .filter-btn {
+      padding: 6px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: var(--bg-panel);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
 
     /* LIST */
-    .list-container { flex: 1; overflow-y: auto; padding: 10px; min-height: 0; background: var(--bg-input); } 
-    .patient-item { background: var(--bg-panel); padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-    .patient-item:hover { transform: translateY(-1px); border-color: var(--accent); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-    .patient-item.selected { background: var(--accent); border-color: var(--accent); color: white; }
-    .patient-item.selected * { color: white !important; opacity: 1 !important; }
-    
+    .list-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      min-height: 0;
+      background: var(--bg-input);
+    }
+
+    .patient-item {
+      background: var(--bg-panel);
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .patient-item:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .patient-item.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .patient-item.selected * {
+      color: white !important;
+      opacity: 1 !important;
+    }
+
     /* NEW RECORD ANIMATION & STYLE */
     .patient-item.unread {
-      background: #fffbeb; /* Amber-50 */
-      border-left: 4px solid #f59e0b; /* Amber-500 */
+      background: #fffbeb;
+      /* Amber-50 */
+      border-left: 4px solid #f59e0b;
+      /* Amber-500 */
       animation: pulse-orange 2s infinite;
     }
-    body.dark-mode .patient-item.unread { background: #451a03; border-left-color: #fbbf24; }
-    
-    @keyframes pulse-orange {
-      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-      70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+
+    body.dark-mode .patient-item.unread {
+      background: #451a03;
+      border-left-color: #fbbf24;
     }
 
-    .pi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-    .pi-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
-    .pi-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); align-items: center; margin-top: 6px; }
-    
-    .status-chip { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .chip-new { background: var(--chip-new-bg); color: var(--chip-new-text); }
-    
-    .ext-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; color: white; font-weight: 700; margin-right: 5px; display: inline-block; text-transform:uppercase; }
-    .tag-mail { background: var(--tag-mail); }
-    .tag-meds { background: var(--tag-meds); }
-    
-    .blurred { filter: blur(5px); transition: 0.3s; }
-    .pi-time { font-size: 11px; opacity: 0.7; font-weight: 500; }
-    .pi-urgent { color: var(--danger); font-size: 14px; margin-right: 4px; }
-    .tag-in-office { background: #475569; color: #fff; margin-right: 5px; font-size: 9px; padding: 2px 6px; border-radius: 4px; display: inline-block; font-weight: 700; }
+    @keyframes pulse-orange {
+      0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+      }
+    }
+
+    .pi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+
+    .pi-name {
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+
+    .pi-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .status-chip {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chip-new {
+      background: var(--chip-new-bg);
+      color: var(--chip-new-text);
+    }
+
+    /* UPDATED CHIP COLORS */
+    .chip-pharm {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    /* Green */
+    .chip-outreach {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    /* Yellow */
+    .chip-submit {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Red */
+    .chip-default {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    body.dark-mode .chip-pharm {
+      background: #052e16;
+      color: #dcfce7;
+    }
+
+    body.dark-mode .chip-outreach {
+      background: #422006;
+      color: #fef9c3;
+    }
+
+    body.dark-mode .chip-submit {
+      background: #450a0a;
+      color: #fee2e2;
+    }
+
+    body.dark-mode .chip-default {
+      background: #1e293b;
+      color: #cbd5e1;
+    }
+
+    .ext-tag {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 700;
+      margin-right: 5px;
+      display: inline-block;
+      text-transform: uppercase;
+    }
+
+    .tag-mail {
+      background: var(--tag-mail);
+    }
+
+    .tag-meds {
+      background: var(--tag-meds);
+    }
+
+    .tag-banned {
+      background: #dc2626;
+      color: white;
+    }
+
+    .blurred {
+      filter: blur(5px);
+      transition: 0.3s;
+    }
+
+    .pi-time {
+      font-size: 11px;
+      opacity: 0.7;
+      font-weight: 500;
+    }
+
+    .pi-urgent {
+      color: var(--danger);
+      font-size: 14px;
+      margin-right: 4px;
+    }
+
+    .tag-in-office {
+      background: #475569;
+      color: #fff;
+      margin-right: 5px;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      font-weight: 700;
+    }
 
     /* CHAT */
-    .chat-section { height: 260px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-    .chat-header { 
-      padding: 10px 15px; font-size: 11px; font-weight: 700; text-transform: uppercase; 
-      display: flex; justify-content: space-between; align-items: center; 
-      background: var(--header-grad); color: white; letter-spacing: 0.5px;
+    .chat-section {
+      height: 260px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
     }
-    .chat-msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: var(--bg-input); }
-    .msg { max-width: 88%; padding: 8px 12px; border-radius: 12px; font-size: 12px; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .msg.in { align-self: flex-start; background: var(--bg-panel); color: var(--text-main); border-bottom-left-radius: 2px; border: 1px solid var(--border); }
-    .msg.out { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 2px; }
-    .msg.system { align-self: center; background: var(--tag-mail); color: white; font-weight: 600; font-size: 11px; max-width: 100%; padding: 4px 12px; border-radius: 20px; text-align: center; opacity:0.8; }
-    .msg-sender { font-weight: 700; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
-    
-    .chat-input-box { padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--bg-panel); }
-    .user-footer { padding: 10px 15px; background: var(--bg-input); border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
-    .user-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-    .user-role { font-weight: 700; color: var(--primary); text-transform: uppercase; font-size: 11px; }
+
+    .chat-header {
+      padding: 10px 15px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--header-grad);
+      color: white;
+      letter-spacing: 0.5px;
+    }
+
+    .chat-msgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-input);
+    }
+
+    .msg {
+      max-width: 88%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.4;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .msg.in {
+      align-self: flex-start;
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border-bottom-left-radius: 2px;
+      border: 1px solid var(--border);
+    }
+
+    .msg.out {
+      align-self: flex-end;
+      background: var(--accent);
+      color: white;
+      border-bottom-right-radius: 2px;
+    }
+
+    .msg.system {
+      align-self: center;
+      background: var(--primary);
+      /* Blue */
+      color: white;
+      font-weight: 600;
+      font-size: 11px;
+      max-width: 100%;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    .msg-sender {
+      font-weight: 700;
+      font-size: 10px;
+      opacity: 0.6;
+      margin-bottom: 2px;
+    }
+
+    .chat-input-box {
+      padding: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      background: var(--bg-panel);
+    }
+
+    .user-footer {
+      padding: 10px 15px;
+      background: var(--bg-input);
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .user-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .user-role {
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      font-size: 11px;
+    }
 
     /* MAIN CONTENT */
-    main { display: flex; flex-direction: column; background: var(--bg-app); height: 100vh; overflow: hidden; }
-    header { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; flex-shrink: 0; }
-    
-    .view-badge { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); }
-    .live-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); animation: pulse-dot 2s infinite; }
-    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    main {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-app);
+      height: 100vh;
+      overflow: hidden;
+    }
 
-    .content-area { flex: 1; padding: 20px; overflow: hidden; display: flex; flex-direction: column; }
-    
+    header {
+      height: 60px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 25px;
+      flex-shrink: 0;
+    }
+
+    .view-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
     /* DASHBOARD */
-    #dashboard-view { width: 100%; max-width: 1100px; margin: 0 auto; display:flex; flex-direction:column; gap:25px; padding-bottom: 40px; overflow-y: auto; }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-    .kpi-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .kpi-value { font-size: 28px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
-    .kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight:700; }
-    .kpi-icon { position: absolute; top: 15px; right: 15px; font-size: 20px; opacity: 0.2; filter: grayscale(100%); }
+    #dashboard-view {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      padding-bottom: 40px;
+      overflow-y: auto;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .kpi-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .kpi-icon {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 20px;
+      opacity: 0.2;
+      filter: grayscale(100%);
+    }
 
     /* DETAIL CARD */
-    .main-card { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; }
-    .mc-header { padding: 20px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--bg-input); }
-    .mc-title h1 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
-    .mc-subtitle { font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; gap: 10px; align-items: center; }
-    
-    .card-tabs { display: flex; padding: 0 25px; border-bottom: 1px solid var(--border); background: var(--bg-panel); flex-shrink: 0; }
-    .c-tab { padding: 15px 0; margin-right: 25px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition:0.2s; }
-    .c-tab:hover { color: var(--accent); }
-    .c-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-    
-    .form-scroll-area { flex: 1; overflow-y: auto; padding: 25px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-    .full-width { grid-column: 1 / -1; }
-    .three-col { grid-template-columns: 1fr 1fr 1fr; }
-    
-    .input-group { display: flex; flex-direction: column; gap: 6px; }
-    .input-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text-main); font-size: 14px; transition: all 0.2s ease; }
-    .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { background: var(--bg-panel); border-color: var(--accent); box-shadow: 0 0 0 2px rgba(2,132,199,0.1); }
-    .input-wrapper textarea { resize: vertical; min-height: 80px; font-family: 'Inter', sans-serif; }
-    
-    .ro-section { border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 15px; }
-    .ro-header { font-size: 12px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-    .ro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-    .ro-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
-    .ro-value { font-size: 14px; font-weight: 600; color: var(--text-main); }
-    
-    .action-bar { padding: 15px 25px; border-top: 1px solid var(--border); background: var(--bg-panel); display: flex; gap: 12px; justify-content: flex-end; flex-shrink: 0; }
-    
-    .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
-    .btn:hover { transform: translateY(-1px); opacity: 0.95; }
-    .btn:active { transform: translateY(0); }
-    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
-    .btn-ghost:hover { border-color: var(--text-muted); color: var(--text-main); }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-slate { background: #475569; color: white; }
-    .btn-block { flex: 1; justify-content: center; }
+    .main-card {
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-    .hidden { display: none !important; }
-    
-    .loader-overlay { position: fixed; inset: 0; background: var(--bg-app); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: var(--text-main); }
-    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-    .toast.success { background: var(--success); }
-    .toast.alert { background: var(--warning); color: #000; }
-    
+    .mc-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      background: var(--bg-input);
+    }
+
+    .mc-title h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .mc-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .card-tabs {
+      display: flex;
+      padding: 0 25px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-panel);
+      flex-shrink: 0;
+    }
+
+    .c-tab {
+      padding: 15px 0;
+      margin-right: 25px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: 0.2s;
+    }
+
+    .c-tab:hover {
+      color: var(--accent);
+    }
+
+    .c-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .form-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 25px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .three-col {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper input,
+    .input-wrapper select,
+    .input-wrapper textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .input-wrapper input:focus,
+    .input-wrapper select:focus,
+    .input-wrapper textarea:focus {
+      background: var(--bg-panel);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.1);
+    }
+
+    .input-wrapper textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .ro-section {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+
+    .ro-header {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .ro-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .ro-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .ro-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .action-bar {
+      padding: 15px 25px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-panel);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--text-muted);
+      color: var(--text-main);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-slate {
+      background: #475569;
+      color: white;
+    }
+
+    .btn-block {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-app);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      color: var(--text-main);
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+      z-index: 200;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    .toast.success {
+      background: var(--success);
+    }
+
+    .toast.alert {
+      background: var(--warning);
+      color: #000;
+    }
+
     /* MODAL STYLES */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-box { background: var(--bg-panel); width: 90%; max-width: 480px; border-radius: 12px; padding: 25px; transform: scale(0.95); transition: transform 0.2s; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-    .modal-overlay.active .modal-box { transform: scale(1); }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-    
-    .theme-btn { background:transparent; border:none; font-size:16px; cursor:pointer; padding:6px; border-radius:50%; transition:0.2s; }
-    .theme-btn:hover { background:var(--bg-input); }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 300;
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--bg-panel);
+      width: 90%;
+      max-width: 480px;
+      border-radius: 12px;
+      padding: 25px;
+      transform: scale(0.95);
+      transition: transform 0.2s;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .theme-btn {
+      background: transparent;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .theme-btn:hover {
+      background: var(--bg-input);
+    }
+
+    /* FLOATING QUICK LINKS */
+    .quick-links-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .quick-links-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .quick-links-container.expanded .quick-links-menu {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .quick-link:hover {
+      transform: translateX(-5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      background: var(--primary-dark);
+    }
+
+    .quick-link-icon {
+      font-size: 18px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .quick-links-toggle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quick-links-toggle::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+
+    .quick-links-toggle:hover {
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .quick-links-toggle:hover::before {
+      width: 100%;
+      height: 100%;
+    }
+
+    .quick-links-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .quick-links-container.expanded .quick-links-toggle {
+      transform: rotate(135deg);
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #pdf-preview-content,
+      #pdf-preview-content * {
+        visibility: visible;
+      }
+
+      #pdf-preview-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white !important;
+        padding: 20px !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+    }
   </style>
 </head>
+
 <body class="light-mode">
 
   <div id="security-overlay" class="loader-overlay">
@@ -208,22 +1130,75 @@
     </div>
   </div>
 
+  <!-- PDF PREVIEW MODAL -->
+  <div id="pdf-preview-modal" class="modal-overlay" style="z-index:10000;">
+    <div style="width:100%; height:100%; background:white; display:flex; flex-direction:column;">
+      <div
+        style="padding:15px 30px; background:var(--primary); color:white; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;"
+        class="no-print">
+        <h2 style="margin:0; font-size:18px;">📄 Daily Report Preview</h2>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <!-- DATE RANGE SELECTOR -->
+          <div
+            style="display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.1); padding:8px 12px; border-radius:6px;">
+            <label style="font-size:13px; font-weight:600;">📅 Period:</label>
+            <select id="date-range-preset" onchange="handleDateRangeChange()"
+              style="padding:6px 10px; border-radius:4px; border:none; font-size:13px; font-weight:600; color:var(--primary); cursor:pointer;">
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <div id="custom-date-inputs" style="display:none; gap:8px; align-items:center;">
+              <input type="date" id="start-date"
+                style="padding:6px; border-radius:4px; border:none; font-size:12px; color:var(--primary);">
+              <span style="font-weight:600;">to</span>
+              <input type="date" id="end-date"
+                style="padding:6px; border-radius:4px; border:none; font-size:12px; color:var(--primary);">
+              <button onclick="applyCustomDateRange()"
+                style="padding:6px 12px; background:white; color:var(--primary); border:none; border-radius:4px; font-weight:600; cursor:pointer; font-size:12px;">Apply</button>
+            </div>
+          </div>
+          <button class="btn" style="background:white; color:var(--primary);" onclick="window.print()">🖨️ Print / Save
+            PDF</button>
+          <button class="btn btn-ghost" style="color:white; border-color:white;" onclick="closePDFPreview()">✕
+            Close</button>
+        </div>
+      </div>
+      <div id="pdf-preview-content" style="flex:1; overflow-y:auto; padding:40px; background:#f8f9fa;">
+        <!-- Content will be injected here -->
+      </div>
+    </div>
+  </div>
+
   <div id="app-container">
     <aside>
       <div class="sb-header">
         <h3><span style="font-size:18px;">⚕️</span> CWC Outreach</h3>
       </div>
       <div class="search-area">
-        <div class="search-input-wrapper"><span class="search-icon">🔍</span><input type="text" id="search" placeholder="Search Name or PRN..." onkeyup="renderList()"></div>
-        <button class="btn btn-ghost" style="padding:6px 8px;" onclick="toggleBlur()" title="Toggle Privacy Blur">👁</button>
-        <button class="btn btn-ghost" style="padding:6px 8px;" onclick="toggleSort()" id="btn-sort" title="Sort List">⬇</button>
+        <div class="search-input-wrapper"><span class="search-icon">🔍</span><input type="text" id="search"
+            placeholder="Search Name or PRN..." onkeyup="renderList()"></div>
+        <button class="btn btn-ghost" style="padding:6px 8px;" onclick="toggleBlur()"
+          title="Toggle Privacy Blur">👁</button>
+        <button class="btn btn-ghost" style="padding:6px 8px;" onclick="toggleSort()" id="btn-sort"
+          title="Sort List">⬇</button>
       </div>
       <div class="tabs">
         <div id="tab-active" class="tab active" onclick="switchList('active')">Active</div>
         <div id="tab-secondary" class="tab" onclick="switchList('secondary')">Archive</div>
       </div>
+
+      <!-- CWC FILTERS -->
+      <div id="cwc-filters" class="hidden"
+        style="padding:8px 12px; background:var(--bg-panel); border-bottom:1px solid var(--border); display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+        <button class="filter-btn" data-filter="pharmacy" onclick="setFilter('pharmacy')">Pharmacy</button>
+        <button class="filter-btn" data-filter="outreach" onclick="setFilter('outreach')">Outreach</button>
+      </div>
+
       <div id="list-wrapper" class="list-container"></div>
-      
+
       <div class="chat-section">
         <div class="chat-header">
           <span id="chat-title">💬 Team Chat</span>
@@ -231,56 +1206,91 @@
         </div>
         <div id="chat-messages" class="chat-msgs"></div>
         <div class="chat-input-box">
-          <input type="text" id="chat-input" style="flex: 1; background:var(--bg-input); border:1px solid var(--border); border-radius:6px; padding:8px; color:var(--text-main);" placeholder="Message team..." onkeydown="checkChatSend(event)">
+          <input type="text" id="chat-input"
+            style="flex: 1; background:var(--bg-input); border:1px solid var(--border); border-radius:6px; padding:8px; color:var(--text-main);"
+            placeholder="Message team..." onkeydown="checkChatSend(event)">
           <button class="btn btn-primary" style="padding:8px 12px;" onclick="sendChat()">➤</button>
         </div>
       </div>
       <div class="user-footer">
-        <div class="user-line"><strong style="color:var(--text-main)">User:</strong> <span id="user-email">Loading...</span></div>
-        <div class="user-line"><strong style="color:var(--text-main)">Role:</strong> <span id="user-role-display" class="user-role">...</span></div>
+        <div class="user-line"><strong style="color:var(--text-main)">User:</strong> <span
+            id="user-email">Loading...</span></div>
+        <div class="user-line"><strong style="color:var(--text-main)">Role:</strong> <span id="user-role-display"
+            class="user-role">...</span></div>
       </div>
     </aside>
 
     <main>
       <header>
-        <div class="view-badge"><div class="live-dot"></div><span id="view-indicator">Loading View...</span></div>
+        <div class="view-badge">
+          <div class="live-dot"></div><span id="view-indicator">Loading View...</span>
+        </div>
         <div style="display:flex; gap:10px; align-items:center;">
           <button class="btn btn-primary" id="btn-add-record" onclick="addRecord(event)">+ New Record</button>
           <button class="btn btn-ghost" onclick="exportPDF()" title="Export PDF">📄 PDF</button>
-          <button class="btn btn-ghost hidden" id="btn-switch-role" onclick="switchRole()" title="Switch View">⇄ Switch</button>
+          <button class="btn btn-ghost hidden" id="btn-switch-role" onclick="switchRole()" title="Switch View">⇄
+            Switch</button>
           <button class="btn btn-ghost" onclick="forceRefresh()" title="Reload Data">↻</button>
           <button class="theme-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
         </div>
       </header>
 
-        <div class="content-area">
-        <div id="dashboard-view" style="display:flex; flex-direction:column; gap:25px; padding-bottom: 40px; overflow-y: auto;">
+      <div class="content-area">
+        <div id="dashboard-view"
+          style="display:flex; flex-direction:column; gap:25px; padding-bottom: 40px; overflow-y: auto;">
           <div>
-            <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px;">📊 Current Overview</div>
+            <div
+              style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+              📊 Current Overview</div>
             <div class="kpi-grid">
-              <div class="kpi-card"><div class="kpi-icon">📋</div><div class="kpi-value" id="kpi-total">0</div><div class="kpi-label">Total Active</div></div>
-              <div class="kpi-card"><div class="kpi-icon">🚨</div><div class="kpi-value" id="kpi-urgent" style="color:var(--danger);">0</div><div class="kpi-label">Urgent Cases</div></div>
-              <div class="kpi-card"><div class="kpi-icon">💊</div><div class="kpi-value" id="kpi-pharmacy" style="color:var(--success);">0</div><div class="kpi-label">In Pharmacy</div></div>
-              <div class="kpi-card"><div class="kpi-icon">✅</div><div class="kpi-value" id="kpi-completed">0</div><div class="kpi-label">Completed Today</div></div>
+              <div class="kpi-card">
+                <div class="kpi-icon">📋</div>
+                <div class="kpi-value" id="kpi-total">0</div>
+                <div class="kpi-label">Total Active</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-icon">🚨</div>
+                <div class="kpi-value" id="kpi-urgent" style="color:var(--danger);">0</div>
+                <div class="kpi-label">Urgent Cases</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-icon">💊</div>
+                <div class="kpi-value" id="kpi-pharmacy" style="color:var(--success);">0</div>
+                <div class="kpi-label">In Pharmacy</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-value" id="kpi-completed">0</div>
+                <div class="kpi-label">Completed Today</div>
+              </div>
             </div>
           </div>
           <div>
-            <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px; margin-top:10px;">⏱️ Performance</div>
+            <div
+              style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px; margin-top:10px;">
+              ⏱️ Performance</div>
             <div class="kpi-grid">
-              <div class="kpi-card"><div class="kpi-icon">🚀</div><div class="kpi-value" id="kpi-avg-submit">--</div><div class="kpi-label">Avg Submit Time</div></div>
-              <div class="kpi-card"><div class="kpi-icon">⚡</div><div class="kpi-value" id="kpi-avg-pharm">--</div><div class="kpi-label">Avg Pharmacy Time</div></div>
+              <div class="kpi-card">
+                <div class="kpi-icon">🚀</div>
+                <div class="kpi-value" id="kpi-avg-submit">--</div>
+                <div class="kpi-label">Avg Submit Time</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-icon">⚡</div>
+                <div class="kpi-value" id="kpi-avg-pharm">--</div>
+                <div class="kpi-label">Avg Pharmacy Time</div>
+              </div>
             </div>
           </div>
           <div style="border-top: 1px dashed var(--border); padding-top: 20px;">
-             <div class="dash-section-title">🗄️ Historical Archive</div>
-             <div style="display:flex; gap:20px; margin-top:10px;">
-                <div style="font-weight:600;">Total Archived: <span id="kpi-arch-total">0</span></div>
-                <div style="font-weight:600;">Hist. Submit Time: <span id="kpi-arch-submit">--</span></div>
-             </div>
+            <div class="dash-section-title">🗄️ Historical Archive</div>
+            <div style="display:flex; gap:20px; margin-top:10px;">
+              <div style="font-weight:600;">Total Archived: <span id="kpi-arch-total">0</span></div>
+              <div style="font-weight:600;">Hist. Submit Time: <span id="kpi-arch-submit">--</span></div>
+            </div>
           </div>
           <div style="text-align:center; color:var(--text-muted); margin-top:40px;">
-             <div style="font-size:40px; margin-bottom:10px; opacity:0.2;">👈</div>
-             Select a patient from the sidebar to view details
+            Select a patient from the sidebar to view details
           </div>
         </div>
 
@@ -288,97 +1298,206 @@
           <div class="mc-header">
             <div class="mc-title">
               <h1 id="d-name">Patient Name</h1>
-              <div class="mc-subtitle"><span id="d-prn">PRN</span> <div id="d-ext-status" style="display:flex; gap:5px;"></div></div>
+              <div class="mc-subtitle"><span id="d-prn">PRN</span>
+                <div id="d-ext-status" style="display:flex; gap:5px;"></div>
+              </div>
             </div>
             <div style="text-align:right;">
               <span id="d-status" class="status-chip chip-new">Status</span>
               <div id="d-time" style="font-size:11px; color:var(--text-muted); margin-top:4px;"></div>
-              <div style="margin-top:8px;"><button class="btn btn-ghost" style="padding:4px 8px; font-size:11px;" onclick="closeDetail()">Close ✕</button></div>
+              <div style="margin-top:8px;"><button class="btn btn-ghost" style="padding:4px 8px; font-size:11px;"
+                  onclick="closeDetail()">Close ✕</button></div>
             </div>
           </div>
           <form id="patient-form" style="display:flex; flex-direction:column; flex:1; min-height:0;">
-            <div id="view-cwc-container" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
+            <div id="view-cwc-container"
+              style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
               <div class="card-tabs">
                 <div class="c-tab active" onclick="showSection('patient', event)">Patient Info</div>
                 <div class="c-tab" onclick="showSection('meds', event)">Clinical & Meds</div>
                 <div style="flex:1"></div>
-                <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer;">
-                   <input type="checkbox" id="chk-priority"> <span style="color:var(--danger)">🔥 URGENT</span>
+                <label
+                  style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                  <input type="checkbox" id="chk-priority"> <span style="color:var(--danger)">🔥 URGENT</span>
                 </label>
-                <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-left: 20px;">
-                   <input type="checkbox" name="inOffice" id="chk-in-office"> <span style="color:var(--primary)">🏠 In Office</span>
+                <label
+                  style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-left: 20px;">
+                  <input type="checkbox" name="inOffice" id="chk-in-office"> <span style="color:var(--primary)">🏠 IN
+                    OFFICE</span>
                 </label>
               </div>
               <div class="form-scroll-area">
                 <div id="sec-patient" class="form-grid">
-                   <div class="input-group"><label>Patient Name</label><div class="input-wrapper"><input type="text" name="patientName" required></div></div>
-                   <div class="input-group"><label>PRN</label><div class="input-wrapper"><input type="text" name="prn" required></div></div>
-                   <div class="input-group"><label>SSN</label><div class="input-wrapper" style="display:flex; gap:5px;"><input type="password" name="ssn" id="inp-ssn" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:8px;" onclick="toggleSSN()">👁</button></div></div>
-                   <div class="input-group"><label>DOB</label><div class="input-wrapper"><input type="date" name="dob"></div></div>
-                   <div class="input-group"><label>Sex</label><div class="input-wrapper"><select name="sex" id="opt-sex"></select></div></div>
-                   <div class="input-group"><label>Phone</label><div class="input-wrapper"><input type="text" name="phoneNumber"></div></div>
-                   <div class="input-group"><label>Address</label><div class="input-wrapper"><input type="text" name="address"></div></div>
-                   <div class="input-group"><label>Reason</label><div class="input-wrapper"><input type="text" name="reason"></div></div>
+                  <div class="input-group"><label>Patient Name</label>
+                    <div class="input-wrapper"><input type="text" name="patientName" id="inp-patientName" required>
+                    </div>
+                  </div>
+                  <div class="input-group"><label>PRN</label>
+                    <div class="input-wrapper"><input type="text" name="prn" required></div>
+                  </div>
+                  <div class="input-group"><label>SSN</label>
+                    <div class="input-wrapper" style="display:flex; gap:5px;"><input type="password" name="ssn"
+                        id="inp-ssn" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:8px;"
+                        onclick="toggleSSN()">👁</button></div>
+                  </div>
+                  <div class="input-group"><label>DOB</label>
+                    <div class="input-wrapper"><input type="date" name="dob"></div>
+                  </div>
+                  <div class="input-group"><label>Sex</label>
+                    <div class="input-wrapper"><select name="sex" id="opt-sex"></select></div>
+                  </div>
+                  <div class="input-group"><label>Phone</label>
+                    <div class="input-wrapper"><input type="text" name="phoneNumber"></div>
+                  </div>
+                  <div class="input-group"><label>Address</label>
+                    <div class="input-wrapper"><input type="text" name="address"></div>
+                  </div>
+                  <div class="input-group"><label>Reason</label>
+                    <div class="input-wrapper"><input type="text" name="reason"></div>
+                  </div>
                 </div>
                 <div id="sec-meds" class="form-grid hidden">
-                   <div class="input-group"><label>Pharmacy</label><div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div></div>
-                   <div class="input-group"><label>Provider</label><div class="input-wrapper"><select name="provider" id="opt-provider"></select></div></div>
-                   <div class="input-group"><label>Medication</label><div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div></div>
-                   <div class="input-group"><label>Status</label><div class="input-wrapper"><select name="status" id="opt-status"></select></div></div>
-                   <div class="input-group"><label>Insurance</label><div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div></div>
-                   <div class="input-group"><label>Insurance ID</label><div class="input-wrapper"><input type="text" name="insuranceId"></div></div>
-                   <div class="input-group full-width"><label>Outreach Note</label><div class="input-wrapper"><textarea name="outreachNote"></textarea></div></div>
-                   <div class="input-group full-width"><label>Office Note</label><div class="input-wrapper"><textarea name="officeNote"></textarea></div></div>
+                  <div class="input-group"><label>Pharmacy</label>
+                    <div class="input-wrapper"><select name="pharmacy" id="opt-pharmacy"></select></div>
+                  </div>
+                  <div class="input-group"><label>Provider</label>
+                    <div class="input-wrapper"><select name="provider" id="opt-provider"></select></div>
+                  </div>
+                  <div class="input-group"><label>Medication</label>
+                    <div class="input-wrapper"><select name="medicationDetails" id="opt-medication"></select></div>
+                  </div>
+                  <div class="input-group"><label>Status</label>
+                    <div class="input-wrapper"><select name="status" id="opt-status"></select></div>
+                  </div>
+                  <div class="input-group"><label>Insurance</label>
+                    <div class="input-wrapper"><select name="insuranceName" id="opt-insurance"></select></div>
+                  </div>
+                  <div class="input-group"><label>Insurance ID</label>
+                    <div class="input-wrapper"><input type="text" name="insuranceId"></div>
+                  </div>
+                  <div class="input-group full-width"><label>Outreach Note</label>
+                    <div class="input-wrapper"><textarea name="outreachNote"></textarea></div>
+                  </div>
+                  <div class="input-group full-width"><label>Office Note</label>
+                    <div class="input-wrapper"><textarea name="officeNote"></textarea></div>
+                  </div>
+
+                  <!-- PHARMACY UPDATE INFORMATION DISPLAY (CWC View) -->
+                  <div id="pharmacy-update-section" class="full-width" style="display:none; margin-top:25px;">
+                    <h4
+                      style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:15px; font-size:13px; text-transform:uppercase;">
+                      💊 Pharmacy Processing Information
+                    </h4>
+                    <div class="ro-section">
+                      <div class="ro-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                        <div class="ro-field">
+                          <div class="ro-label">Need Script?</div>
+                          <div class="ro-value" id="pharm-needs-script">-</div>
+                        </div>
+                        <div class="ro-field">
+                          <div class="ro-label">Updated Insurance</div>
+                          <div class="ro-value" id="pharm-insurance-detail">-</div>
+                        </div>
+                        <div class="ro-field">
+                          <div class="ro-label">Updated Policy #</div>
+                          <div class="ro-value" id="pharm-policy-number">-</div>
+                        </div>
+                        <div class="ro-field">
+                          <div class="ro-label">Prescription Status</div>
+                          <div class="ro-value" id="pharm-status">-</div>
+                        </div>
+                      </div>
+                      <div style="margin-top:15px;">
+                        <div class="ro-label">Pharmacy Notes</div>
+                        <div class="ro-value" id="pharm-notes"
+                          style="background:var(--bg-input); padding:12px; border-radius:6px; min-height:60px; white-space:pre-wrap;">
+                          -</div>
+                        <div id="pharm-update-timestamp"
+                          style="margin-top:8px; font-size:11px; color:var(--text-muted); display:none;">
+                          📅 Last Updated: <span id="pharm-timestamp-value"></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div id="view-pharm-container" class="hidden form-scroll-area">
-               <div id="pharm-info-card"></div>
-               <h4 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin:25px 0 15px 0; font-size:13px; text-transform:uppercase;">Pharmacy Processing</h4>
-               <div class="form-grid three-col">
-                  <div class="input-group"><label>Need Script?</label><div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div></div>
-                  <div class="input-group"><label>Policy #</label><div class="input-wrapper"><input type="text" name="policyNumber"></div></div>
-                  <div class="input-group"><label>Update Ins</label><div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div></div>
-               </div>
-               <div class="input-group full-width"><label>Pharmacy Notes</label><div class="input-wrapper"><textarea name="gardenNotes"></textarea></div></div>
+              <div id="pharm-info-card"></div>
+              <h4
+                style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:8px; margin:25px 0 15px 0; font-size:13px; text-transform:uppercase;">
+                Pharmacy Processing</h4>
+              <div class="form-grid three-col">
+                <div class="input-group"><label>Need Script?</label>
+                  <div class="input-wrapper"><select name="needsScript" id="opt-needsScript"></select></div>
+                </div>
+                <div class="input-group"><label>Policy #</label>
+                  <div class="input-wrapper"><input type="text" name="policyNumber"></div>
+                </div>
+                <div class="input-group"><label>Update Ins</label>
+                  <div class="input-wrapper"><select name="insuranceDetail" id="opt-insurance-update"></select></div>
+                </div>
+              </div>
+              <div class="input-group full-width"><label>Pharmacy Notes</label>
+                <div class="input-wrapper"><textarea name="gardenNotes"></textarea></div>
+              </div>
             </div>
 
             <div class="action-bar">
-               <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">💾 Save Changes</button>
-               <button type="button" class="btn btn-success btn-block" id="btn-submit" onclick="saveData('Submit to Pharmacy')">📤 Submit to Pharmacy</button>
-               <button type="button" class="btn btn-slate btn-block" id="btn-outreach" onclick="saveData('Outreach Update')">📢 Outreach Update</button>
-               <button type="button" class="btn btn-success btn-block hidden" id="btn-pharm-update" onclick="saveData('Pharmacy Update')">✅ Complete & Notify</button>
+              <button type="button" class="btn btn-primary btn-block" id="btn-save" onclick="saveData('Save')">💾 Save
+                Changes</button>
+              <button type="button" class="btn btn-success btn-block" id="btn-submit"
+                onclick="saveData('Submit to Pharmacy')">📤 Submit to Pharmacy</button>
+              <button type="button" class="btn btn-slate btn-block" id="btn-outreach"
+                onclick="saveData('Outreach Update')">📢 Outreach Update</button>
+              <button type="button" class="btn btn-success btn-block hidden" id="btn-pharm-update"
+                onclick="saveData('Pharmacy Update')">✅ Complete & Notify</button>
             </div>
           </form>
+
         </div>
       </div>
     </main>
   </div>
-  
+
   <div id="toast" class="toast">Notification</div>
+
+  <!-- FLOATING QUICK LINKS -->
+  <div id="quick-links-container" class="quick-links-container">
+    <div id="quick-links-menu" class="quick-links-menu">
+      <!-- Quick links will be dynamically populated here -->
+    </div>
+    <button class="quick-links-toggle" onclick="toggleQuickLinks()" title="Quick Links">
+      🔗
+    </button>
+  </div>
 
   <script>
     // --- STATE MANAGEMENT ---
-    let STATE = { 
-      records: [], archives: [], 
-      user: { email: '', defaultRole: 'CWC', roles: ['CWC'] }, 
-      currentList: 'active', 
-      chatHistory: [], 
-      lastRecordCount: 0, 
-      blur: true, 
-      externalStatus: {}, 
-      analytics: {}, 
+    let STATE = {
+      records: [], archives: [],
+      user: { email: '', defaultRole: 'CWC', roles: ['CWC'] },
+      currentList: 'active',
+      chatHistory: [],
+      lastRecordCount: 0,
+      blur: true,
+      externalStatus: {},
+      analytics: {},
       sortOrder: 'dateDesc',
+      statusFilter: 'all',  // NEW: Filter for CWC view
       selectedId: null,
       dataHash: '',
+      lastUpdateTimestamp: 0, // NEW: For fast polling
       unreadIds: new Set(),
       audioUnlocked: false,
+      expectingNewRecord: false, // NEW: Flag to auto-open record detected by polling
+      addingRecord: false, // LOCK: Prevent double submissions
       newEntrySound: null,
-      notificationTimer: null, 
-      blurTimer: null 
+      notificationTimer: null,
+      blurTimer: null
     };
-    
+
     let pollInterval = null;
 
     // --- INITIALIZATION ---
@@ -388,123 +1507,182 @@
       try {
         updateLoadStatus('Loading settings...');
         loadSettings();
-        
+
         updateLoadStatus('Setting up audio...');
         document.body.addEventListener('click', unlockAudio, { once: true });
-        
+        document.body.addEventListener('touchstart', unlockAudio, { once: true });
+        document.body.addEventListener('keydown', unlockAudio, { once: true });
+
         updateLoadStatus('Requesting data from server...');
         getInitialData();
-          
-      } catch (initError) {
-        console.error('Init error:', initError);
-        showError('Initialization error: ' + initError.message);
+
+      } catch (e) {
+        showError('Initialization error: ' + e.message);
       }
     }
-    
-    function getInitialData(isRefresh = false) {
-        google.script.run
-          .withSuccessHandler(dataRaw => {
-            try {
-              updateLoadStatus('Parsing server response...');
-              const data = JSON.parse(dataRaw);
-              
-              if(data.error) { showError(data.error); return; }
-              
-              updateLoadStatus('Loading state...');
-              const initialRecordCount = STATE.records.length;
-              
-              STATE = Object.assign(STATE, {
-                records: data.activeRecords || [],
-                archives: data.archivedRecords || [],
-                user: data.user || STATE.user,
-                chatHistory: data.chatHistory || [],
-                // CRITICAL FIX: Ensure lastRecordCount is updated from the server response
-                lastRecordCount: data.activeRecords ? data.activeRecords.length : 0, 
-                externalStatus: data.externalStatus || {},
-                analytics: data.analytics || {},
-                dataHash: data.dataHash || '',
-                unreadIds: isRefresh ? STATE.unreadIds : new Set(),
-              });
 
-              updateLoadStatus('Initializing sound...');
-              if(!STATE.newEntrySound && data.config && data.config.soundAlertData) {
-                  STATE.newEntrySound = new Audio(data.config.soundAlertData);
-                  STATE.newEntrySound.load();
-              }
+    function unlockAudio() {
+      if (STATE.audioUnlocked) return;
+      STATE.audioUnlocked = true;
+      console.log('🔊 Audio unlocked by user interaction');
 
-              updateLoadStatus('Setting user info...');
-              document.getElementById('user-email').innerText = STATE.user.email;
-              document.getElementById('user-role-display').innerText = STATE.user.defaultRole;
-              
-              updateLoadStatus('Loading dropdowns...');
-              populateDropdowns((data.config && data.config.dropdowns) || {});
-              
-              updateLoadStatus('Setting up views...');
-              setupRoleView(); 
-              
-              // FIX for Issue 2: Trigger immediate new record alert (if records were added since last load/refresh)
-              if (STATE.records.length > initialRecordCount && !isRefresh) {
-                 const newRecords = STATE.records.slice(initialRecordCount);
-                 newRecords.forEach(r => STATE.unreadIds.add(r.rowNum));
-                 playNotificationSound();
-                 toast('🚨 New Patient Submission!', 'alert');
-              } else if (isRefresh) {
-                 toast('✅ Data Refreshed', 'success');
-              }
-              
-              updateLoadStatus('Rendering list...');
-              renderList(); 
-              
-              updateLoadStatus('Loading chat...');
-              renderChat(); 
-              
-              updateLoadStatus('Updating KPIs...');
-              updateKPIs();
-              
-              // Start background processes
-              if (!pollInterval) startPolling();
-              if (!STATE.notificationTimer) startNotificationLoop();
-              
-              updateLoadStatus('Complete!');
-              document.getElementById('security-overlay').classList.add('hidden');
-              document.getElementById('app-container').classList.add('visible');
-              
-            } catch(parseError) {
-              console.error('Parse error:', parseError);
-              showError('Error parsing data: ' + parseError.message);
-            }
-          })
-          .withFailureHandler(error => {
-            console.error('Server error:', error);
-            showError('Server error: ' + error.message);
-          })
-          .getInitialData();
+      // Create and play a silent buffer to unlock the audio context if needed
+      if (STATE.newEntrySound) {
+        STATE.newEntrySound.play().then(() => {
+          STATE.newEntrySound.pause();
+          STATE.newEntrySound.currentTime = 0;
+        }).catch(e => console.log('Audio unlock silent play failed', e));
+      }
     }
-    
+
+    function getStatusClass(status) {
+      if (!status) return 'chip-new';
+      const s = status.toLowerCase();
+      if (s.includes('pharmacy')) return 'chip-pharm';
+      if (s.includes('outreach')) return 'chip-outreach';
+      if (s.includes('submit')) return 'chip-submit';
+      if (s === 'new entry') return 'chip-new';
+      return 'chip-default';
+    }
+
+    function getInitialData(isRefresh = false) {
+      console.log('📞 Calling server getInitialData...');
+
+      google.script.run
+        .withSuccessHandler(dataRaw => {
+          try {
+            console.log('✅ Server response received, length:', dataRaw ? dataRaw.length : 0);
+            updateLoadStatus('Parsing server response...');
+            const data = JSON.parse(dataRaw);
+            console.log('📦 Parsed data:', data);
+
+            if (data.error) {
+              console.error('❌ Server returned error:', data.error);
+              showError(data.error);
+              return;
+            }
+
+            updateLoadStatus('Loading state...');
+            const initialRecordCount = STATE.records.length;
+            console.log('📊 Initial record count:', initialRecordCount);
+
+            STATE = Object.assign(STATE, {
+              records: data.activeRecords || [],
+              archives: data.archivedRecords || [],
+              user: data.user || STATE.user,
+              chatHistory: data.chatHistory || [],
+              // CRITICAL FIX: Ensure lastRecordCount is updated from the server response
+              lastRecordCount: data.activeRecords ? data.activeRecords.length : 0,
+              dataHash: data.dataHash || '',
+              externalStatus: data.externalStatus || {},
+              recentActivities: data.recentActivities || [],
+              analytics: data.analytics || {},
+              quickLinks: data.quickLinks || []  // NEW: Quick links
+            });
+
+            console.log('✅ State updated with data:', {
+              recordsCount: STATE.records.length,
+              archivesCount: STATE.archives.length,
+              userEmail: STATE.user?.email,
+              quickLinksCount: STATE.quickLinks.length
+            });
+
+            updateLoadStatus('Rendering UI...');
+            if (!STATE.newEntrySound && data.config && data.config.soundAlertData) {
+              STATE.newEntrySound = new Audio(data.config.soundAlertData);
+              STATE.newEntrySound.load();
+              console.log('🔊 Sound initialized');
+            }
+
+            updateLoadStatus('Setting user info...');
+            document.getElementById('user-email').innerText = STATE.user.email;
+            document.getElementById('user-role-display').innerText = STATE.user.defaultRole;
+
+            updateLoadStatus('Loading dropdowns...');
+            populateDropdowns((data.config && data.config.dropdowns) || {});
+
+            updateLoadStatus('Setting up views...');
+            setupRoleView();
+
+            // FIX: Only trigger alert if we have existing data (not on first load)
+            if (initialRecordCount > 0 && STATE.records.length > initialRecordCount && !isRefresh) {
+              const newRecords = STATE.records.slice(initialRecordCount);
+              newRecords.forEach(r => STATE.unreadIds.add(r.rowNum));
+              playNotificationSound();
+              toast('🚨 New Patient Submission!', 'alert');
+            } else if (isRefresh) {
+              toast('✅ Data Refreshed', 'success');
+            }
+
+            updateLoadStatus('Rendering list...');
+            renderList();
+
+            updateLoadStatus('Loading chat...');
+            renderChat();
+
+            updateLoadStatus('Updating KPIs...');
+            updateKPIs();
+
+            updateLoadStatus('Loading quick links...');
+            renderQuickLinks();  // Render quick links menu
+
+            updateLoadStatus('Setting up role view...');
+            setupRoleView();
+
+            // Start background processes
+            console.log('🚀 Starting background processes...');
+            if (!pollInterval) {
+              console.log('▶️ Calling startPolling()...');
+              startPolling();
+            } else {
+              console.log('⏸️ pollInterval already exists, skipping startPolling()');
+            }
+            if (!STATE.notificationTimer) startNotificationLoop();
+
+            updateLoadStatus('Complete!');
+            document.getElementById('security-overlay').classList.add('hidden');
+            document.getElementById('app-container').classList.add('visible');
+
+            console.log('✅ Initialization complete!');
+
+          } catch (parseError) {
+            console.error('❌ Parse error:', parseError);
+            console.error('Stack:', parseError.stack);
+            showError('Error parsing data: ' + parseError.message);
+          }
+        })
+        .withFailureHandler(error => {
+          console.error('❌ Server error:', error);
+          console.error('Error details:', JSON.stringify(error));
+          showError('Server error: ' + error.message);
+        })
+        .getInitialData();
+    }
+
     function showError(msg) {
-       document.getElementById('loader-msg').classList.add('hidden');
-       document.getElementById('access-denied').innerHTML = `<h3 style="color:#ef4444">Error</h3><p>${msg}</p>`;
-       document.getElementById('access-denied').classList.remove('hidden');
-       setTimeout(() => { 
-          document.getElementById('security-overlay').classList.remove('hidden');
-       }, 50);
+      document.getElementById('loader-msg').classList.add('hidden');
+      document.getElementById('access-denied').innerHTML = `<h3 style="color:#ef4444">Error</h3><p>${msg}</p>`;
+      document.getElementById('access-denied').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('security-overlay').classList.remove('hidden');
+      }, 50);
     }
 
     // --- AUDIO & NOTIFICATION LOOP FUNCTIONS ---
-    
+
     function playNotificationSound() {
-       if(STATE.newEntrySound && STATE.audioUnlocked) {
-         STATE.newEntrySound.currentTime = 0;
-         STATE.newEntrySound.play().catch(e => console.log("Sound play error", e));
-       }
+      if (STATE.newEntrySound && STATE.audioUnlocked) {
+        STATE.newEntrySound.currentTime = 0;
+        STATE.newEntrySound.play().catch(e => console.log("Sound play error", e));
+      }
     }
 
     function unlockAudio() {
       if (STATE.audioUnlocked || !STATE.newEntrySound) return;
-      
+
       STATE.newEntrySound.volume = 0;
       const playPromise = STATE.newEntrySound.play();
-      
+
       if (playPromise !== undefined) {
         playPromise.then(_ => {
           STATE.newEntrySound.pause();
@@ -519,153 +1697,287 @@
     }
 
     function startNotificationLoop() {
-       if (STATE.notificationTimer) clearInterval(STATE.notificationTimer);
-       STATE.notificationTimer = setInterval(() => {
-          if (STATE.unreadIds.size > 0) {
-             playNotificationSound();
-             toast('⚠️ Unread Record Alert', 'alert');
-          }
-       }, 60000); // 60 Seconds
+      if (STATE.notificationTimer) clearInterval(STATE.notificationTimer);
+      STATE.notificationTimer = setInterval(() => {
+        if (STATE.unreadIds.size > 0) {
+          playNotificationSound();
+          toast('⚠️ Unread Record Alert', 'alert');
+        }
+      }, 60000); // 60 Seconds
     }
-    
+
     // --- POLLING LOGIC ---
 
+    // --- OPTIMIZED POLLING (30-second fixed interval) ---
+    const POLL_INTERVAL = 30000;  // 30 seconds
+
     function startPolling() {
-      const pollDelay = 5000; 
-      if (pollInterval) clearInterval(pollInterval); 
+      // Clear any existing poll
+      if (pollInterval) clearInterval(pollInterval);
 
+      console.log('🔄 Starting polling loop (30s interval)...');
+
+      // Poll every 30 seconds
       pollInterval = setInterval(() => {
-         google.script.run
-           .withSuccessHandler(res => {
-              let shouldAlert = false;
-              
-              // 1. New Records (New Row added to sheet)
-              if(res.hasNew && res.newRecords && res.newRecords.length > 0) {
-                 res.newRecords.forEach(r => {
-                   STATE.records.push(r);
-                   STATE.unreadIds.add(r.rowNum);
-                   shouldAlert = true;
-                 });
-                 
-                 STATE.lastRecordCount = res.currentRecordCount;
-              }
-              
-              // 2. Updates (Hash changed but row count is the same)
-              if(res.hasUpdates && res.allRecords) {
-                 
-                 if (STATE.user.defaultRole === 'PHARMACY') {
-                    const oldMap = new Map(STATE.records.map(r => [r.rowNum, r]));
-                    res.allRecords.forEach(newR => {
-                       const oldR = oldMap.get(newR.rowNum);
-                       if ((!oldR || oldR.workflowStatus !== 'Submitted to Pharmacy') && 
-                           newR.workflowStatus === 'Submitted to Pharmacy') {
-                           STATE.unreadIds.add(newR.rowNum);
-                           shouldAlert = true;
-                       }
-                    });
-                 }
+        console.log('⏰ Poll tick - checking for new records...');
+        pollForNewRecords();
+        refreshChat();
+      }, POLL_INTERVAL);
 
-                 STATE.records = res.allRecords;
-                 // Ensure last record count is also updated to prevent re-triggering 'hasUpdates' unnecessarily
-                 STATE.lastRecordCount = res.currentRecordCount;
-              }
-              
-              STATE.dataHash = res.dataHash || STATE.dataHash;
-
-              if (shouldAlert) {
-                 playNotificationSound();
-                 toast('🚨 New Submission Alert!', 'alert');
-              }
-              
-              if(res.hasNew || res.hasUpdates) {
-                 renderList(); 
-                 updateKPIs(); 
-              }
-           })
-           .checkForNewRecords(STATE.lastRecordCount, STATE.dataHash);
-         
-         refreshChat();
-      }, pollDelay);
+      // Run immediately
+      console.log('▶️ Running initial poll...');
+      pollForNewRecords();
     }
-    
+
+    function pollForNewRecords() {
+      // Only poll if the current list view is 'active'
+      if (STATE.currentList === 'secondary' && STATE.user.defaultRole === 'CWC') return;
+
+      google.script.run
+        .withSuccessHandler(res => {
+          console.log('📡 Poll response:', res);
+
+          // NULL SAFETY: Server may return null if there's an error
+          if (!res) {
+            console.error('❌ Server returned null - likely an error processing the request');
+            return;
+          }
+
+          if (res.hasNew) {
+            handleNewRecordAlert(res.newRecords);
+            // Update state and refresh UI
+            // FILTER DUPLICATES: Prevent race conditions where polling sees record before addRecord returns
+            // Use loose equality (==) to handle potential string/number mismatches (e.g. "123" vs 123)
+            const uniqueNew = res.newRecords.filter(n => !STATE.records.some(e => e.rowNum == n.rowNum));
+
+            if (uniqueNew.length > 0) {
+              STATE.records.push(...uniqueNew);
+            }
+
+            STATE.lastRecordCount = res.currentRecordCount;
+            STATE.dataHash = res.dataHash || STATE.dataHash;
+
+            if (STATE.expectingNewRecord) {
+              const newRecord = res.newRecords[0];
+              if (newRecord) {
+                setTimeout(() => {
+                  loadDetail(newRecord, false); // Don't mark as read - user hasn't clicked yet
+                  const nameField = document.getElementById('inp-patientName');
+                  if (nameField) {
+                    nameField.focus();
+                    nameField.select(); // Select text so typing replaces it (if any)
+                  }
+                  STATE.expectingNewRecord = false; // Reset flag
+                }, 100);
+              }
+            }
+
+            renderList();
+            try { updateKPIs(); } catch (e) { console.error('KPI update error:', e); }
+
+          } else if (res.hasUpdates && res.allRecords) {
+            // Handle UPDATES (data changed but count stayed same)
+            STATE.records = res.allRecords;
+            STATE.dataHash = res.dataHash || STATE.dataHash;
+            STATE.lastRecordCount = res.currentRecordCount;
+            renderList();
+
+            // FIXED: If we were waiting for an update (e.g. because save returned null), force refresh detail
+            if (STATE.expectingUpdate && STATE.selectedId) {
+              console.log('⏳ Was expecting update - refreshing detail view now');
+              const updatedRec = STATE.records.find(r => r.rowNum == STATE.selectedId);
+              if (updatedRec) {
+                loadDetail(updatedRec);
+                toast('✅ Data synced successfully', 'success');
+              }
+              STATE.expectingUpdate = false;
+            }
+
+            // DETECT STATUS CHANGES FOR ALERTS
+            // Check if any record has newly entered a state relevant to the current user
+            const currentRelevantIds = new Set(STATE.records.filter(r => {
+              if (STATE.user.defaultRole === 'PHARMACY') return r.workflowStatus === 'Submitted to Pharmacy';
+              return r.workflowStatus === 'Pharmacy Update Received'; // Alert CWC when Pharmacy responds
+            }).map(r => r.rowNum));
+
+            const newRelevantRecords = res.allRecords.filter(r => {
+              if (STATE.user.defaultRole === 'PHARMACY') return r.workflowStatus === 'Submitted to Pharmacy';
+              return r.workflowStatus === 'Pharmacy Update Received';
+            });
+
+            const alerts = newRelevantRecords.filter(r => !currentRelevantIds.has(r.rowNum));
+
+            if (alerts.length > 0) {
+              handleNewRecordAlert(alerts);
+            }
+
+            updateKPIs();
+          } else if (res.currentRecordCount !== STATE.lastRecordCount) {
+            // This handles manual deletion/archiving from the sheet
+            console.log('Record count mismatch, forcing full refresh.');
+            init(); // Re-initialize to get a fresh list
+          }
+        })
+        .withFailureHandler(e => {
+          console.error('❌ Polling error:', e);
+        })
+        .checkForNewRecords(STATE.lastRecordCount, STATE.dataHash);
+    }
+
+    function handleNewRecordAlert(newRecords) {
+      if (!newRecords || newRecords.length === 0) return;
+
+      // FILTER ALERTS BASED ON ROLE
+      const relevantRecords = newRecords.filter(r => {
+        if (STATE.user.defaultRole === 'PHARMACY') {
+          // Pharmacy only cares about records assigned to them
+          return r.workflowStatus === 'Submitted to Pharmacy' || r.workflowStatus === 'Pharmacy Update';
+        } else {
+          // CWC cares about everything, but specifically New Entries and Updates
+          return true;
+        }
+      });
+
+      if (relevantRecords.length === 0) return;
+
+      relevantRecords.forEach(r => {
+        // 1. Audible Alert - Only play if audio is unlocked by user interaction
+        if (STATE.newEntrySound && STATE.audioUnlocked) {
+          STATE.newEntrySound.currentTime = 0;
+          STATE.newEntrySound.play().catch(e => console.error("Sound play failed:", e));
+        } else if (!STATE.audioUnlocked) {
+          console.warn("Sound alert blocked. Click anywhere on the page to enable audio.");
+        }
+
+        // 2. Visible Toast
+        let msg = `🔔 NEW ENTRY: ${r.patientName || 'New Patient'} added!`;
+        if (r.workflowStatus === 'Submitted to Pharmacy') msg = `🔔 NEW PHARMACY ORDER: ${r.patientName}`;
+        else if (r.workflowStatus === 'Pharmacy Update Received') msg = `🔔 PHARMACY UPDATE: ${r.patientName}`;
+
+        toast(msg, 'alert');
+
+        // 3. Highlight in list
+        STATE.unreadIds.add(r.rowNum);
+
+        // 4. Desktop Notification (if permitted)
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(`CWC ALERT: New Patient Record`, {
+            body: `${r.patientName || 'Unnamed Patient'} has been added to the active list. Status: ${r.workflowStatus || 'New Entry'}`,
+            icon: '🚨'
+          });
+        }
+      });
+    }
+
     // --- UI LOGIC ---
 
     function loadSettings() {
-       const savedTheme = localStorage.getItem('cwc_dark_mode');
-       const btn = document.getElementById('btn-theme');
-       if(savedTheme === 'false') { 
-         document.body.classList.remove('dark-mode'); 
-         btn.innerText = '☀️';
-       } else {
-         document.body.classList.add('dark-mode');
-         btn.innerText = '🌙';
-       }
-       const savedBlur = localStorage.getItem('cwc_blur_enabled');
-       if(savedBlur !== null) STATE.blur = (savedBlur === 'true');
+      const savedTheme = localStorage.getItem('cwc_dark_mode');
+      const btn = document.getElementById('btn-theme');
+      if (savedTheme === 'false') {
+        document.body.classList.remove('dark-mode');
+        btn.innerText = '☀️';
+      } else {
+        document.body.classList.add('dark-mode');
+        btn.innerText = '🌙';
+      }
+      const savedBlur = localStorage.getItem('cwc_blur_enabled');
+      if (savedBlur !== null) STATE.blur = (savedBlur === 'true');
     }
 
     function forceRefresh() {
-        toggleLoader(true);
-        closeDetail();
-        getInitialData(true);
+      toggleLoader(true);
+      closeDetail();
+      getInitialData(true);
     }
 
     function setupRoleView() {
-       const r = STATE.user.defaultRole || 'CWC';
-       document.getElementById('view-indicator').innerText = r + ' View';
-       document.getElementById('btn-add-record').classList.toggle('hidden', r === 'PHARMACY');
-       document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1);
-       
-       const isPharm = r === 'PHARMACY';
-       document.getElementById('tab-secondary').innerText = isPharm ? 'Completed' : 'Archive';
-       
-       document.getElementById('view-cwc-container').classList.toggle('hidden', isPharm);
-       document.getElementById('view-pharm-container').classList.toggle('hidden', !isPharm);
-       document.getElementById('btn-save').classList.toggle('hidden', isPharm);
-       document.getElementById('btn-submit').classList.toggle('hidden', isPharm);
-       
-       const outreachBtn = document.getElementById('btn-outreach');
-       outreachBtn.innerText = '📢 Outreach Update';
-       outreachBtn.classList.toggle('hidden', isPharm);
+      const r = STATE.user.defaultRole || 'CWC';
+      document.getElementById('view-indicator').innerText = r + ' View';
+      document.getElementById('btn-add-record').classList.toggle('hidden', r === 'PHARMACY');
+      document.getElementById('btn-switch-role').classList.toggle('hidden', STATE.user.roles.length <= 1);
 
-       document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
-       
-       const chatTitle = isPharm ? "💬 CWC Chat" : "💬 Pharmacy Chat";
-       document.getElementById('chat-title').innerHTML = chatTitle;
+      const isPharm = r === 'PHARMACY';
+      document.getElementById('tab-secondary').innerText = isPharm ? 'Completed' : 'Archive';
+
+      // SHOW/HIDE CWC FILTERS
+      document.getElementById('cwc-filters').classList.toggle('hidden', isPharm);
+
+      document.getElementById('view-cwc-container').classList.toggle('hidden', isPharm);
+      document.getElementById('view-pharm-container').classList.toggle('hidden', !isPharm);
+      document.getElementById('btn-save').classList.toggle('hidden', isPharm);
+      document.getElementById('btn-submit').classList.toggle('hidden', isPharm);
+
+      const outreachBtn = document.getElementById('btn-outreach');
+      outreachBtn.innerText = '📢 Outreach Update';
+      outreachBtn.classList.toggle('hidden', isPharm);
+
+      document.getElementById('btn-pharm-update').classList.toggle('hidden', !isPharm);
+
+      const chatTitle = isPharm ? "💬 CWC Chat" : "💬 Pharmacy Chat";
+      document.getElementById('chat-title').innerHTML = chatTitle;
+    }
+
+    function setFilter(filter) {
+      STATE.statusFilter = filter;
+
+      // Update button states
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === filter);
+      });
+
+      renderList();
     }
 
     function renderList() {
-      const el = document.getElementById('list-wrapper'); 
+      const el = document.getElementById('list-wrapper');
       el.innerHTML = '';
       const term = (document.getElementById('search').value || '').toLowerCase();
-      
+
       let src;
       if (STATE.currentList === 'secondary') {
-         if (STATE.user.defaultRole === 'PHARMACY') {
-            src = STATE.records.filter(r => r.workflowStatus === 'Pharmacy Update Received');
-         } else {
-            src = STATE.archives;
-         }
+        if (STATE.user.defaultRole === 'PHARMACY') {
+          src = STATE.records.filter(r => r.workflowStatus === 'Pharmacy Update Received');
+        } else {
+          // CWC: Apply filtering to archives
+          src = STATE.archives;
+
+          // APPLY CWC FILTER TO ARCHIVES
+          if (STATE.statusFilter === 'pharmacy') {
+            src = src.filter(r => r.workflowStatus === 'Submitted to Pharmacy' || r.workflowStatus === 'Pharmacy Update Received');
+          } else if (STATE.statusFilter === 'outreach') {
+            src = src.filter(r => r.workflowStatus === 'Outreach Update Sent');
+          }
+          // 'all' filter shows everything in archives
+        }
       } else {
-         src = STATE.records;
-         if (STATE.user.defaultRole === 'PHARMACY') {
-            src = src.filter(r => r.workflowStatus === 'Submitted to Pharmacy');
-         }
+        src = STATE.records;
+        if (STATE.user.defaultRole === 'PHARMACY') {
+          src = src.filter(r => r.workflowStatus === 'Submitted to Pharmacy');
+        } else {
+          // APPLY CWC FILTER
+          if (STATE.statusFilter === 'pharmacy') {
+            src = src.filter(r => r.workflowStatus === 'Submitted to Pharmacy' || r.workflowStatus === 'Pharmacy Update Received');
+          } else if (STATE.statusFilter === 'outreach') {
+            src = src.filter(r => r.workflowStatus === 'Outreach Update Sent');
+          }
+          // 'all' filter shows everything, no additional filtering needed
+        }
       }
-      
+
       src.sort((a, b) => {
         if (STATE.sortOrder === 'nameAsc') {
-           const nA = (a.patientName || '').toLowerCase(), nB = (b.patientName || '').toLowerCase();
-           return nA.localeCompare(nB);
-        } else { 
-           const tA = a.timestamp ? new Date(a.timestamp).getTime() : a.rowNum;
-           const tB = b.timestamp ? new Date(b.timestamp).getTime() : b.rowNum;
-           return tB - tA;
+          const nA = (a.patientName || '').toLowerCase(), nB = (b.patientName || '').toLowerCase();
+          return nA.localeCompare(nB);
+        } else {
+          const tA = a.timestamp ? new Date(a.timestamp).getTime() : a.rowNum;
+          const tB = b.timestamp ? new Date(b.timestamp).getTime() : b.rowNum;
+          return tB - tA;
         }
       });
 
       const filtered = src.filter(r => {
-         return Object.values(r).some(val => String(val).toLowerCase().includes(term));
+        return Object.values(r).some(val => String(val).toLowerCase().includes(term));
       });
 
       filtered.forEach(r => {
@@ -673,156 +1985,250 @@
         const isSelected = STATE.selectedId === r.rowNum;
         const isUnread = STATE.unreadIds.has(r.rowNum);
         const shouldBlur = STATE.blur && !isSelected;
-        
-        div.className = 'patient-item ' + 
-                        (isSelected ? 'selected' : '') + 
-                        (isUnread && !isSelected ? ' unread' : '');
+
+        div.className = 'patient-item ' +
+          (isSelected ? 'selected' : '') +
+          (isUnread && !isSelected ? ' unread' : '');
         div.onclick = () => loadDetail(r);
-        
-        div.id = 'record-' + r.rowNum; 
-        
+
+        div.id = 'record-' + r.rowNum;
+
         let extBadges = '';
         const k = r.prn ? String(r.prn).toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
-        
+
         if (r.inOffice === true || r.inOffice === 'TRUE') {
-           extBadges += `<span class="tag-in-office">IN OFFICE</span>`;
+          extBadges += `<span class="tag-in-office">IN OFFICE</span>`;
         }
 
-        if(k && STATE.externalStatus[k]) {
-           STATE.externalStatus[k].forEach(s => { extBadges += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
+        if (k && STATE.externalStatus[k]) {
+          STATE.externalStatus[k].forEach(s => {
+            const cssClass = s === 'MAIL' ? 'tag-mail' : (s === 'BANNED' ? 'tag-banned' : 'tag-meds');
+            extBadges += `<span class="ext-tag ${cssClass}">${s}</span>`;
+          });
         }
 
         const isUrgent = (r.priority || '').toString().toLowerCase() === 'urgent';
         const urgentIcon = isUrgent ? '<span class="pi-urgent" title="Urgent">🔥</span>' : '';
-        
+
         let timeDisplay = '';
-        if(r.timestamp) {
-           let dStr = r.timestamp;
-           if (dStr.includes(":")) {
-              const d = new Date(dStr);
-              if (!isNaN(d)) {
-                 const now = new Date();
-                 if(d.toDateString() === now.toDateString()) {
-                    timeDisplay = d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
-                 } else {
-                    timeDisplay = d.toLocaleDateString([], {month:'short', day:'numeric'});
-                 }
+        if (r.timestamp) {
+          let dStr = r.timestamp;
+          if (dStr.includes(":")) {
+            const d = new Date(dStr);
+            if (!isNaN(d)) {
+              const now = new Date();
+              if (d.toDateString() === now.toDateString()) {
+                timeDisplay = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+              } else {
+                timeDisplay = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
               }
-           }
+            }
+          }
         }
 
         div.innerHTML = `
           <div class="pi-header">
              <div style="display:flex; align-items:center; overflow:hidden;">
                ${urgentIcon}
-               <div class="pi-name ${shouldBlur ? 'blurred' : ''}">${r.patientName||'Unnamed'}</div>
+               <div class="pi-name ${shouldBlur ? 'blurred' : ''}" style="${!r.patientName ? 'opacity: 0.5; font-style: italic;' : ''}">${r.patientName || '(New Patient)'}</div>
              </div>
              <span class="pi-time">${timeDisplay}</span>
           </div>
           <div class="pi-meta">
-             <div>${extBadges} <span>${r.prn||''}</span></div>
-             <span class="status-chip chip-new">${(r.workflowStatus||'New').substring(0,1)}</span>
+             <div>${extBadges} <span>${r.prn || ''}</span></div>
+             <span class="status-chip ${getStatusClass(r.workflowStatus)}">${(r.workflowStatus || 'New').substring(0, 1)}</span>
           </div>
         `;
         el.appendChild(div);
       });
     }
 
-    function loadDetail(r) {
-      STATE.unreadIds.delete(r.rowNum);
-      
+    function loadDetail(r, markAsRead = true) {
+      // Only mark as read if explicitly requested (manual click, not auto-open)
+      if (markAsRead) {
+        STATE.unreadIds.delete(r.rowNum);
+      }
+
       if (STATE.blurTimer) clearTimeout(STATE.blurTimer);
-      
+
       document.getElementById('dashboard-view').style.display = 'none';
       document.getElementById('detail-card').classList.remove('hidden');
-      document.getElementById('d-name').innerText = r.patientName;
-      document.getElementById('d-prn').innerText = r.prn;
-      document.getElementById('d-status').innerText = r.workflowStatus || 'New Entry';
-      
+
+      document.getElementById('d-name').innerText = r.patientName || '(New Patient)';
+      document.getElementById('d-prn').innerText = r.prn || '';
+
+      const statusEl = document.getElementById('d-status');
+      statusEl.innerText = r.workflowStatus || 'New Entry';
+      statusEl.className = 'status-chip ' + getStatusClass(r.workflowStatus);
+
       let timeStr = '';
-      if(r.timestamp) {
+      if (r.timestamp) {
         const d = new Date(r.timestamp);
-        if(!isNaN(d)) timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
+        if (!isNaN(d)) timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
       }
       document.getElementById('d-time').innerText = timeStr;
 
-      const badgesDiv = document.getElementById('d-ext-status'); 
+      const badgesDiv = document.getElementById('d-ext-status');
       badgesDiv.innerHTML = '';
       const k = r.prn ? String(r.prn).toUpperCase().replace(/[^A-Z0-9]/g, '') : "";
-      
+
       if (r.inOffice === true || r.inOffice === 'TRUE') {
-          badgesDiv.innerHTML += `<span class="tag-in-office">IN OFFICE</span>`;
+        badgesDiv.innerHTML += `<span class="tag-in-office">IN OFFICE</span>`;
       }
 
-      if(k && STATE.externalStatus[k]) {
-         STATE.externalStatus[k].forEach(s => { badgesDiv.innerHTML += `<span class="ext-tag ${s==='MAIL'?'tag-mail':'tag-meds'}">${s}</span>`; });
+      if (k && STATE.externalStatus[k]) {
+        STATE.externalStatus[k].forEach(s => {
+          const cssClass = s === 'MAIL' ? 'tag-mail' : (s === 'BANNED' ? 'tag-banned' : 'tag-meds');
+          badgesDiv.innerHTML += `<span class="ext-tag ${cssClass}">${s}</span>`;
+        });
       }
 
       STATE.selectedId = r.rowNum;
-      renderList(); 
-      
+      renderList();
+
       const form = document.getElementById('patient-form');
       const isArchive = STATE.currentList === 'secondary';
-      
+
       Array.from(form.elements).forEach(el => {
-         el.disabled = isArchive;
-         
-         if(el.name) {
-            const value = r[el.name];
-            if (el.type === 'date' && value) {
-               const date = new Date(value);
-               if (!isNaN(date)) {
-                 const year = date.getFullYear();
-                 const month = String(date.getMonth() + 1).padStart(2, '0');
-                 const day = String(date.getDate()).padStart(2, '0');
-                 el.value = `${year}-${month}-${day}`;
-               }
-            } else if (el.type === 'checkbox') {
-                 el.checked = (value === true || value === 'TRUE');
-            } else {
-                 el.value = value || '';
+        el.disabled = isArchive;
+
+        if (el.name) {
+          const value = r[el.name];
+          if (el.type === 'date' && value) {
+            const date = new Date(value);
+            if (!isNaN(date)) {
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              el.value = `${year}-${month}-${day}`;
             }
-         }
+          } else if (el.type === 'checkbox') {
+            el.checked = (value === true || value === 'TRUE');
+          } else {
+            el.value = value || '';
+          }
+        }
       });
-      
-      if(document.getElementById('chk-priority')) {
-         const cb = document.getElementById('chk-priority');
-         cb.checked = (r.priority === 'Urgent');
-         cb.disabled = isArchive;
+
+      if (document.getElementById('chk-priority')) {
+        const cb = document.getElementById('chk-priority');
+        cb.checked = (r.priority === 'Urgent');
+        cb.disabled = isArchive;
       }
-      
+
       const inOfficeCb = document.getElementById('chk-in-office');
       if (inOfficeCb) {
-          inOfficeCb.checked = (r.inOffice === true || r.inOffice === 'TRUE');
-          inOfficeCb.disabled = isArchive;
+        inOfficeCb.checked = (r.inOffice === true || r.inOffice === 'TRUE');
+        inOfficeCb.disabled = isArchive;
       }
 
       document.querySelector('.action-bar').classList.toggle('hidden', isArchive);
 
-      if(STATE.user.defaultRole === 'PHARMACY') {
+      // FIX: Global Auto-Blur Timer (Works for both roles)
+      const ssnVal = r.ssn || '';
+      const prnVal = r.prn || '';
+      const recordRowNum = r.rowNum; // Capture in closure
+      console.log(`🔒 Starting blur timer for record ${recordRowNum}, STATE.selectedId: ${STATE.selectedId}`);
+
+      STATE.blurTimer = setTimeout(() => {
+        console.log(`⏰ Blur timer fired! Record: ${recordRowNum}, Current STATE.selectedId: ${STATE.selectedId}`);
+        if (STATE.selectedId === recordRowNum) {
+          console.log('✅ IDs match - proceeding with re-blur');
+
+          // IMPORTANT: Set blur to true before re-rendering list
+          const wasBlurred = STATE.blur;
+          STATE.blur = true;
+          console.log(`Setting STATE.blur = true (was: ${wasBlurred})`);
+
+          // Pharmacy View - blur read-only fields
+          document.querySelectorAll('.ro-value').forEach(el => {
+            if (ssnVal && el.innerText.includes(ssnVal)) {
+              el.classList.add('blurred');
+              console.log('Blurred SSN in ro-value');
+            }
+            if (prnVal && el.innerText.includes(prnVal)) {
+              el.classList.add('blurred');
+              console.log('Blurred PRN in ro-value');
+            }
+          });
+
+          const pharmSsn = document.getElementById('pharm-ssn-view');
+          if (pharmSsn) {
+            pharmSsn.type = 'password';
+            console.log('Set pharm-ssn-view to password');
+          }
+
+          // CWC View - blur input fields
+          const cwcSsn = document.getElementById('inp-ssn');
+          if (cwcSsn) {
+            cwcSsn.type = 'password';
+            console.log('Set inp-ssn to password');
+          }
+
+          // Re-render list to blur patient names
+          console.log('Re-rendering list to blur patient names');
+          renderList();
+
+          toast('🔒 Session timed out - Fields re-blurred', 'info');
+        } else {
+          console.log(`❌ IDs don't match - skipping re-blur (expected ${recordRowNum}, got ${STATE.selectedId})`);
+        }
+      }, 60000); // 60 seconds
+      console.log(`Timer ID: ${STATE.blurTimer}`);
+
+      // POPULATE PHARMACY UPDATE SECTION (CWC View Only)
+      if (STATE.user.defaultRole === 'CWC') {
+        const pharmacySection = document.getElementById('pharmacy-update-section');
+        const hasPharmacyData = r.workflowStatus === 'Submitted to Pharmacy' ||
+          r.workflowStatus === 'Pharmacy Update Received' ||
+          r.gardenNotes || r.needsScript || r.insuranceDetail || r.policyNumber;
+
+        if (hasPharmacyData) {
+          pharmacySection.style.display = 'block';
+
+
+          // Populate fields
+          document.getElementById('pharm-needs-script').innerText = r.needsScript || 'Not specified';
+          document.getElementById('pharm-insurance-detail').innerText = r.insuranceDetail || 'No update';
+          document.getElementById('pharm-policy-number').innerText = r.policyNumber || 'No update';
+          document.getElementById('pharm-status').innerText = r.status || 'Not specified';
+          document.getElementById('pharm-notes').innerText = r.gardenNotes || 'No notes from pharmacy';
+
+          // Show timestamp if available
+          const timestampDiv = document.getElementById('pharm-update-timestamp');
+          const timestampValue = document.getElementById('pharm-timestamp-value');
+          if (r.sentTimestamp && (r.workflowStatus === 'Pharmacy Update Received' || r.gardenNotes)) {
+            try {
+              const updateTime = new Date(r.sentTimestamp);
+              timestampValue.innerText = updateTime.toLocaleString();
+              timestampDiv.style.display = 'block';
+            } catch (e) {
+              timestampDiv.style.display = 'none';
+            }
+          } else {
+            timestampDiv.style.display = 'none';
+          }
+        } else {
+          pharmacySection.style.display = 'none';
+        }
+      }
+
+
+      if (STATE.user.defaultRole === 'PHARMACY') {
         const dob = r.dob ? new Date(r.dob).toLocaleDateString() : 'N/A';
-        const ssnVal = r.ssn || '';
-        
-        // Re-apply blur to sensitive fields in detail card after 60 seconds
-        STATE.blurTimer = setTimeout(() => {
-           if (STATE.selectedId === r.rowNum) { 
-               document.querySelectorAll('.ro-value').forEach(el => {
-                   if (el.innerText.includes(ssnVal) || el.innerText.includes(r.prn)) {
-                       el.classList.add('blurred');
-                   }
-               });
-               const pharmSsn = document.getElementById('pharm-ssn-view');
-               if (pharmSsn) pharmSsn.type = 'password';
-           }
-        }, 60000); // 1 minute auto-blur
-        
+
+        let pharmBadges = '';
+        if (r.inOffice === true || r.inOffice === 'TRUE') {
+          pharmBadges = `<span class="tag-in-office" style="margin-left:10px;">IN OFFICE</span>`;
+        }
+
         document.getElementById('pharm-info-card').innerHTML = `
-          <div class="ro-section"><div class="ro-header">Patient Info</div><div class="ro-grid">
-            <div class="ro-field"><div class="ro-label">Name</div><div class="ro-value">${r.patientName||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">PRN</div><div class="ro-value">${r.prn||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">Phone</div><div class="ro-value">${r.phoneNumber||'N/A'}</div></div>
+          <div class="ro-section"><div class="ro-header">Patient Info ${pharmBadges}</div><div class="ro-grid">
+            <div class="ro-field"><div class="ro-label">Name</div><div class="ro-value">${r.patientName || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">PRN</div><div class="ro-value">${r.prn || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Phone</div><div class="ro-value">${r.phoneNumber || 'N/A'}</div></div>
             <div class="ro-field"><div class="ro-label">DOB</div><div class="ro-value">${dob}</div></div>
-            <div class="ro-field"><div class="ro-label">Sex</div><div class="ro-value">${r.sex||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Sex</div><div class="ro-value">${r.sex || 'N/A'}</div></div>
             <div class="ro-field">
               <div class="ro-label">SSN</div>
               <div class="ro-value" style="display:flex; align-items:center; gap:8px;">
@@ -830,17 +2236,17 @@
                 <span style="cursor:pointer; opacity:0.6;" onclick="const el=document.getElementById('pharm-ssn-view'); el.type=el.type==='password'?'text':'password';">👁</span>
               </div>
             </div>
-            <div class="ro-field"><div class="ro-label">Address</div><div class="ro-value">${r.address||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">Reason</div><div class="ro-value">${r.reason||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Address</div><div class="ro-value">${r.address || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Reason</div><div class="ro-value">${r.reason || 'N/A'}</div></div>
           </div></div>
 
           <div class="ro-section"><div class="ro-header">Clinical Details</div><div class="ro-grid">
-            <div class="ro-field"><div class="ro-label">Medication</div><div class="ro-value">${r.medicationDetails||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">Provider</div><div class="ro-value">${r.provider||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">Pharmacy</div><div class="ro-value">${r.pharmacy||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">Status</div><div class="ro-value">${r.status||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">Insurance</div><div class="ro-value">${r.insuranceName||'N/A'}</div></div>
-            <div class="ro-field"><div class="ro-label">Ins ID</div><div class="ro-value">${r.insuranceId||'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Medication</div><div class="ro-value">${r.medicationDetails || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Provider</div><div class="ro-value">${r.provider || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Pharmacy</div><div class="ro-value">${r.pharmacy || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Status</div><div class="ro-value">${r.status || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Insurance</div><div class="ro-value">${r.insuranceName || 'N/A'}</div></div>
+            <div class="ro-field"><div class="ro-label">Ins ID</div><div class="ro-value">${r.insuranceId || 'N/A'}</div></div>
           </div></div>
 
           <div class="ro-section"><div class="ro-header">Notes</div>
@@ -859,130 +2265,651 @@
 
     function closeDetail() {
       if (STATE.blurTimer) clearTimeout(STATE.blurTimer);
-      
+
       document.getElementById('dashboard-view').style.display = 'flex';
       document.getElementById('detail-card').classList.add('hidden');
       STATE.selectedId = null;
-      renderList(); 
+      renderList();
     }
 
     function saveData(action) {
-       if(!STATE.selectedId) return;
-       const f = document.getElementById('patient-form');
-       const d = {};
-       
-       Array.from(f.elements).forEach(e => { 
-           if(e.name) {
-               if (e.type === 'checkbox') {
-                   d[e.name] = e.checked ? 'TRUE' : 'FALSE';
-               } else {
-                   d[e.name] = e.value;
-               }
-           }
-       });
-       
-       if(document.getElementById('chk-priority')) d['priority'] = document.getElementById('chk-priority').checked ? 'Urgent' : 'Standard';
+      if (!STATE.selectedId) return;
+      const f = document.getElementById('patient-form');
+      const d = {};
 
-       if (action === 'Submit to Pharmacy') {
-         const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
-         const missing = req.filter(k => !d[k] || d[k] === '' || d[k] === '-- Select --');
-         if (missing.length > 0) { 
-           showDialog("Missing Required Information", missing.join(','), true); 
-           return; 
-         }
-       }
+      Array.from(f.elements).forEach(e => {
+        if (e.name) {
+          if (e.type === 'checkbox') {
+            d[e.name] = e.checked ? 'TRUE' : 'FALSE';
+          } else {
+            d[e.name] = e.value;
+          }
+        }
+      });
 
-       toggleLoader(true);
-       let fn = 'saveRecordChanges';
-       if(action === 'Submit to Pharmacy') fn = 'submitToPharmacy';
-       else if(action === 'Outreach Update') fn = 'sendOutreachUpdate';
-       else if(action === 'Pharmacy Update') fn = 'submitPharmacyUpdate';
+      if (document.getElementById('chk-priority')) d['priority'] = document.getElementById('chk-priority').checked ? 'Urgent' : 'Standard';
 
-       google.script.run.withSuccessHandler(res => {
-         toggleLoader(false);
-         if(res.error) toast(res.error, 'alert');
-         else {
-           // FIX for Issue 1: Update State and Count IMMEDIATELY after save/submit
-           STATE.records = res.allRecords; 
-           STATE.chatHistory = res.chatHistory || STATE.chatHistory; 
-           STATE.analytics = res.analytics || STATE.analytics;
-           STATE.dataHash = res.dataHash || STATE.dataHash;
-           STATE.lastRecordCount = STATE.records.length; // Crucial for immediate synchronization
+      if (action === 'Submit to Pharmacy') {
+        const req = ['prn', 'ssn', 'dob', 'sex', 'phoneNumber', 'address', 'pharmacy', 'provider', 'medicationDetails', 'status', 'insuranceName', 'insuranceId'];
+        const missing = req.filter(k => !d[k] || d[k] === '' || d[k] === '-- Select --');
+        if (missing.length > 0) {
+          showDialog("Missing Required Information", missing.join(','), true);
+          return;
+        }
+      }
 
-           renderList(); 
-           renderChat(); 
-           updateKPIs(); 
-           toast('✅ ' + action + ' successful!', 'success');
-           
-           if(STATE.selectedId) { 
-             const r = STATE.records.find(x=>x.rowNum===STATE.selectedId); 
-             if(r) loadDetail(r); 
-           }
-         }
-       })[fn](STATE.selectedId, d);
+      toggleLoader(true);
+      let fn = 'saveRecordChanges';
+      if (action === 'Submit to Pharmacy') fn = 'submitToPharmacy';
+      else if (action === 'Outreach Update') fn = 'sendOutreachUpdate';
+      else if (action === 'Pharmacy Update') fn = 'submitPharmacyUpdate';
+
+      google.script.run.withSuccessHandler(res => {
+        toggleLoader(false);
+
+        if (!res) {
+          console.warn('⚠️ Server response timed out (save likely succeeded)');
+          toast('✅ Saved! Syncing data...', 'success');
+
+          // Set flag so next poll refreshes the detail view
+          STATE.expectingUpdate = true;
+
+          // Force a poll to sync state
+          setTimeout(() => pollForNewRecords(), 1000);
+          return;
+        }
+
+        if (res.error) toast(res.error, 'alert');
+        else {
+          // FIX for Issue 1: Update State and Count IMMEDIATELY after save/submit
+          STATE.records = res.allRecords;
+          STATE.chatHistory = res.chatHistory || STATE.chatHistory;
+          STATE.analytics = res.analytics || STATE.analytics;
+          STATE.dataHash = res.dataHash || STATE.dataHash;
+          STATE.lastRecordCount = STATE.records.length; // Crucial for immediate synchronization
+
+          renderList();
+          try { renderChat(); } catch (e) { console.error('Chat render error:', e); }
+          try { updateKPIs(); } catch (e) { console.error('KPI update error:', e); }
+
+          toast('✅ ' + action + ' successful!', 'success');
+
+          // Refresh detail card with updated data
+          if (STATE.selectedId) {
+            const updatedRecord = STATE.records.find(x => x.rowNum == STATE.selectedId);
+
+            if (updatedRecord) {
+              // If the record name is empty but we just saved it, use the input value
+              const inputName = document.getElementById('inp-patientName').value;
+              if (!updatedRecord.patientName && inputName) {
+                updatedRecord.patientName = inputName;
+              }
+
+              loadDetail(updatedRecord);
+            } else {
+              console.warn('Record not found in STATE after save, closing detail.');
+              closeDetail();
+            }
+          }
+        }
+      })[fn](STATE.selectedId, d);
     }
 
     function addRecord(e) {
-      e.stopPropagation(); 
+      console.log('🔔 addRecord CALLED. Lock state:', STATE.addingRecord);
+      e.stopPropagation();
+
+      // STATE-BASED LOCK: Prevent double submissions definitively
+      if (STATE.addingRecord) {
+        console.log('⚠️ addRecord BLOCKED - already in progress');
+        return;
+      }
+      STATE.addingRecord = true;
+
+      const btn = e.target.closest('button');
+      if (btn) btn.disabled = true;
+
       toggleLoader(true);
+
+      // OPTIMIZATION: Set flag so polling will open the record when detected (Fallback)
+      STATE.expectingNewRecord = true;
+
       google.script.run.withSuccessHandler(res => {
-         toggleLoader(false);
-         if(res.error) toast(res.error, 'alert');
-         else { 
-           STATE.records = res.allRecords;
-           STATE.lastRecordCount = STATE.records.length; 
-           renderList(); 
-           toast('✅ New record created!', 'success'); 
-         }
-      }).addOutreachRecord();
-    }
-    
-    function exportPDF() {
-      toggleLoader(true);
-      google.script.run.withSuccessHandler(res => {
+        STATE.addingRecord = false; // Release lock
         toggleLoader(false);
-        if(res.error) toast(res.error, 'alert');
-        else {
-           const link = document.createElement('a');
-           link.href = res.url; 
-           link.target = '_blank'; 
-           link.click();
-           toast('📄 Opening PDF...', 'success');
+        if (btn) btn.disabled = false;
+
+        if (!res) {
+          return;
         }
-      }).getPDFDownloadUrl();
+
+        if (res.error) toast(res.error, 'alert');
+        else {
+          STATE.records = res.allRecords;
+          STATE.lastRecordCount = STATE.records.length;
+          renderList();
+          toast('✅ New record created!', 'success');
+
+          if (res.newRecordRow) {
+            const newRec = STATE.records.find(r => r.rowNum == res.newRecordRow);
+            if (newRec) {
+              loadDetail(newRec, false); // Don't mark as read on auto-open
+              STATE.expectingNewRecord = false;
+              setTimeout(() => {
+                const nameField = document.getElementById('inp-patientName');
+                if (nameField) { nameField.focus(); nameField.select(); }
+              }, 100);
+            }
+          }
+        }
+      }).withFailureHandler(err => {
+        STATE.addingRecord = false; // Release lock
+        toggleLoader(false);
+        if (btn) btn.disabled = false;
+        toast('Error creating record: ' + err.message, 'alert');
+      }).addOutreachRecord();
+
+      // Force an immediate poll after short delay to catch it fast
+      setTimeout(() => pollForNewRecords(), 2000);
     }
 
-    function checkChatSend(e) { if(e.key === 'Enter') sendChat(); }
+    // === DATE RANGE REPORTING ===
+    let currentDateRange = { start: null, end: null, preset: 'today' };
+
+    function handleDateRangeChange() {
+      const preset = document.getElementById('date-range-preset').value;
+      const customInputs = document.getElementById('custom-date-inputs');
+
+      if (preset === 'custom') {
+        customInputs.style.display = 'flex';
+        // Set default dates
+        const today = new Date();
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        document.getElementById('start-date').value = weekAgo.toISOString().split('T')[0];
+        document.getElementById('end-date').value = today.toISOString().split('T')[0];
+      } else {
+        customInputs.style.display = 'none';
+        currentDateRange.preset = preset;
+        regenerateReport();
+      }
+    }
+
+    function applyCustomDateRange() {
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+
+      if (!startDate || !endDate) {
+        toast('⚠️ Please select both start and end dates', 'alert');
+        return;
+      }
+
+      if (new Date(startDate) > new Date(endDate)) {
+        toast('⚠️ Start date must be before end date', 'alert');
+        return;
+      }
+
+      currentDateRange = {
+        start: new Date(startDate),
+        end: new Date(endDate),
+        preset: 'custom'
+      };
+
+      regenerateReport();
+    }
+
+    function getDateRange(preset) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      switch (preset) {
+        case 'today':
+          return {
+            start: today,
+            end: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+          };
+        case 'week':
+          const weekStart = new Date(today);
+          weekStart.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+          return {
+            start: weekStart,
+            end: new Date(now.getTime() + 24 * 60 * 60 * 1000)
+          };
+        case 'month':
+          return {
+            start: new Date(now.getFullYear(), now.getMonth(), 1),
+            end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+          };
+        case 'custom':
+          return currentDateRange;
+        default:
+          return { start: today, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+      }
+    }
+
+    function filterRecordsByDate(records, dateRange) {
+      if (!dateRange.start || !dateRange.end) return records;
+
+      return records.filter(r => {
+        if (!r.timestamp) return true; // Include records without timestamp
+        const recordDate = new Date(r.timestamp);
+        return recordDate >= dateRange.start && recordDate <= dateRange.end;
+      });
+    }
+
+    function regenerateReport() {
+      exportPDF(); // Will use currentDateRange
+    }
+
+    function exportPDF() {
+      try {
+        // Generate comprehensive daily report preview with advanced analytics
+        const preset = document.getElementById('date-range-preset').value;
+        const dateRange = getDateRange(preset);
+
+        // COMBINE ACTIVE AND ARCHIVED RECORDS FOR COMPLETE HISTORICAL VIEW
+        const allRecords = [...STATE.records, ...(STATE.archives || [])];
+        console.log(`📊 Report includes ${STATE.records.length} active + ${STATE.archives?.length || 0} archived = ${allRecords.length} total records`);
+
+        // Filter combined records by date range
+        const filteredRecords = filterRecordsByDate(allRecords, dateRange);
+        console.log(`📅 After date filtering: ${filteredRecords.length} records in selected period`);
+
+        // Generate date range title
+        let periodTitle = '';
+        if (preset === 'today') {
+          periodTitle = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        } else if (preset === 'week') {
+          const start = dateRange.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const end = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          periodTitle = `This Week (${start} - ${end})`;
+        } else if (preset === 'month') {
+          periodTitle = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        } else if (preset === 'custom') {
+          const start = dateRange.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const end = dateRange.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          periodTitle = `${start} - ${end}`;
+        }
+
+        // === BASIC KPIs ===
+        const totalRecords = filteredRecords.length;
+        const urgent = filteredRecords.filter(r => r.priority === 'Urgent').length;
+        const inPharmacy = filteredRecords.filter(r => r.workflowStatus === 'Submitted to Pharmacy').length;
+        const newEntries = filteredRecords.filter(r => r.workflowStatus === 'New Entry').length;
+        const completed = STATE.analytics?.completedToday || 0;
+        const avgSubmit = STATE.analytics?.avgSubmitTime || '--';
+        const avgPharm = STATE.analytics?.avgPharmacyTime || '--';
+
+        // === PROVIDER ANALYTICS ===
+        const providerStats = {};
+        filteredRecords.forEach(r => {
+          if (r.provider) {
+            if (!providerStats[r.provider]) providerStats[r.provider] = 0;
+            providerStats[r.provider]++;
+          }
+        });
+        const providerEntries = Object.entries(providerStats).sort((a, b) => b[1] - a[1]);
+        const topProviders = providerEntries.slice(0, 5);
+        const totalProviders = providerEntries.length;
+
+        // === MEDICATION ANALYTICS ===
+        const medicationStats = {};
+        filteredRecords.forEach(r => {
+          if (r.medicationDetails) {
+            if (!medicationStats[r.medicationDetails]) medicationStats[r.medicationDetails] = 0;
+            medicationStats[r.medicationDetails]++;
+          }
+        });
+        const medicationEntries = Object.entries(medicationStats).sort((a, b) => b[1] - a[1]);
+        const topMedications = medicationEntries.slice(0, 5);
+        const totalUniqueMeds = medicationEntries.length;
+
+        // === PHARMACY ANALYTICS ===
+        const pharmacyStats = {};
+        filteredRecords.forEach(r => {
+          if (r.pharmacy) {
+            if (!pharmacyStats[r.pharmacy]) pharmacyStats[r.pharmacy] = 0;
+            pharmacyStats[r.pharmacy]++;
+          }
+        });
+        const pharmacyEntries = Object.entries(pharmacyStats).sort((a, b) => b[1] - a[1]);
+        const topPharmacies = pharmacyEntries.slice(0, 5);
+
+        // === INSURANCE ANALYTICS ===
+        const insuranceStats = {};
+        filteredRecords.forEach(r => {
+          if (r.insuranceName) {
+            if (!insuranceStats[r.insuranceName]) insuranceStats[r.insuranceName] = 0;
+            insuranceStats[r.insuranceName]++;
+          }
+        });
+        const insuranceEntries = Object.entries(insuranceStats).sort((a, b) => b[1] - a[1]);
+        const topInsurances = insuranceEntries.slice(0, 5);
+        const totalInsurances = insuranceEntries.length;
+
+        // === STATUS DISTRIBUTION ===
+        const statusDistribution = {};
+        filteredRecords.forEach(r => {
+          const status = r.workflowStatus || 'Unknown';
+          if (!statusDistribution[status]) statusDistribution[status] = 0;
+          statusDistribution[status]++;
+        });
+
+        // === PRIORITY DISTRIBUTION ===
+        const standard = filteredRecords.filter(r => r.priority !== 'Urgent').length;
+        const priorityPct = totalRecords > 0 ? ((urgent / totalRecords) * 100).toFixed(1) : 0;
+
+        let html = `
+            <style>
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+              * { box-sizing: border-box; }
+              .pdf-content { 
+                font-family: 'Inter', sans-serif; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+                max-width: 1200px;
+                margin: 0 auto;
+              }
+              @media print {
+                @page { 
+                  size: letter portrait; 
+                  margin: 0.5in 0.4in;
+                }
+                body { margin: 0; padding: 0; }
+                .pdf-content { 
+                  max-width: 100%; 
+                  padding: 0 !important;
+                  margin: 0 !important;
+                  box-shadow: none !important;
+                }
+                /* Prevent page breaks inside critical elements */
+                .no-break, .kpi-card, .analytics-section, h2 { 
+                  break-inside: avoid !important;
+                  page-break-inside: avoid !important;
+                }
+                /* Keep headers with content */
+                h1, h2 { 
+                  break-after: avoid !important;
+                  page-break-after: avoid !important;
+                  margin-top: 0.5rem;
+                  margin-bottom: 0.3rem;
+                }
+                /* Compact grids for print */
+                .grid-container { 
+                  display: grid !important; 
+                  grid-template-columns: repeat(3, 1fr) !important; 
+                  gap: 0.3rem !important;
+                  font-size: 10px !important;
+                }
+                .two-col { 
+                  display: grid !important; 
+                  grid-template-columns: 1fr 2fr !important; 
+                  gap: 0.3rem !important;
+                }
+                /* Reduce padding for print */
+                .kpi-card { padding: 0.3rem !important; }
+                /* Table optimizations */
+                table { 
+                  width: 100% !important;
+                  font-size: 8px !important;
+                  border-collapse: collapse !important;
+                }
+                thead { 
+                  display: table-header-group !important;
+                  break-inside: avoid !important;
+                }
+                tr { 
+                  break-inside: avoid !important;
+                  page-break-inside: avoid !important;
+                }
+                th, td { 
+                  padding: 0.2rem 0.15rem !important;
+                  font-size: 7px !important;
+                }
+                /* Force page break before patient list */
+                .patient-list-section {
+                  break-before: page !important;
+                  page-break-before: always !important;
+                  margin-top: 0 !important;
+                }
+                /* Compact sections */
+                .analytics-section {
+                  margin-bottom: 0.5rem !important;
+                }
+              }
+              @media screen {
+                .pdf-content {
+                  padding: 40px;
+                  background: white;
+                  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+              }
+            </style>
+            <div class="pdf-content">
+            <!-- HEADER -->
+            <div style="text-align:center; margin-bottom:30px; border-bottom:3px solid #1e40af; padding-bottom:15px;">
+              <h1 style="margin:0; font-size:28px; color:#1e40af; font-weight:800;">CWC Outreach Report</h1>
+              <p style="margin:8px 0 0 0; font-size:14px; color:#64748b;">${periodTitle}</p>
+              <p style="margin:5px 0 0 0; font-size:12px; color:#94a3b8; font-style:italic;">${filteredRecords.length} records in this period (Active + Archived)</p>
+            </div>
+            
+            <!-- PRIMARY KPI GRID -->
+            <div class="no-break analytics-section">
+              <h2 style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:15px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;">📊 Primary Metrics</h2>
+              <div class="grid-container" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; margin-bottom:30px;">
+                <div class="kpi-card" style="background:#f1f5f9; padding:15px; border-radius:8px; text-align:center;">
+                  <div style="font-size:32px; font-weight:800; color:#1e40af; margin-bottom:5px;">${totalRecords}</div>
+                  <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Total Records</div>
+                </div>
+                <div class="kpi-card" style="background:#fef2f2; padding:15px; border-radius:8px; text-align:center;">
+                  <div style="font-size:32px; font-weight:800; color:#ef4444; margin-bottom:5px;">${urgent}</div>
+                  <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Urgent Cases (${priorityPct}%)</div>
+                </div>
+                <div class="kpi-card" style="background:#dcfce7; padding:15px; border-radius:8px; text-align:center;">
+                  <div style="font-size:32px; font-weight:800; color:#166534; margin-bottom:5px;">${inPharmacy}</div>
+                  <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">In Pharmacy</div>
+                </div>
+                <div class="kpi-card" style="background:#fef9c3; padding:15px; border-radius:8px; text-align:center;">
+                  <div style="font-size:32px; font-weight:800; color:#854d0e; margin-bottom:5px;">${newEntries}</div>
+                  <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">New Entries</div>
+                </div>
+                <div class="kpi-card" style="background:#f1f5f9; padding:15px; border-radius:8px; text-align:center;">
+                  <div style="font-size:32px; font-weight:800; color:#10b981; margin-bottom:5px;">${completed}</div>
+                  <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Completed Today</div>
+                </div>
+                <div class="kpi-card" style="background:#f1f5f9; padding:15px; border-radius:8px; text-align:center;">
+                  <div style="font-size:22px; font-weight:800; color:#1e40af; margin-bottom:5px;">${avgSubmit}</div>
+                  <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Avg Submit Time</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- MEDICATION ANALYTICS -->
+            <div class="no-break" style="margin-bottom:40px;">
+              <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">💊 Medication Analytics</h2>
+              <div class="two-col" style="display:grid; grid-template-columns:1fr 2fr; gap:20px;">
+                <div style="background:#dcfce7; padding:20px; border-radius:8px; text-align:center;">
+                  <div style="font-size:48px; font-weight:800; color:#166534; margin-bottom:5px;">${totalUniqueMeds}</div>
+                  <div style="font-size:12px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Unique Medications</div>
+                </div>
+                <div style="background:white; border:2px solid #e2e8f0; padding:15px; border-radius:8px;">
+                  <div style="font-size:13px; font-weight:700; color:#64748b; margin-bottom:10px; text-transform:uppercase;">Top 5 Medications</div>
+                  ${topMedications.map(([med, count], idx) => `
+                    <div style="display:flex; justify-content:space-between; padding:8px; background:${idx % 2 === 0 ? '#f8fafc' : 'white'}; border-radius:4px; margin-bottom:4px;">
+                      <span style="font-weight:600; color:#0f172a;">${med}</span>
+                      <span style="font-weight:800; color:#166534;">${count} prescriptions</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+            
+            <!-- PHARMACY & INSURANCE GRID -->
+            <div class="two-col" style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px;">
+              <div class="no-break">
+                <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">🏥 Pharmacy Distribution</h2>
+                <div style="background:white; border:2px solid #e2e8f0; padding:15px; border-radius:8px;">
+                  ${topPharmacies.map(([pharm, count], idx) => `
+                    <div style="display:flex; justify-content:space-between; padding:8px; background:${idx % 2 === 0 ? '#f8fafc' : 'white'}; border-radius:4px; margin-bottom:4px;">
+                      <span style="font-weight:600; color:#0f172a; font-size:13px;">${pharm}</span>
+                      <span style="font-weight:800; color:#1e40af; font-size:13px;">${count}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="no-break">
+                <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">🏢 Insurance Coverage (${totalInsurances} Total)</h2>
+                <div style="background:white; border:2px solid #e2e8f0; padding:15px; border-radius:8px;">
+                  ${topInsurances.map(([ins, count], idx) => `
+                    <div style="display:flex; justify-content:space-between; padding:8px; background:${idx % 2 === 0 ? '#f8fafc' : 'white'}; border-radius:4px; margin-bottom:4px;">
+                      <span style="font-weight:600; color:#0f172a; font-size:13px;">${ins}</span>
+                      <span style="font-weight:800; color:#1e40af; font-size:13px;">${count}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+            
+            <!-- WORKFLOW STATUS DISTRIBUTION -->
+            <div class="no-break" style="margin-bottom:40px;">
+              <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">📈 Workflow Status Distribution</h2>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                ${Object.entries(statusDistribution).map(([status, count]) => {
+          const pct = totalRecords > 0 ? ((count / totalRecords) * 100).toFixed(1) : '0.0';
+          const colorMap = {
+            'New Entry': '#0369a1',
+            'Submitted to Pharmacy': '#166534',
+            'Pharmacy Update Received': '#854d0e',
+            'Outreach Update Sent': '#6b21a8'
+          };
+          const color = colorMap[status] || '#64748b';
+          return `
+                    <div style="background:#f8fafc; padding:15px; border-radius:8px; border-left:4px solid ${color};">
+                      <div style="font-size:24px; font-weight:800; color:${color}; margin-bottom:5px;">${count}</div>
+                      <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:3px;">${status}</div>
+                      <div style="font-size:13px; font-weight:600; color:#0f172a;">${pct}%</div>
+                    </div>
+                  `;
+        }).join('')}
+              </div>
+            </div>
+            
+            <!-- PATIENT LIST -->
+            <div class="patient-list-section" style="margin-top:20px;">
+              <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:15px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;">📋 Complete Patient Records (${totalRecords} Total)</h2>
+              <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                <thead>
+                  <tr style="background:#1e40af; color:white;">
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">PRN</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Patient Name</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">DOB</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Sex</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Phone</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Provider</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Pharmacy</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Medication</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Insurance</th>
+                    <th style="padding:10px 6px; text-align:left; font-weight:700; font-size:10px;">Status</th>
+                    <th style="padding:10px 6px; text-align:center; font-weight:700; font-size:10px;">Priority</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+
+        filteredRecords.forEach((r, idx) => {
+          const dob = r.dob ? new Date(r.dob).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 'N/A';
+          const isUrgent = (r.priority || '').toString().toLowerCase() === 'urgent';
+          const rowBg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+          const statusColor = r.workflowStatus === 'Submitted to Pharmacy' ? '#166534' :
+            r.workflowStatus === 'Pharmacy Update Received' ? '#854d0e' : '#0369a1';
+
+          // Format phone number
+          const phone = r.phoneNumber || 'N/A';
+
+          html += `
+            <tr style="background:${rowBg}; border-bottom:1px solid #e2e8f0;">
+              <td style="padding:8px 6px; font-weight:600; color:#0f172a;">${r.prn || 'N/A'}</td>
+              <td style="padding:8px 6px; color:#0f172a; font-weight:600;">${r.patientName || 'N/A'}</td>
+              <td style="padding:8px 6px; color:#0f172a;">${dob}</td>
+              <td style="padding:8px 6px; color:#0f172a;">${r.sex || 'N/A'}</td>
+              <td style="padding:8px 6px; color:#0f172a;">${phone}</td>
+              <td style="padding:8px 6px; color:#0f172a;">${r.provider || 'N/A'}</td>
+              <td style="padding:8px 6px; color:#0f172a;">${r.pharmacy || 'N/A'}</td>
+              <td style="padding:8px 6px; color:#0f172a;">${r.medicationDetails || 'N/A'}</td>
+              <td style="padding:8px 6px; color:#0f172a;">${r.insuranceName || 'N/A'}</td>
+              <td style="padding:8px 6px; color:${statusColor}; font-weight:600;">${r.workflowStatus || 'New Entry'}</td>
+              <td style="padding:8px 6px; text-align:center;">${isUrgent ? '🔥' : ''}</td>
+            </tr>
+          `;
+        });
+
+        console.log(`✅ Generated ${filteredRecords.length} patient table rows`);
+
+        html += `
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- FOOTER -->
+            <div class="no-break" style="margin-top:40px; padding-top:20px; border-top:2px solid #e2e8f0; text-align:center; color:#64748b; font-size:11px;">
+              <p>Generated by CWC Outreach System | ${new Date().toLocaleString()}</p>
+              <p style="margin-top:5px; font-style:italic;">This report contains ${totalRecords} records (${STATE.records.length} active + ${STATE.archives?.length || 0} archived), ${totalProviders} providers, ${totalUniqueMeds} unique medications, and ${totalInsurances} insurance providers.</p>
+            </div>
+          </div>
+        `;
+
+        console.log(`📄 Report HTML generated. Total length: ${html.length} characters`);
+
+        document.getElementById('pdf-preview-content').innerHTML = html;
+        document.getElementById('pdf-preview-modal').classList.add('active');
+
+      } catch (error) {
+        console.error("❌ Error generating PDF:", error);
+        alert('⚠️ Error generating PDF report: ' + error.message);
+      }
+    }
+
+    function closePDFPreview() {
+      document.getElementById('pdf-preview-modal').classList.remove('active');
+    }
+
+    function checkChatSend(e) { if (e.key === 'Enter') sendChat(); }
     function sendChat() {
       const txt = document.getElementById('chat-input').value;
-      if(!txt) return;
+      if (!txt) return;
       document.getElementById('chat-input').value = '';
-      STATE.chatHistory.push({sender: STATE.user.email, text: txt, time: new Date().toISOString()}); 
+      STATE.chatHistory.push({ sender: STATE.user.email, text: txt, time: new Date().toISOString() });
       renderChat();
       google.script.run.withSuccessHandler(h => { STATE.chatHistory = h; renderChat(); }).postOutreachMessage(txt);
     }
-    
+
     function renderChat() {
-      const c = document.getElementById('chat-messages'); 
+      const c = document.getElementById('chat-messages');
       c.innerHTML = '';
       STATE.chatHistory.forEach(m => {
         const div = document.createElement('div');
         const isMe = m.sender === STATE.user.email;
         const isSystem = m.sender === 'System';
-        
+
         div.className = `msg ${isSystem ? 'system' : (isMe ? 'out' : 'in')}`;
-        
-        // FIXED: Chat Timestamp
+
+        // FIXED: Chat Timestamp for System Messages too
         let timeDisplay = '';
         if (m.time && m.time !== '...') {
-             try {
-                const d = new Date(m.time);
-                timeDisplay = d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
-             } catch(e) { /* ignore if invalid date string */ }
+          try {
+            const d = new Date(m.time);
+            timeDisplay = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          } catch (e) { /* ignore */ }
         }
 
-        if(isSystem) {
-          div.innerHTML = `🤖 ${m.text}`;
+        if (isSystem) {
+          div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+               <span>🤖 System</span>
+               <span style="font-size:10px; opacity:0.6;">${timeDisplay}</span>
+            </div>
+            ${m.text}
+          `;
         } else {
           div.innerHTML = `
             <div class="msg-sender">${m.sender.split('@')[0]} <span style="float:right; font-weight:400; opacity:0.7;">${timeDisplay}</span></div>
@@ -993,106 +2920,106 @@
       });
       c.scrollTop = c.scrollHeight;
     }
-    
-    function refreshChat() { 
-      google.script.run.withSuccessHandler(h => { 
-        STATE.chatHistory = h; 
-        renderChat(); 
-      }).pollChat(); 
+
+    function refreshChat() {
+      google.script.run.withSuccessHandler(h => {
+        STATE.chatHistory = h;
+        renderChat();
+      }).pollChat();
     }
 
     function updateKPIs() {
-       document.getElementById('kpi-total').innerText = STATE.records.length;
-       document.getElementById('kpi-urgent').innerText = STATE.records.filter(r=>r.priority==='Urgent').length;
-       document.getElementById('kpi-pharmacy').innerText = STATE.records.filter(r=>r.workflowStatus==='Submitted to Pharmacy').length;
-       
-       if(STATE.analytics) {
-         if(STATE.analytics.completedToday !== undefined) document.getElementById('kpi-completed').innerText = STATE.analytics.completedToday;
-         if(STATE.analytics.avgSubmitTime) document.getElementById('kpi-avg-submit').innerText = STATE.analytics.avgSubmitTime;
-         if(STATE.analytics.avgPharmacyTime) document.getElementById('kpi-avg-pharm').innerText = STATE.analytics.avgPharmacyTime;
-         if(STATE.analytics.archiveTotal !== undefined) document.getElementById('kpi-arch-total').innerText = STATE.analytics.archiveTotal;
-         if(STATE.analytics.archiveAvgSubmit) document.getElementById('kpi-arch-submit').innerText = STATE.analytics.archiveAvgSubmit;
-       }
+      document.getElementById('kpi-total').innerText = STATE.records.length;
+      document.getElementById('kpi-urgent').innerText = STATE.records.filter(r => r.priority === 'Urgent').length;
+      document.getElementById('kpi-pharmacy').innerText = STATE.records.filter(r => r.workflowStatus === 'Submitted to Pharmacy').length;
+
+      if (STATE.analytics) {
+        if (STATE.analytics.completedToday !== undefined) document.getElementById('kpi-completed').innerText = STATE.analytics.completedToday;
+        if (STATE.analytics.avgSubmitTime) document.getElementById('kpi-avg-submit').innerText = STATE.analytics.avgSubmitTime;
+        if (STATE.analytics.avgPharmacyTime) document.getElementById('kpi-avg-pharm').innerText = STATE.analytics.avgPharmacyTime;
+        if (STATE.analytics.archiveTotal !== undefined) document.getElementById('kpi-arch-total').innerText = STATE.analytics.archiveTotal;
+        if (STATE.analytics.archiveAvgSubmit) document.getElementById('kpi-arch-submit').innerText = STATE.analytics.archiveAvgSubmit;
+      }
     }
-    
+
     function showSection(s, e) {
-      document.getElementById('sec-patient').classList.toggle('hidden', s!=='patient');
-      document.getElementById('sec-meds').classList.toggle('hidden', s!=='meds');
-      document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('active'));
-      if(e) e.target.classList.add('active');
+      document.getElementById('sec-patient').classList.toggle('hidden', s !== 'patient');
+      document.getElementById('sec-meds').classList.toggle('hidden', s !== 'meds');
+      document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
+      if (e) e.target.classList.add('active');
     }
-    
+
     function switchList(l) {
       STATE.currentList = l;
-      document.getElementById('tab-active').classList.toggle('active', l==='active');
-      document.getElementById('tab-secondary').classList.toggle('active', l==='secondary');
+      document.getElementById('tab-active').classList.toggle('active', l === 'active');
+      document.getElementById('tab-secondary').classList.toggle('active', l === 'secondary');
       renderList();
     }
-    
-    function toggleSort() { 
+
+    function toggleSort() {
       STATE.sortOrder = STATE.sortOrder === 'dateDesc' ? 'nameAsc' : 'dateDesc';
       document.getElementById('btn-sort').innerText = STATE.sortOrder === 'dateDesc' ? '⬇' : 'Aa';
       renderList();
     }
 
-    function toggleTheme() { 
-      document.body.classList.toggle('dark-mode'); 
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
       document.getElementById('btn-theme').innerText = isDark ? '🌙' : '☀️';
       localStorage.setItem('cwc_dark_mode', isDark);
     }
 
-    function toggleBlur() { 
-      STATE.blur = !STATE.blur; 
-      localStorage.setItem('cwc_blur_enabled', STATE.blur); 
-      renderList(); 
-      toast(STATE.blur?'👁 PHI Blur Enabled':'👁 PHI Blur Disabled'); 
+    function toggleBlur() {
+      STATE.blur = !STATE.blur;
+      localStorage.setItem('cwc_blur_enabled', STATE.blur);
+      renderList();
+      toast(STATE.blur ? '👁 PHI Blur Enabled' : '👁 PHI Blur Disabled');
     }
-    
-    function switchRole() { 
+
+    function switchRole() {
       const wasOpen = STATE.selectedId;
-      STATE.user.defaultRole = STATE.user.defaultRole==='CWC'?'PHARMACY':'CWC'; 
-      setupRoleView(); 
-      closeDetail(); 
-      renderList(); 
-      
-      if(wasOpen) {
+      STATE.user.defaultRole = STATE.user.defaultRole === 'CWC' ? 'PHARMACY' : 'CWC';
+      setupRoleView();
+      closeDetail();
+      renderList();
+
+      if (wasOpen) {
         const record = STATE.records.find(r => r.rowNum === wasOpen);
-        if(record) {
+        if (record) {
           setTimeout(() => loadDetail(record), 100);
         }
       }
-      
-      toast('⇄ Switched to ' + STATE.user.defaultRole + ' View', 'success'); 
+
+      toast('⇄ Switched to ' + STATE.user.defaultRole + ' View', 'success');
     }
-    
+
     // --- DIALOG & MODAL UTILS ---
     function showDialog(title, msg, isList = false) {
-       const titleEl = document.getElementById('modal-title');
-       const msgEl = document.getElementById('modal-msg');
-       
-       if (isList) {
-         titleEl.innerHTML = `<span style="font-size:32px; display:block; margin-bottom:10px;">⚠️</span>${title}`;
-         const items = msg.split(',').map(s => s.trim());
-         let html = `
+      const titleEl = document.getElementById('modal-title');
+      const msgEl = document.getElementById('modal-msg');
+
+      if (isList) {
+        titleEl.innerHTML = `<span style="font-size:32px; display:block; margin-bottom:10px;">⚠️</span>${title}`;
+        const items = msg.split(',').map(s => s.trim());
+        let html = `
            <div style="background:#fef2f2; border:1px solid #dc2626; border-radius:8px; padding:15px; margin-bottom:15px;">
              <p style="margin:0 0 10px 0; font-weight:700; color:#991b1b; font-size:13px;">
                ⛔ Cannot submit - Please complete the following required fields:
              </p>
              <ul style="margin:0; padding-left:20px; line-height:1.8; color:#7f1d1d; font-size:13px;">
          `;
-         items.forEach(i => { html += `<li><strong>${formatFieldName(i)}</strong></li>`; });
-         html += '</ul></div>';
-         html += '<p style="font-size:13px; color:var(--text-muted); text-align:center;">All fields must be completed before submitting to Pharmacy.</p>';
-         msgEl.innerHTML = html;
-       } else {
-         titleEl.innerText = title;
-         msgEl.innerHTML = msg;
-       }
-       document.getElementById('custom-modal').classList.add('active');
-       document.getElementById('btn-modal-cancel').classList.add('hidden');
+        items.forEach(i => { html += `<li><strong>${formatFieldName(i)}</strong></li>`; });
+        html += '</ul></div>';
+        html += '<p style="font-size:13px; color:var(--text-muted); text-align:center;">All fields must be completed before submitting to Pharmacy.</p>';
+        msgEl.innerHTML = html;
+      } else {
+        titleEl.innerText = title;
+        msgEl.innerHTML = msg;
+      }
+      document.getElementById('custom-modal').classList.add('active');
+      document.getElementById('btn-modal-cancel').classList.add('hidden');
     }
-    
+
     function closeModal() { document.getElementById('custom-modal').classList.remove('active'); }
     function confirmModal() { closeModal(); }
 
@@ -1100,7 +3027,7 @@
     function toggleLoader(show) { document.getElementById('security-overlay').classList.toggle('hidden', !show); }
     function updateLoadStatus(msg) { const el = document.getElementById('load-status'); if (el) el.innerText = msg; console.log('LOAD:', msg); }
     function toast(msg, type = 'default') { const t = document.getElementById('toast'); t.className = 'toast show ' + type; t.innerText = msg; setTimeout(() => t.className = 'toast', 3000); }
-    
+
     function formatFieldName(name) {
       const map = {
         'dob': 'Date of Birth', 'ssn': 'SSN', 'prn': 'PRN',
@@ -1110,25 +3037,92 @@
         'pharmacy': 'Pharmacy', 'provider': 'Provider', 'inOffice': 'In Office'
       };
       if (map[name]) return map[name];
-      return name.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); });
+      return name.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); });
     }
-    
+
     function populateDropdowns(dd) {
-      ['pharmacy','medication','insurance','needsScript','provider','status','sex'].forEach(k => {
-          const s = document.getElementById('opt-'+k);
-          if(s) {
-            s.innerHTML = '<option value="">-- Select --</option>';
-            (dd[k]||[]).forEach(v => { s.innerHTML += `<option value="${v}">${v}</option>`; });
-          }
-       });
-       if(document.getElementById('opt-insurance-update') && dd.insurance) {
-          const s = document.getElementById('opt-insurance-update');
+      ['pharmacy', 'medication', 'insurance', 'needsScript', 'provider', 'status', 'sex'].forEach(k => {
+        const s = document.getElementById('opt-' + k);
+        if (s) {
           s.innerHTML = '<option value="">-- Select --</option>';
-          dd.insurance.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
-       }
+          (dd[k] || []).forEach(v => { s.innerHTML += `<option value="${v}">${v}</option>`; });
+        }
+      });
+      if (document.getElementById('opt-insurance-update') && dd.insurance) {
+        const s = document.getElementById('opt-insurance-update');
+        s.innerHTML = '<option value="">-- Select --</option>';
+        dd.insurance.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
+      }
     }
-    
-    function toggleSSN() { const i = document.getElementById('inp-ssn'); i.type = i.type==='password'?'text':'password'; }
+
+    function toggleSSN() { const i = document.getElementById('inp-ssn'); i.type = i.type === 'password' ? 'text' : 'password'; }
+
+    // === QUICK LINKS FUNCTIONALITY ===
+    function renderQuickLinks() {
+      console.log('🔗 renderQuickLinks() called');
+      console.log('🔗 STATE.quickLinks:', STATE.quickLinks);
+      console.log('🔗 STATE.user:', STATE.user);
+
+      const menu = document.getElementById('quick-links-menu');
+      const container = document.getElementById('quick-links-container');
+
+      console.log('🔗 menu element:', menu);
+      console.log('🔗 container element:', container);
+
+      if (!menu || !container) {
+        console.error('❌ Quick links elements not found!');
+        return;
+      }
+
+      // Filter links by user role
+      const userRole = STATE.user?.defaultRole || 'CWC';
+      const filteredLinks = (STATE.quickLinks || []).filter(link => {
+        const matches = link.role === 'ALL' || link.role === userRole || link.role === 'BOTH';
+        console.log(`🔗 Link "${link.label}" (role: ${link.role}) matches user ${userRole}? ${matches}`);
+        return matches;
+      });
+
+      console.log(`🔗 Rendering ${filteredLinks.length} quick links for role: ${userRole}`);
+      console.log('🔗 Filtered links:', filteredLinks);
+
+      if (filteredLinks.length === 0) {
+        console.warn('⚠️ No quick links to display, hiding container');
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'flex';
+
+      const html = filteredLinks.map(link => `
+        <a href="${link.url}" target="_blank" class="quick-link">
+          <span class="quick-link-icon">${link.icon}</span>
+          <span>${link.label}</span>
+        </a>
+      `).join('');
+
+      console.log('🔗 Generated HTML:', html);
+      menu.innerHTML = html;
+      console.log('✅ Quick links rendered successfully');
+    }
+
+    function toggleQuickLinks() {
+      const container = document.getElementById('quick-links-container');
+      if (container) {
+        container.classList.toggle('expanded');
+        console.log('🔗 Quick links expanded:', container.classList.contains('expanded'));
+      }
+    }
+
+    // Close quick links when clicking outside
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('quick-links-container');
+      if (container && !container.contains(e.target) && container.classList.contains('expanded')) {
+        container.classList.remove('expanded');
+        console.log('🔗 Quick links closed (clicked outside)');
+      }
+    });
+
   </script>
 </body>
+
 </html>
