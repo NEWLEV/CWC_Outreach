@@ -2,7 +2,7 @@
  * CONFIGURATION
  * FIXED: Added ID column, proper sound profile for new entries, added 'In Office' field.
  */
-const CONFIG = {
+var CONFIG = {
   ADMIN_EMAIL: "pierremontalvo@continentalwellnesscenter.com",
 
   // RESTORED WEBHOOK URL
@@ -10,7 +10,8 @@ const CONFIG = {
 
   EXTERNAL_SHEETS: [
     { id: "1F8xSwdQgJzS9jUq6X2YoVTlaqP0Ryc24uyTwKisfeNI", sheetName: "Mail", label: "MAIL" },
-    { id: "1QJqa9EAUOkq0DgSFyaiiEKDW7sfeWLKHRZw_vUTzkzo", sheetName: "Data", label: "MEDS IN OFFICE" }
+    { id: "1QJqa9EAUOkq0DgSFyaiiEKDW7sfeWLKHRZw_vUTzkzo", sheetName: "Data", label: "MEDS IN OFFICE" },
+    { id: "1R465Gkh8V3btaAq1EoOvoU-BomtSeUXGBrFa34harA8", sheetName: "Sheet1", label: "BANNED" }
   ],
 
   SHEET_NAMES: {
@@ -19,7 +20,8 @@ const CONFIG = {
     AUDIT_LOG: "Audit Log",
     SETTINGS: "Settings",
     SECURITY: "Security",
-    CHAT_LOG: "Chat Log"
+    CHAT_LOG: "Chat Log",
+    LINKS: "Links"
   },
 
   ROLES: 
@@ -87,15 +89,27 @@ const CONFIG = {
   ACTIVITY_LIMIT: 20,
   KPI_ANIMATION_DURATION: 1000,
   
+  // Cache Duration Settings (in seconds)
+  CACHE_DURATIONS: {
+    EXTERNAL_STATUS: 300,      // 5 minutes - external sheet data
+    EMAIL_RECIPIENTS: 600,     // 10 minutes - recipient list from settings
+    ACTIVE_RECORD_COUNT: 3600, // 1 hour - record count cache
+    DATA_HASH: 300,            // 5 minutes - data change detection
+    QUICK_LINKS: 1800          // 30 minutes - quick links from sheet
+  },
+  
   // Sound Alert Data URI - A clear notification chime
   SOUND_ALERT_DATA: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkJOOhHdwa3B5hpGZmpiPgnZua3J/jJifoZyRhXlxcHiEkZujpaKZjYF2cXN8iZOdpKaglo2DeHV1fIWSmp+hnpiPh394eH2FjpWYmZeUjoeCfnx+g4qQlJaVko2IhIF/f4KGi46RkY+NioeDgYGChoeKjI2MioiGhIOCgoOFh4mKioqIhoWEg4ODhIWGh4iIh4aFhIODg4OEhYaGhoaFhISDg4ODg4SFhYWFhYSEg4ODg4ODhISEhISEhIODg4ODg4ODg4SDg4ODg4ODg4ODg4ODg4ODg4OD",
   
   // Sound profiles for different alert types
   SOUND_PROFILES: {
-    urgent: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
-    alert: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
-    notice: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
-    chime: "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU",
-    newEntry: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkJOOhHdwa3B5hpGZmpiPgnZua3J/jJifoZyRhXlxcHiEkZujpaKZjYF2cXN8iZOdpKaglo2DeHV1fIWSmp+hnpiPh394eH2FjpWYmZeUjoeCfnx+g4qQlJaVko2IhIF/f4GChoeKjI2MioiGhIOCgoOFh4mKioqIhoWEg4ODhIWGh4iIh4aFhIODg4OEhYaGhoaFhISDg4ODg4SFhYWFhYSEg4ODg4ODhISEhISEhIODg4ODg4ODg4SDg4ODg4ODg4ODg4ODg4ODg4OD"
+    // Default alert - standard notification
+    NewEntry: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkJOOhHdwa3B5hpGZmpiPgnZua3J/jJifoZyRhXlxcHiEkZujpaKZjYF2cXN8iZOdpKaglo2DeHV1fIWSmp+hnpiPh394eH2FjpWYmZeUjoeCfnx+g4qQlJaVko2IhIF/f4KGi46RkY+NioeDgYGChoeKjI2MioiGhIOCgoOFh4mKioqIhoWEg4ODhIWGh4iIh4aFhIODg4OEhYaGhoaFhISDg4ODg4SFhYWFhYSEg4ODg4ODhISEhISEhIODg4ODg4ODg4SDg4ODg4ODg4ODg4ODg4ODg4OD",
+    // Urgent - attention-grabbing beep
+    Urgent: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAAD//wAA//8AAAAAAAAAAAAA//8AAP//AAAAAAAAAAAAAAAAAAD/////AAD//wAAAAAAAAAAAAD//wAA//8AAAAAAAAAAP//AAD//wAAAAAAAAAAAAAAAAAA/////wAA//8AAAAAAAD//wAA//8AAAAAAAAAAAD//wAA//8AAAAAAAAAAAAAAAAAAAAAAAD/////AAD//wAAAAD//wAA//8AAAAAAAAAAAD//wAA//8AAAAAAAAAAAAAAAAAAAAA/////wAA//8AAAAAAAAAAAAA//8AAP//AAAAAAAAAAAAAAAAAAD/////AAD//wAAAAD//wAAAAAAAAAAAAAAAAAA",
+    // Notice - will be synthesized as "Ding-Dong"
+    Notice: "synth:notice",
+    // Chime - will be synthesized as "Ding"
+    Chime: "synth:chime"
   }
 };
